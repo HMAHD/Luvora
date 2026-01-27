@@ -59,173 +59,231 @@
         "Kit",
         "Lark",
         "Moon",
-        "Nori",
-        "Oak",
-        "Paz",
-        "Qe",
-        "Rain",
-        "Snow",
-        "Teal",
-        "Ursa",
-        "Vow",
-        "Wish",
-        "Xo",
-        "Yuri",
-        "Zen",
-        "Ash",
-        "Bee",
-        "Coy",
-        "Dot",
-        "Eve",
-        "Fly",
-        "Gus",
-        "Hue",
-        "Ink",
-        "Joy",
-        "Key",
-        "Leo",
-        "Max",
-        "Neo",
-        "Owl",
-        "Pax",
-        "Rio",
-        "Sol"
+        "Nori"
     ],
     "messages": {
         "morning": {
             "poetic": [
-                "The sun rose just to see your smile today.",
-                "Morning light paints the world, but you color my life.",
-                "Awake, my love. The universe has written a new page for us.",
-                "Softly the day begins, like a whisper of hope.",
-                "Dew on the grass, gratitude in my heart.",
-                "The dawn breaks, and with it, my love for you renews.",
-                "Let the morning breeze remind you of my gentle touch.",
-                "Golden hour begins the moment you open your eyes.",
-                "The sky dreamed of this morning, and so did I.",
-                "Every sunrise is a poem written for us.",
-                "Light filters in, but your soul shines brighter.",
-                "Waking up is sweet because the reality is you.",
-                "The day offers infinite possibilities, just like our love.",
-                "Morning stillness, a canvas for our shared dreams.",
-                "Let the warmth of the sun be my embrace today.",
-                "A new day, a new chance to love you deeper.",
-                "The world wakes up, but my world wakes with you.",
-                "Sunlight dances, mirroring the joy you bring.",
-                "Breathe in the morning; it tastes of potential.",
-                "Like the tide to the shore, I return to you each morning."
+                {
+                    "content": "The sun rose just to see your smile today.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Morning light paints the world, but you color my life.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Awake, my love. The universe has written a new page for us.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Softly the day begins, like a whisper of hope.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "The dawn breaks, and with it, my love for you renews.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "You are the poetry the morning writes in light.",
+                    "target": "feminine"
+                },
+                {
+                    "content": "Your beauty outshines the sunrise, my love.",
+                    "target": "feminine"
+                },
+                {
+                    "content": "Waking up to you is like finding a rare flower in bloom.",
+                    "target": "feminine"
+                },
+                {
+                    "content": "Rise, my king. The world awaits your strength.",
+                    "target": "masculine"
+                },
+                {
+                    "content": "The morning sun honors your resilience.",
+                    "target": "masculine"
+                },
+                {
+                    "content": "Walk into this day with the heart of a warrior.",
+                    "target": "masculine"
+                }
             ],
             "playful": [
-                "Good morning! I love you more than coffee (and that's a lot).",
-                "Rise and shine, superstar!",
-                "Warning: You look too good this morning.",
-                "Top o' the morning to my favorite human.",
-                "Let's attack this day like a squirrel on an energy drink.",
-                "You, me, and a whole lot of seizing the day.",
-                "Wakey wakey, eggs and bakey!",
-                "Morning! Don't forget to be awesome.",
-                "Sending you a virtual high-five for waking up.",
-                "Ready to conquer the world? Or just breakfast?",
-                "Good morning! Let's make today jealous of yesterday.",
-                "Alert: Cuteness overload detected upon waking.",
-                "Up and at 'em, tiger!",
-                "Good morning! I dreamed of you (it was a good one).",
-                "Let's be productive... after one more coffee.",
-                "Morning! Try not to be too amazing today.",
-                "Rise like a phoenix (or a very sleepy owl).",
-                "Hello, sunshine! You're brighter than my phone screen.",
-                "Good morning. I like your face.",
-                "Let's get this bread (and by bread, I mean cuddles)."
+                {
+                    "content": "Good morning! I love you more than coffee (and that's a lot).",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Rise and shine, superstar!",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Warning: You look too good this morning.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Top o' the morning to my favorite human.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Hello gorgeous! Try not to break too many hearts today.",
+                    "target": "feminine"
+                },
+                {
+                    "content": "Wakey wakey, beautiful! The world needs your sparkle.",
+                    "target": "feminine"
+                },
+                {
+                    "content": "Hey handsome, save some cool for the rest of us.",
+                    "target": "masculine"
+                },
+                {
+                    "content": "Morning, champ. Time to dominate (after coffee).",
+                    "target": "masculine"
+                },
+                {
+                    "content": "Look at you, all handsome and awake. Just wow.",
+                    "target": "masculine"
+                }
             ],
             "minimal": [
-                "Today is yours.",
-                "Breathe. Begin.",
-                "Morning, love.",
-                "New day. New grace.",
-                "You are ready.",
-                "Shine bright.",
-                "Start fresh.",
-                "Be present.",
-                "Go gently.",
-                "Rise up.",
-                "Love you.",
-                "Have faith.",
-                "Stay true.",
-                "Keep going.",
-                "You got this.",
-                "Peace begins.",
-                "Simply be.",
-                "Hello, you.",
-                "Make waves.",
-                "Trust today."
+                {
+                    "content": "Today is yours.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Breathe. Begin.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Morning, love.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "New day. New grace.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "You are radiant.",
+                    "target": "feminine"
+                },
+                {
+                    "content": "Shine on.",
+                    "target": "feminine"
+                },
+                {
+                    "content": "Hello, beauty.",
+                    "target": "feminine"
+                },
+                {
+                    "content": "Stand tall.",
+                    "target": "masculine"
+                },
+                {
+                    "content": "Lead on.",
+                    "target": "masculine"
+                },
+                {
+                    "content": "Stay strong.",
+                    "target": "masculine"
+                }
             ]
         },
         "night": {
             "poetic": [
-                "The stars are just holes in the floor of heaven, watching over you.",
-                "Let the moonlight guide your dreams tonight.",
-                "Sleep softly, for the night holds you in its arms.",
-                "The day is done, but my love for you is endless.",
-                "Drift away on a sea of calm and starlight.",
-                "Night falls, a velvet curtain for our rest.",
-                "May your dreams be as beautiful as your soul.",
-                "The moon whispers secrets of peace to your heart.",
-                "Rest your head; the world can wait until tomorrow.",
-                "Under the same canopy of stars, we are together.",
-                "Silence falls, bringing the gift of renewal.",
-                "The night air breathes a lullaby for you.",
-                "Shadows lengthen, wrapping us in quiet comfort.",
-                "Let go of the day, and float into the night.",
-                "The universe rests, and so should you.",
-                "Darkness is just a canvas for the stars.",
-                "Sleep is the bridge between today and our tomorrow.",
-                "May quietude settle upon your spirit tonight.",
-                "The moon is a reminder that light exists in darkness.",
-                "Close your eyes and feel the peace of the cosmos."
+                {
+                    "content": "The stars are just holes in the floor of heaven, watching over you.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Let the moonlight guide your dreams tonight.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Sleep softly, for the night holds you in its arms.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "The day is done, but my love for you is endless.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Rest now, my beautiful muse. The stars envy your light.",
+                    "target": "feminine"
+                },
+                {
+                    "content": "May your dreams be as lovely as you are.",
+                    "target": "feminine"
+                },
+                {
+                    "content": "Rest your strength, my hero. The battle pauses for the night.",
+                    "target": "masculine"
+                },
+                {
+                    "content": "The night sky bows to your quiet power.",
+                    "target": "masculine"
+                }
             ],
             "playful": [
-                "Goodnight! Don't let the bed bugs bite (seriously).",
-                "Sleep tight, don't text and drive... wait, you're sleeping.",
-                "Dream of me, or I'll be jealous.",
-                "Time to recharge your batteries, robot.",
-                "Goodnight! See you on the flip side (tomorrow).",
-                "Off to dreamland! Ticket for one.",
-                "Sleep is the best time machine to breakfast.",
-                "Night night! Don't hog the blankets in your dreams.",
-                "Rest up, we have chaos to cause tomorrow.",
-                "Goodnight. Turning off my brain... now.",
-                "Sleep mode: Activated.",
-                "Dream big (but not scary big).",
-                "Goodnight! Try to snore quietly.",
-                "Bedtime! The pillow is calling.",
-                "See you in the morning, hopefully not too early.",
-                "Count sheep, not worries.",
-                "Goodnight! I love you to the moon (and back before breakfast).",
-                "Charging... 10%... need sleep.",
-                "Hit the hay! (Not literally).",
-                "Goodnight! You're my favorite pillow thought."
+                {
+                    "content": "Goodnight! Don't let the bed bugs bite (seriously).",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Sleep tight, don't text and drive... wait, you're sleeping.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Dream of me, or I'll be jealous.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Sleep well, pretty lady.",
+                    "target": "feminine"
+                },
+                {
+                    "content": "Beauty sleep time! (Not that you need it).",
+                    "target": "feminine"
+                },
+                {
+                    "content": "Night, tough guy. Recharge those batteries.",
+                    "target": "masculine"
+                },
+                {
+                    "content": "Rest up, handsome. You've got a world to conquer tomorrow.",
+                    "target": "masculine"
+                }
             ],
             "minimal": [
-                "Rest well.",
-                "Sleep deep.",
-                "Goodnight.",
-                "Peace out.",
-                "Dream sweet.",
-                "Let go.",
-                "Be still.",
-                "Quiet now.",
-                "Stars above.",
-                "Day is done.",
-                "Love remains.",
-                "Drift off.",
-                "Calm heart.",
-                "Silence falls.",
-                "Rest easy.",
-                "Moon rise.",
-                "Safe sleep.",
-                "Night love.",
-                "Deep breath.",
-                "Until dawn."
+                {
+                    "content": "Rest well.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Sleep deep.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Goodnight.",
+                    "target": "neutral"
+                },
+                {
+                    "content": "Sweet dreams.",
+                    "target": "feminine"
+                },
+                {
+                    "content": "Sleep, beauty.",
+                    "target": "feminine"
+                },
+                {
+                    "content": "Rest, king.",
+                    "target": "masculine"
+                },
+                {
+                    "content": "At ease.",
+                    "target": "masculine"
+                }
             ]
         }
     }
