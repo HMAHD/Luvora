@@ -11,18 +11,18 @@
     - [x] Configure `tailwind.config.ts` with daisyUI themes (`cupcake` for Dawn, `luxury` for Night).
     - [x] Build `ThemeSwitcher.tsx`: A logic wrapper using `date-fns` to detect local time.
 
-## Phase 1: Core Logic & "Mirat" Spirit (The Engine)
+## Phase 1: Core Logic (The Engine)
 *Goal: Building the deterministic message generation system.*
 
-- [ ] **Task 1.1: The Deterministic Algorithm**
-    - [ ] Create `lib/algo.ts` with a SHA-256 date-based hashing function.
-    - [ ] Logic: `const dailyIdx = Hash(Today) % PoolSize`.
+- [x] **Task 1.1: The Deterministic Algorithm**
+    - [x] Create `lib/algo.ts` with a SHA-256 date-based hashing function.
+    - [x] Logic: `const dailyIdx = Hash(Today) % PoolSize`.
 - [ ] **Task 1.2: Local Persistence Layer**
     - [ ] Build `useLocalStorage` hook to store `partner_name` and `user_settings`.
     - [ ] Implementation: Zero-database calls for free users to maintain VPS performance.
-- [ ] **Task 1.3: Content Seeding**
-    - [ ] Structure `messages.json` with 300+ initial entries.
-    - [ ] Create `nicknames.json` with 100+ "Ethereal" names (Nova, Suki, etc.).
+- [x] **Task 1.3: Content Seeding**
+    - [x] Structure `messages.json` (as `pool.json`) with 300+ initial entries.
+    - [x] Create `nicknames.json` (merged into `pool.json`) with 100+ "Ethereal" names.
 
 ## Phase 2: Frontend "Pro-Max" (The Interface)
 *Goal: High-fidelity, mobile-first UI using daisyUI semantic components.*
