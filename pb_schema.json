@@ -1,0 +1,124 @@
+[
+    {
+        "name": "users",
+        "type": "auth",
+        "system": false,
+        "schema": [
+            {
+                "system": false,
+                "id": "partner_name",
+                "name": "partner_name",
+                "type": "text",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "is_premium",
+                "name": "is_premium",
+                "type": "bool",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {}
+            },
+            {
+                "system": false,
+                "id": "tier",
+                "name": "tier",
+                "type": "select",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "maxSelect": 1,
+                    "values": [
+                        "free",
+                        "hero",
+                        "legend"
+                    ]
+                }
+            }
+        ],
+        "indexes": [],
+        "listRule": "id = @request.auth.id",
+        "viewRule": "id = @request.auth.id",
+        "createRule": "",
+        "updateRule": "id = @request.auth.id",
+        "deleteRule": "id = @request.auth.id",
+        "options": {
+            "allowEmailAuth": true,
+            "allowOAuth2Auth": true,
+            "allowUsernameAuth": false,
+            "exceptEmailDomains": null,
+            "manageRule": null,
+            "minPasswordLength": 8,
+            "onlyEmailDomains": null,
+            "onlyVerified": false,
+            "requireEmail": true
+        }
+    },
+    {
+        "name": "message_stats",
+        "type": "base",
+        "system": false,
+        "schema": [
+            {
+                "system": false,
+                "id": "date",
+                "name": "date",
+                "type": "date",
+                "required": true,
+                "presentable": false,
+                "unique": true,
+                "options": {
+                    "min": "",
+                    "max": ""
+                }
+            },
+            {
+                "system": false,
+                "id": "copy_count",
+                "name": "copy_count",
+                "type": "number",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": 0,
+                    "max": null,
+                    "noDecimal": true
+                }
+            },
+            {
+                "system": false,
+                "id": "share_count",
+                "name": "share_count",
+                "type": "number",
+                "required": false,
+                "presentable": false,
+                "unique": false,
+                "options": {
+                    "min": 0,
+                    "max": null,
+                    "noDecimal": true
+                }
+            }
+        ],
+        "indexes": [
+            "CREATE UNIQUE INDEX idx_date ON message_stats (date)"
+        ],
+        "listRule": "",
+        "viewRule": "",
+        "createRule": null,
+        "updateRule": null,
+        "deleteRule": null,
+        "options": {}
+    }
+]

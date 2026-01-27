@@ -40,13 +40,24 @@
 ## Phase 3: Sovereign Backend (PocketBase)
 *Goal: Moving to a self-hosted database for authentication and premium data.*
 
-- [ ] **Task 3.1: Collection Architecture**
-    - [ ] Create `users` (id, email, partner_name, is_premium).
-    - [ ] Create `message_stats` (daily_clicks, total_shares).
-- [ ] **Task 3.2: Magic Link Authentication**
-    - [ ] Integrate PocketBase Auth Flow: Passwordless login for seamless UX.
-- [ ] **Task 3.3: Premium Logic Gate**
-    - [ ] Build the `PremiumGuard` middleware to unlock unique 1-of-1 messages.
+- [x] **Task 3.1: Collection Architecture**
+    - [x] Create `users` (id, email, partner_name, is_premium).
+    - [x] Create `message_stats` (daily_clicks, total_shares).
+- [x] **Task 3.2: Magic Link/OTP Authentication**
+    - [x] Integrate PocketBase Auth Flow: OTP login logic.
+- [x] **Task 3.3: Premium Logic Gate**
+    - [x] Build atomic stats updates and secure Data Sync (DB > Local).
+
+## Phase 3.5: Inclusivity Update (Role-Aware)
+*Goal: Personalized messages based on recipient role (He/She/They).*
+
+- [ ] **Task 3.5.1: Database/Pool Expansion**
+    - [ ] Add `target` field to logic and PB schema.
+    - [ ] Populate `pool.json` with Masculine/Feminine variants.
+- [ ] **Task 3.5.2: Logic Refactor**
+    - [ ] Update `getDailySpark` to filter by `recipient_role`.
+- [ ] **Task 3.5.3: UI Toggle**
+    - [ ] Add Settings Cog to SparkCard to switch roles.
 
 ## Phase 4: Monetization & Exclusivity
 *Goal: Converting visitors into paying "Heroes."*
