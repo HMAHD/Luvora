@@ -17,9 +17,9 @@
 - [x] **Task 1.1: The Deterministic Algorithm**
     - [x] Create `lib/algo.ts` with a SHA-256 date-based hashing function.
     - [x] Logic: `const dailyIdx = Hash(Today) % PoolSize`.
-- [ ] **Task 1.2: Local Persistence Layer**
-    - [ ] Build `useLocalStorage` hook to store `partner_name` and `user_settings`.
-    - [ ] Implementation: Zero-database calls for free users to maintain VPS performance.
+- [x] **Task 1.2: Local Persistence Layer**
+    - [x] Build `useLocalStorage` hook to store `partner_name` and `user_settings`.
+    - [x] Implementation: Zero-database calls for free users to maintain VPS performance.
 - [x] **Task 1.3: Content Seeding**
     - [x] Structure `messages.json` (as `pool.json`) with 300+ initial entries.
     - [x] Create `nicknames.json` (merged into `pool.json`) with 100+ "Ethereal" names.
@@ -27,15 +27,15 @@
 ## Phase 2: Frontend "Pro-Max" (The Interface)
 *Goal: High-fidelity, mobile-first UI using daisyUI semantic components.*
 
-- [ ] **Task 2.1: The Main "Spark Card"**
-    - [ ] Design a `glassmorphism` card with daisyUI `card` and `shadow-2xl`.
-    - [ ] Implement animated text transitions using `framer-motion` for "The Daily Spark."
-- [ ] **Task 2.2: Interaction Design**
-    - [ ] "One-Tap Copy" button: Large, thumb-friendly, with daisyUI `btn-primary`.
-    - [ ] Browser Clipboard API integration + `navigator.vibrate([50])` for haptics.
-- [ ] **Task 2.3: Emotional Feedback**
-    - [ ] Build a daisyUI `toast` system: "Spark sent to Nova! 🚀"
-    - [ ] Implement "Specialness Counter": Animated ticker showing global usage stats.
+- [x] **Task 2.1: The Main "Spark Card"**
+    - [x] Design a `glassmorphism` card with daisyUI `card` and `shadow-2xl`.
+    - [x] Implement animated text transitions using `framer-motion` for "The Daily Spark."
+- [x] **Task 2.2: Interaction Design**
+    - [x] "One-Tap Copy" button: Large, thumb-friendly, with daisyUI `btn-primary`.
+    - [x] Browser Clipboard API integration + `navigator.vibrate([50])` for haptics.
+- [x] **Task 2.3: Emotional Feedback**
+    - [x] Build a daisyUI `toast` system: "Spark sent to Nova! 🚀"
+    - [x] Implement "Specialness Counter": Animated ticker showing global usage stats.
 
 ## Phase 3: Sovereign Backend (PocketBase)
 *Goal: Moving to a self-hosted database for authentication and premium data.*

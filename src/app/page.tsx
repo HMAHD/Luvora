@@ -1,19 +1,24 @@
-import Image from "next/image";
+import { SparkCard } from '@/components/SparkCard';
 
 export default function Home() {
   return (
-    <div className="hero min-h-screen bg-base-200">
-      <div className="hero-content text-center">
-        <div className="max-w-md">
-          <h1 className="text-5xl font-bold text-primary">Luvora</h1>
-          <p className="py-6">
-            The Deterministic Daily Spark.
-            <br />
-            Current Theme: <span className="font-mono bg-base-300 px-2 py-1 rounded">Auto (Time-based)</span>
-          </p>
-          <button className="btn btn-primary">Get Started</button>
+    <main className="min-h-screen w-full flex flex-col justify-center items-center bg-base-200 p-4 relative overflow-hidden">
+
+      {/* Background Ambience */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 pointer-events-none" />
+
+      <div className="relative z-10 w-full max-w-md flex flex-col items-center gap-8">
+
+        {/* Header / Logo Area */}
+        <div className="text-center mb-4">
+          <h1 className="text-4xl font-bold tracking-tight text-base-content/80 mb-1">Luvora</h1>
+          <p className="text-xs uppercase tracking-[0.2em] opacity-40">Daily Spark</p>
         </div>
+
+        {/* The Main Interface */}
+        <SparkCard />
+
       </div>
-    </div>
+    </main>
   );
 }
