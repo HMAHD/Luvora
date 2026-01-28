@@ -95,17 +95,17 @@
 ## Phase 7: Management Hubs (The Business Layer)
 *Goal: Providing tools for user self-service and administrative oversight.*
 
-- [ ] **Task 7.1: The User Command Center (`/dashboard`)**
-    - [ ] **Automation Hub:** UI to manage `morning_time`, `timezone`, and `messaging_id`.
-    - [ ] **Relationship Profile:** Section to update `partner_name` and `recipient_role`.
-    - [ ] **Streak History:** A grid view of previous sparks with a one-click "Re-send" button.
-- [ ] **Task 7.2: The Admin Cockpit (`/admin`)**
-    - [ ] **Financial Dashboard:** Real-time MRR and subscriber count via Lemon Squeezy API.
-    - [ ] **Content Management:** Custom CRUD interface for the PocketBase `messages` collection.
-    - [ ] **Broadcast Monitor:** Status table showing successful/failed automated sends.
-- [ ] **Task 7.3: Feature Gate & RBAC**
-    - [ ] Build a `PremiumGuard` middleware to lock dashboards features based on `tier`.
-    - [ ] Configure PocketBase API Rules to restrict `/admin` strictly to Admin UUIDs.
+- [x] **Task 7.1: The User Command Center (`/dashboard`)**
+    - [x] **Automation Hub:** UI to manage `morning_time`, `timezone`, and `messaging_id`.
+    - [x] **Relationship Profile:** Section to update `partner_name` and `recipient_role`.
+    - [x] **Streak History:** A grid view of previous sparks with a one-click "Re-send" button.
+- [x] **Task 7.2: The Admin Cockpit (`/admin`)**
+    - [x] **Financial Dashboard:** Real-time MRR and subscriber count via Lemon Squeezy API.
+    - [x] **Content Management:** Custom CRUD interface for the PocketBase `messages` collection.
+    - [x] **Broadcast Monitor:** Status table showing successful/failed automated sends.
+- [x] **Task 7.3: Feature Gate & RBAC**
+    - [x] Build a `PremiumGuard` middleware to lock dashboards features based on `tier`.
+    - [x] Configure PocketBase API Rules to restrict `/admin` strictly to Admin UUIDs.
 
 
 ## Phase 8: Reliability & Scaling (Production-Grade)

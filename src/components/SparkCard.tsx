@@ -138,7 +138,7 @@ export function SparkCard() {
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className={`card w-full h-full luvora-card shadow-2xl overflow-hidden border ${isPremium ? 'border-yellow-500/30' : 'border-base-content/10'}`}
+          className={`card w-full h-full bg-base-100 shadow-2xl overflow-hidden border ${isPremium ? 'border-yellow-500/30' : 'border-base-content/10'}`}
         >
           <div className="card-body items-center text-center p-8 sm:p-10 relative">
             <div className={`absolute top-0 left-0 w-full h-32 bg-gradient-to-b ${isPremium ? 'from-yellow-400/20' : 'from-primary/10'} to-transparent pointer-events-none`} />
