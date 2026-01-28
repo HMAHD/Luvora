@@ -72,9 +72,9 @@
 ## Phase 5: Automation (The "Lazy Hero" Tier)
 *Goal: Scaling to high-ticket subscriptions with automated delivery.*
 
-- [ ] **Task 5.1: WhatsApp/Telegram Integration**
-    - [ ] Connect Meta Cloud API for WhatsApp messaging.
-- [ ] **Task 5.2: VPS Cron Engine**
-    - [ ] Setup Node-Cron job on VPS to pull unique messages and send at 07:00 AM local.
-- [ ] **Task 5.3: Viral Loop "Love Streak"**
-    - [ ] Build image generator (Canvas/HTML) for social media sharing.
+- [x] **Task 5.1: WhatsApp/Telegram Integration**
+    - [x] Connect Meta Cloud API for WhatsApp messaging.
+- [x] **Task 5.2: VPS Cron Engine**
+    - [x] Setup Node-Cron job on VPS to pull unique messages and send at 07:00 AM local.
+- [x] **Task 5.3: Viral Loop "Love Streak"**
+    - [x] Build image generator (Canvas/HTML) for social media sharing.

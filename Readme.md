@@ -62,6 +62,24 @@ Built with the **"Mirat" Spirit** (Meaningful, Intentional, Ritualistic, Authent
 
 Open [http://localhost:3000](http://localhost:3000) with your browser.
 
+## 🚀 Deployment (Phase 5)
+
+### 1. Messaging Automation
+To run the automated broadcast loop on your VPS, use PM2:
+```bash
+pm2 start "bun src/scripts/broadcast.ts" --name luvora-broadcast
+```
+
+### 2. Environment Variables
+Ensure your `.env.local` (or production env) has:
+- `TELEGRAM_BOT_TOKEN`
+- `WHATSAPP_API_TOKEN`
+- `POCKETBASE_ADMIN_EMAIL`
+- `POCKETBASE_ADMIN_PASSWORD`
+
+### 3. PocketBase Schema
+Import `pb_schema.json` into your production PocketBase instance to create the necessary automation fields.
+
 ## 🗺 Roadmap Status
 
 | Phase | Goal | Status |

@@ -7,6 +7,13 @@ export interface User {
     email: string;
     partner_name?: string;
     recipient_role?: 'masculine' | 'feminine' | 'neutral';
+    // Automation Fields
+    timezone?: string;
+    morning_time?: string; // "08:00"
+    messaging_platform?: 'whatsapp' | 'telegram';
+    messaging_id?: string;
+    streak?: number;
+    last_sent_date?: string; // YYYY-MM-DD
     is_premium?: boolean;
     tier?: 'free' | 'hero' | 'legend';
     created: string;

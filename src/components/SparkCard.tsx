@@ -8,6 +8,8 @@ import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { SpecialnessCounter } from './SpecialnessCounter';
 import { useAuth } from '@/hooks/useAuth';
 import { UpgradeModal } from './UpgradeModal';
+import { ShareCard } from './ShareCard';
+import { Share2 } from 'lucide-react';
 
 type Role = 'neutral' | 'masculine' | 'feminine';
 
@@ -20,6 +22,7 @@ export function SparkCard() {
   // State for Spark (now potentially async)
   const [spark, setSpark] = useState<DailySpark>(getDailySpark(new Date(), role));
   const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   // Effect to handle Premium Spark generation
   useEffect(() => {
@@ -72,6 +75,7 @@ export function SparkCard() {
   return (
     <div className="flex flex-col items-center w-full px-4 relative">
       <UpgradeModal isOpen={isUpgradeOpen} onClose={() => setIsUpgradeOpen(false)} />
+      {isShareOpen && <ShareCard onClose={() => setIsShareOpen(false)} />}
 
       {/* Settings Toggle Button */}
       <button
@@ -154,6 +158,14 @@ export function SparkCard() {
           <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-sm font-medium opacity-50 mb-8">
             For {displayNickname}
           </motion.p>
+
+          <button
+            onClick={() => setIsShareOpen(true)}
+            className="absolute top-4 left-4 btn btn-ghost btn-circle btn-sm opacity-50 hover:opacity-100"
+            title="Share Streak"
+          >
+            <Share2 className="w-4 h-4" />
+          </button>
 
           {/* Actions */}
           <div className="card-actions w-full justify-center flex-col gap-3">
