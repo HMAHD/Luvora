@@ -15,6 +15,7 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^12.29.2",
     "html-to-image": "^1.11.13",
+    "lru-cache": "^11.2.5",
     "lucide-react": "^0.563.0",
     "next": "16.1.5",
     "pocketbase": "^0.26.6",

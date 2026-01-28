@@ -9,7 +9,8 @@ import { SpecialnessCounter } from './SpecialnessCounter';
 import { useAuth } from '@/hooks/useAuth';
 import { UpgradeModal } from './UpgradeModal';
 import { ShareCard } from './ShareCard';
-import { Share2 } from 'lucide-react';
+import { AutomationSettings } from './AutomationSettings';
+import { Share2, Zap } from 'lucide-react';
 
 type Role = 'neutral' | 'masculine' | 'feminine';
 
@@ -23,6 +24,7 @@ export function SparkCard() {
   const [spark, setSpark] = useState<DailySpark>(getDailySpark(new Date(), role));
   const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
+  const [isAutoSettingsOpen, setIsAutoSettingsOpen] = useState(false);
 
   // Effect to handle Premium Spark generation
   useEffect(() => {
@@ -75,7 +77,9 @@ export function SparkCard() {
   return (
     <div className="flex flex-col items-center w-full px-4 relative">
       <UpgradeModal isOpen={isUpgradeOpen} onClose={() => setIsUpgradeOpen(false)} />
+      <UpgradeModal isOpen={isUpgradeOpen} onClose={() => setIsUpgradeOpen(false)} />
       {isShareOpen && <ShareCard onClose={() => setIsShareOpen(false)} />}
+      {isAutoSettingsOpen && <AutomationSettings onClose={() => setIsAutoSettingsOpen(false)} />}
 
       {/* Settings Toggle Button */}
       <button
@@ -184,20 +188,28 @@ export function SparkCard() {
                 Unlock 1-of-1 Exclusivity
               </button>
             )}
+
+            {isPremium && (
+              <button onClick={() => setIsAutoSettingsOpen(true)} className="btn btn-ghost btn-xs opacity-50 hover:opacity-100 mt-2">
+                <Zap className="w-3 h-3 mr-1" /> Configure Automation
+              </button>
+            )}
           </div>
         </div>
-      </motion.div>
+      </motion.div >
 
       <SpecialnessCounter />
 
-      {copied && (
-        <div className="toast toast-bottom toast-center z-50">
-          <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="alert alert-success shadow-lg">
-            <Heart className="w-4 h-4 fill-current" />
-            <span>Spark ready for {displayNickname}! 💖</span>
-          </motion.div>
-        </div>
-      )}
-    </div>
+      {
+        copied && (
+          <div className="toast toast-bottom toast-center z-50">
+            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="alert alert-success shadow-lg">
+              <Heart className="w-4 h-4 fill-current" />
+              <span>Spark ready for {displayNickname}! 💖</span>
+            </motion.div>
+          </div>
+        )
+      }
+    </div >
   );
 }
