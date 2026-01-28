@@ -21,6 +21,7 @@ export function useAuth() {
         // 1. Initial Load
         const model = pb.authStore.model as unknown as User | null;
         if (model) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setUser(model);
             syncData(model);
         }

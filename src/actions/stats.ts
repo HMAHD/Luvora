@@ -41,9 +41,10 @@ export async function incrementGlobalStats() {
                 "copy_count+": 1
             });
 
-        } catch (e: any) {
+        } catch (e: unknown) {
             // 404 - Create new for today
-            if (e.status === 404) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            if ((e as any).status === 404) {
                 await adminPb.collection('message_stats').create({
                     date: today,
                     copy_count: 1,

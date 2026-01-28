@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
-import { Download, Share2, Flame } from 'lucide-react';
+import { Download, Flame } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -46,8 +46,8 @@ export function ShareCard({ onClose }: { onClose: () => void }) {
                         <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
 
                         <div className="z-10 mt-4">
-                            <h3 className="font-serif text-2xl font-bold opacity-80">Affection Streak</h3>
-                            <p className="text-sm opacity-50 uppercase tracking-widest mt-1">Luvora.love</p>
+                            <h4 className="font-bold text-lg mb-1">Spread the Love</h4>
+                            <p className="text-xs opacity-70 mb-4">&quot;A shared joy is a double joy.&quot; — Swedish Proverb</p>
                         </div>
 
                         <div className="z-10 flex flex-col items-center">
@@ -61,7 +61,7 @@ export function ShareCard({ onClose }: { onClose: () => void }) {
 
                         <div className="z-10 mb-4">
                             <p className="text-sm italic opacity-60">
-                                "Consistency is the language of love."
+                                &quot;Consistency is the language of love.&quot;
                             </p>
                             <div className="badge badge-outline mt-4 opacity-40">Celebrating {partner}</div>
                         </div>

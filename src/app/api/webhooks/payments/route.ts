@@ -38,7 +38,7 @@ export async function POST(request: Request) {
             const userId = payload.meta.custom_data?.user_id;
 
             if (userId) {
-                // 4. Admin PB Logic
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const adminPb = new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090');
                 await adminPb.admins.authWithPassword(
                     process.env.POCKETBASE_ADMIN_EMAIL || '',
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
                     });
                     console.log(`User ${userId} upgraded to Premium.`);
 
-                } catch (err) {
+                } catch (err: unknown) { // Changed 'any' to 'unknown'
                     console.error("User lookup failed:", err);
                     return NextResponse.json({ error: 'User not found' }, { status: 404 });
                 }
@@ -70,8 +70,8 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ received: true });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Webhook error:', error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
     }
 }

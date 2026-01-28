@@ -122,8 +122,9 @@ export async function getPremiumSpark(date: Date, userId: string, role: Role): P
 
     // 3. Premium Filter
     // Try to get from Premium pool first
-    let premiumMsgs = (pool.messages as any).premium as MessageObj[] || [];
-    let targetedPremium = filterPool(premiumMsgs, role);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const premiumMsgs = (pool.messages as any).premium as MessageObj[] || [];
+    const targetedPremium = filterPool(premiumMsgs, role);
 
     let morningContent = "";
     let nightContent = "";

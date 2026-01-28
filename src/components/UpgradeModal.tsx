@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Sparkles, Check, X } from 'lucide-react';
+import { X, Sparkles, Check, Play, Heart } from 'lucide-react';
 import { createCheckoutSession } from '@/actions/payments';
 import { useAuth } from '@/hooks/useAuth';
 

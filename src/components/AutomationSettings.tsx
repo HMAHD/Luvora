@@ -1,10 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import { Clock, MessageCircle, Save, X } from 'lucide-react';
-import type { User } from '@/lib/types';
+import { Clock, MessageCircle, X } from 'lucide-react';
 
 export function AutomationSettings({ onClose }: { onClose: () => void }) {
     const { user, pb } = useAuth();
