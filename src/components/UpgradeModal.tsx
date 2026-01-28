@@ -38,7 +38,7 @@ export function UpgradeModal({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                className="relative glass bg-base-100/90 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-base-content/5"
+                className="relative bg-base-100 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden border border-base-content/10"
             >
                 <div className="p-8 text-center relative overflow-hidden">
                     {/* Decorative BG */}

@@ -4,49 +4,25 @@
 }
 
 /* ============================================
-   LUVORA - Enhanced DaisyUI Theme
-   Romantic, warm, device-friendly styling
+   LUVORA - DaisyUI Theme Enhancements
+   Beautiful light (cupcake) & dark (luxury) themes
    ============================================ */
-
-:root {
-  --background: #fef7f3;
-  --foreground: #2d2d2d;
-  --luvora-glow: rgba(20, 184, 166, 0.15);
-  --luvora-accent: #14b8a6;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0f0f0f;
-    --foreground: #f5f5f5;
-    --luvora-glow: rgba(20, 184, 166, 0.2);
-  }
-}
-
-/* Base Styles */
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
 
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
 }
 
+/* Let DaisyUI handle all theming - just add enhancements */
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 /* Enhanced Focus States for Accessibility */
 *:focus-visible {
-  outline: 2px solid var(--luvora-accent);
+  outline: 2px solid oklch(var(--p));
   outline-offset: 2px;
 }
 
@@ -54,10 +30,16 @@ html {
    Custom DaisyUI Component Enhancements
    ============================================ */
 
-/* Softer Card Shadows */
-.card {
-  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.08),
-              0 8px 40px -8px rgba(0, 0, 0, 0.04);
+/* Softer Card Shadows - Light Theme */
+[data-theme="cupcake"] .card {
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.06),
+              0 8px 40px -8px rgba(0, 0, 0, 0.03);
+}
+
+/* Deeper Card Shadows - Dark Theme */
+[data-theme="luxury"] .card {
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.4),
+              0 8px 40px -8px rgba(0, 0, 0, 0.3);
 }
 
 /* Enhanced Button Hover States */
@@ -67,31 +49,30 @@ html {
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px -2px rgba(20, 184, 166, 0.4);
 }
 
 .btn-primary:active {
   transform: translateY(0);
 }
 
-/* Glass Effect Enhancement */
-.glass {
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(16px) saturate(180%);
-  -webkit-backdrop-filter: blur(16px) saturate(180%);
+/* ============================================
+   Glass Effect - Theme Aware
+   ============================================ */
+
+/* Light theme glass - soft white frost */
+[data-theme="cupcake"] .glass,
+[data-theme="cupcake"] .luvora-card {
+  background: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
-@media (prefers-color-scheme: dark) {
-  .glass {
-    background: rgba(15, 15, 15, 0.7);
-  }
-}
-
-/* Input Focus Enhancement */
-.input:focus,
-.input-bordered:focus {
-  border-color: var(--luvora-accent);
-  box-shadow: 0 0 0 3px var(--luvora-glow);
+/* Dark theme glass - elegant dark frost */
+[data-theme="luxury"] .glass,
+[data-theme="luxury"] .luvora-card {
+  background: rgba(25, 25, 35, 0.9) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
 }
 
 /* ============================================
@@ -126,6 +107,58 @@ html {
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+/* Pulsing Glow for Copy Button - Visual Salience */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 oklch(var(--p) / 0.4),
+                0 4px 12px -2px oklch(var(--p) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px 4px oklch(var(--p) / 0.3),
+                0 8px 24px -4px oklch(var(--p) / 0.4);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Premium Gold Pulse Glow */
+@keyframes pulse-gold-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.4),
+                0 4px 12px -2px rgba(234, 179, 8, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 24px 6px rgba(234, 179, 8, 0.35),
+                0 8px 32px -4px rgba(234, 179, 8, 0.5);
+  }
+}
+
+.animate-pulse-gold-glow {
+  animation: pulse-gold-glow 2s ease-in-out infinite;
+}
+
+/* Premium Level-Up Glow Transition */
+@keyframes level-up-burst {
+  0% {
+    box-shadow: 0 0 0 0 rgba(234, 179, 8, 0);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 60px 20px rgba(234, 179, 8, 0.6);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 40px 10px rgba(234, 179, 8, 0.35);
+    transform: scale(1);
+  }
+}
+
+.animate-level-up {
+  animation: level-up-burst 0.8s ease-out forwards;
 }
 
 /* Shimmer Effect for Loading States */
@@ -210,7 +243,7 @@ h1, h2, h3, .text-2xl, .text-3xl, .text-4xl {
    ============================================ */
 
 ::selection {
-  background-color: rgba(20, 184, 166, 0.3);
+  background-color: oklch(var(--p) / 0.3);
   color: inherit;
 }
 
@@ -225,10 +258,10 @@ h1, h2, h3, .text-2xl, .text-3xl, .text-4xl {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(20, 184, 166, 0.3);
+  background: oklch(var(--p) / 0.3);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(20, 184, 166, 0.5);
+  background: oklch(var(--p) / 0.5);
 }

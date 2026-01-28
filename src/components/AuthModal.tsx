@@ -92,7 +92,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95, y: 10 }}
                         transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                        className="relative glass bg-base-100/80 border border-base-content/5 w-full max-w-sm overflow-hidden rounded-3xl shadow-2xl p-6"
+                        className="relative bg-base-100 border border-base-content/10 w-full max-w-sm overflow-hidden rounded-3xl shadow-2xl p-6"
                     >
                         <button onClick={onClose} className="absolute top-4 right-4 btn btn-circle btn-ghost btn-xs opacity-50">
                             <X className="w-4 h-4" />

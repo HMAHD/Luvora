@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Copy, Heart, Share2, Zap } from 'lucide-react';
 import { getDailySpark, getPremiumSpark, type DailySpark } from '@/lib/algo';
@@ -21,7 +21,6 @@ export function SparkCard() {
   const [partnerName] = useLocalStorage<string>('partner_name', '');
   const [role] = useLocalStorage<Role>('recipient_role', 'neutral');
 
-  // State for Spark
   // State for Spark (Initialize with memoized daily derivative)
   // useMemo ensures we recalculate sync spark immediately when role changes
   const dailySpark = useMemo(() => getDailySpark(new Date(), role), [role, partnerName]);
@@ -31,7 +30,26 @@ export function SparkCard() {
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isAutoSettingsOpen, setIsAutoSettingsOpen] = useState(false);
 
+  // Track premium status changes for "Level Up" glow effect
   const isPremium = user?.is_premium;
+  const prevPremiumRef = useRef(isPremium);
+  const [showLevelUp, setShowLevelUp] = useState(false);
+
+  // Detect transition to premium and trigger level-up animation
+  useEffect(() => {
+    if (isPremium && !prevPremiumRef.current) {
+      // Just became premium - trigger level-up effect
+      setShowLevelUp(true);
+      // Haptic burst for premium unlock
+      if (navigator.vibrate) {
+        navigator.vibrate([50, 100, 50, 100, 150]);
+      }
+      // Clear animation after it plays
+      const timer = setTimeout(() => setShowLevelUp(false), 1000);
+      return () => clearTimeout(timer);
+    }
+    prevPremiumRef.current = isPremium;
+  }, [isPremium]);
 
   // Effect to handle Partner/Premium Spark generation (Async)
   useEffect(() => {
@@ -59,7 +77,11 @@ export function SparkCard() {
   const displayNickname = partnerName || spark.nickname;
 
   const handleCopy = async () => {
-    if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
+    // Enhanced Haptic Feedback - makes the digital spark feel "tangible"
+    if (navigator.vibrate) {
+      // Pattern: quick tap, pause, satisfying confirmation buzz
+      navigator.vibrate([15, 50, 15, 30, 80]);
+    }
 
     // 1. Copy to clipboard
     const textToCopy = `${message.content}\n\n— For ${displayNickname}`;
@@ -105,14 +127,18 @@ export function SparkCard() {
         We wrap the Motion Card in a static div that handles the Glow/Border.
         This prevents the 'pulse' animation from fighting with the 'scale' entry animation.
       */}
-      <div className={`relative w-full max-w-md p-[2px] rounded-3xl transition-all duration-500 ${isPremium ? 'gradient-gold animate-subtle-pulse shadow-[0_0_40px_rgba(234,179,8,0.35)]' : ''}`}>
+      <div className={`relative w-full max-w-md p-[2px] rounded-3xl transition-all duration-500 ${
+        isPremium
+          ? `gradient-gold shadow-[0_0_40px_rgba(234,179,8,0.35)] ${showLevelUp ? 'animate-level-up' : 'animate-subtle-pulse'}`
+          : ''
+      }`}>
 
         {/* Main Card (Glass) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          className={`card w-full h-full glass shadow-2xl overflow-hidden border ${isPremium ? 'border-none bg-base-100/50' : 'border-base-content/5 bg-base-100/60'}`}
+          className={`card w-full h-full luvora-card shadow-2xl overflow-hidden border ${isPremium ? 'border-yellow-500/30' : 'border-base-content/10'}`}
         >
           <div className="card-body items-center text-center p-8 sm:p-10 relative">
             <div className={`absolute top-0 left-0 w-full h-32 bg-gradient-to-b ${isPremium ? 'from-yellow-400/20' : 'from-primary/10'} to-transparent pointer-events-none`} />
@@ -158,7 +184,11 @@ export function SparkCard() {
             <div className="card-actions w-full justify-center flex-col items-center gap-3">
               <button
                 onClick={handleCopy}
-                className={`btn btn-lg w-full sm:w-auto shadow-lg group relative overflow-hidden transition-all duration-200 ${isPremium ? 'gradient-gold text-base-100 hover:shadow-[0_8px_24px_-4px_rgba(234,179,8,0.5)]' : 'btn-primary hover:shadow-[0_8px_24px_-4px_rgba(20,184,166,0.4)]'}`}
+                className={`btn btn-lg w-full sm:w-auto shadow-lg group relative overflow-hidden transition-all duration-200 ${
+                  isPremium
+                    ? 'gradient-gold text-base-100 animate-pulse-gold-glow hover:scale-[1.02]'
+                    : 'btn-primary animate-pulse-glow hover:scale-[1.02]'
+                } ${copied ? '!shadow-none !animate-none' : ''}`}
               >
                 <span className="relative z-10 flex items-center gap-2">
                   <div className="flex items-center justify-center w-6 h-6">
@@ -166,6 +196,12 @@ export function SparkCard() {
                   </div>
                   {copied ? "Sent to Heart!" : "Copy Spark"}
                 </span>
+                {/* Shine overlay effect */}
+                {!copied && (
+                  <span className="absolute inset-0 overflow-hidden rounded-btn">
+                    <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  </span>
+                )}
               </button>
 
               {!isPremium && (

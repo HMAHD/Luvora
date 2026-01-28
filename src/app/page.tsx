@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { SparkCard } from '@/components/SparkCard';
 import { AuthModal } from '@/components/AuthModal';
+import { DynamicTitle } from '@/components/DynamicTitle';
 import { useAuth } from '@/hooks/useAuth';
 import { UserCircle } from 'lucide-react';
 
@@ -17,7 +18,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen w-full flex flex-col justify-center items-center bg-base-200 p-4 relative overflow-hidden safe-area-inset-top safe-area-inset-bottom">
-
+      <DynamicTitle />
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
 
       {/* Auth Button (Top Right) */}
@@ -25,7 +26,7 @@ export default function Home() {
         {isMounted && (
           <button
             onClick={() => setIsAuthOpen(true)}
-            className="btn btn-circle btn-ghost glass bg-base-100/40 border border-base-content/10 hover:bg-base-100/60 hover:border-base-content/20 transition-all duration-200"
+            className="btn btn-circle btn-ghost bg-base-100 border border-base-content/15 hover:bg-base-200 hover:border-base-content/25 shadow-md transition-all duration-200"
           >
             {user ? (
               <div className="avatar placeholder">
