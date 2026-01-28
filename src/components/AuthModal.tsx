@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { requestOTP, verifyOTP } from '@/lib/auth';
 import { Mail, ArrowRight, Loader2, CheckCircle, X } from 'lucide-react';
@@ -75,7 +76,9 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         }
     };
 
-    return (
+    if (typeof document === 'undefined') return null;
+
+    return createPortal(
         <AnimatePresence>
             {isOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -173,6 +176,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     </motion.div>
                 </div>
             )}
-        </AnimatePresence>
+        </AnimatePresence>,
+        document.body
     );
 }

@@ -2,6 +2,22 @@
  * PocketBase Types
  */
 
+// Tier Constants
+export const TIER = {
+    FREE: 0,      // "The Voyager"
+    HERO: 1,      // "The Daily Romantic"
+    LEGEND: 2,    // "The Soulmate"
+} as const;
+
+export type TierLevel = typeof TIER[keyof typeof TIER];
+
+// Tier display names
+export const TIER_NAMES: Record<TierLevel, string> = {
+    [TIER.FREE]: 'Voyager',
+    [TIER.HERO]: 'Hero',
+    [TIER.LEGEND]: 'Legend',
+};
+
 export interface User {
     id: string;
     email: string;
@@ -14,8 +30,8 @@ export interface User {
     messaging_id?: string;
     streak?: number;
     last_sent_date?: string; // YYYY-MM-DD
-    is_premium?: boolean;
-    tier?: 'free' | 'hero' | 'legend';
+    // Tier System (0=Free, 1=Hero, 2=Legend)
+    tier: TierLevel;
     created: string;
     updated: string;
 }

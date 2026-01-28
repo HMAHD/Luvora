@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useAuth } from '@/hooks/useAuth';
 
 type Role = 'neutral' | 'masculine' | 'feminine';
 
@@ -18,7 +18,8 @@ const DESCRIPTION_MAP: Record<Role, string> = {
 };
 
 export function DynamicTitle() {
-  const [role] = useLocalStorage<Role>('recipient_role', 'neutral');
+  const { user } = useAuth();
+  const role = (user?.recipient_role as Role) || 'neutral';
 
   useEffect(() => {
     // Update document title based on role

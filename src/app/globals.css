@@ -265,3 +265,608 @@ h1, h2, h3, .text-2xl, .text-3xl, .text-4xl {
 ::-webkit-scrollbar-thumb:hover {
   background: oklch(var(--p) / 0.5);
 }
+
+/* ============================================
+   TIER-BASED CARD BORDER EFFECTS
+   ============================================ */
+
+/* Hero Tier: Subtle Rotating Gradient Border */
+@property --gradient-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes gradient-rotate {
+  0% { --gradient-angle: 0deg; }
+  100% { --gradient-angle: 360deg; }
+}
+
+.hero-border-wrapper {
+  position: relative;
+  padding: 2px;
+  border-radius: 1.5rem;
+  background: conic-gradient(
+    from var(--gradient-angle),
+    oklch(var(--p) / 0.6),
+    oklch(var(--s) / 0.4),
+    oklch(var(--p) / 0.2),
+    oklch(var(--s) / 0.4),
+    oklch(var(--p) / 0.6)
+  );
+  animation: gradient-rotate 4s linear infinite;
+}
+
+.hero-border-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1.5rem;
+  padding: 2px;
+  background: inherit;
+  filter: blur(8px);
+  opacity: 0.5;
+  z-index: -1;
+}
+
+/* Legend Tier: Electric Border Effect with SVG Turbulence */
+
+/* Background glow - soft ambient light */
+.legend-bg-glow {
+  position: absolute;
+  inset: -20px;
+  border-radius: 2rem;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(251, 191, 36, 0.15) 0%,
+    rgba(245, 158, 11, 0.08) 40%,
+    transparent 70%
+  );
+  filter: blur(20px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Outer glow layer - intense animated glow */
+.legend-glow-outer {
+  position: absolute;
+  inset: -4px;
+  border-radius: 26px;
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.4),
+    rgba(245, 158, 11, 0.3),
+    rgba(252, 211, 77, 0.4),
+    rgba(245, 158, 11, 0.3)
+  );
+  background-size: 200% 200%;
+  filter: blur(12px);
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 1;
+  animation: legend-glow-shift 4s ease-in-out infinite;
+}
+
+/* Inner glow layer - sharper edge glow */
+.legend-glow-inner {
+  position: absolute;
+  inset: -2px;
+  border-radius: 24px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(251, 191, 36, 0.6) 20%,
+    rgba(252, 211, 77, 0.8) 50%,
+    rgba(251, 191, 36, 0.6) 80%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  filter: blur(6px);
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 2;
+  animation: legend-inner-sweep 3s ease-in-out infinite;
+}
+
+/* Electric border - uses SVG turbulence filter */
+.legend-electric-border {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  border: 2px solid #fbbf24;
+  filter: url(#electric-turbulence);
+  pointer-events: none;
+  z-index: 3;
+  box-shadow:
+    0 0 8px 1px rgba(251, 191, 36, 0.6),
+    inset 0 0 8px 1px rgba(251, 191, 36, 0.3);
+}
+
+/* Card wrapper - contains the card with proper z-index */
+.legend-card-wrapper {
+  position: relative;
+  z-index: 5;
+  border-radius: 24px;
+}
+
+/* Glow animations */
+@keyframes legend-glow-shift {
+  0%, 100% {
+    background-position: 0% 0%;
+    opacity: 0.7;
+  }
+  50% {
+    background-position: 100% 100%;
+    opacity: 0.9;
+  }
+}
+
+@keyframes legend-inner-sweep {
+  0%, 100% {
+    background-position: -100% 0%;
+    opacity: 0.5;
+  }
+  50% {
+    background-position: 200% 0%;
+    opacity: 0.8;
+  }
+}
+
+/* ============================================
+   TIER BADGES - Premium Aesthetic Design
+   ============================================ */
+
+/* Hero Badge - Ethereal Glow */
+.hero-badge-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.hero-badge-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    135deg,
+    oklch(var(--p)),
+    oklch(var(--s)),
+    oklch(var(--p))
+  );
+  filter: blur(6px);
+  opacity: 0.7;
+  animation: badge-glow-pulse 2s ease-in-out infinite;
+}
+
+.hero-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  background: linear-gradient(
+    135deg,
+    oklch(var(--p) / 0.25) 0%,
+    oklch(var(--s) / 0.2) 50%,
+    oklch(var(--p) / 0.25) 100%
+  );
+  border: 1px solid oklch(var(--p) / 0.5);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow:
+    0 2px 12px -2px oklch(var(--p) / 0.5),
+    0 0 20px -4px oklch(var(--p) / 0.3),
+    inset 0 1px 0 oklch(var(--b1) / 0.3);
+}
+
+/* Dark theme: use explicit bright colors for visibility */
+[data-theme="night"] .hero-badge-wrapper::before {
+  background: linear-gradient(
+    135deg,
+    #38bdf8,
+    #818cf8,
+    #38bdf8
+  );
+  opacity: 0.8;
+  filter: blur(8px);
+}
+
+[data-theme="night"] .hero-badge {
+  background: linear-gradient(
+    135deg,
+    rgba(56, 189, 248, 0.25) 0%,
+    rgba(129, 140, 248, 0.2) 50%,
+    rgba(56, 189, 248, 0.25) 100%
+  );
+  border: 1px solid rgba(56, 189, 248, 0.5);
+  box-shadow:
+    0 2px 16px -2px rgba(56, 189, 248, 0.5),
+    0 0 24px -4px rgba(129, 140, 248, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.hero-badge-icon {
+  color: oklch(var(--p));
+  filter: drop-shadow(0 0 4px oklch(var(--p) / 0.6));
+  animation: icon-sparkle 2s ease-in-out infinite;
+}
+
+/* Dark theme: bright cyan icon */
+[data-theme="night"] .hero-badge-icon {
+  color: #38bdf8;
+  filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.8));
+}
+
+.hero-badge-text {
+  background: linear-gradient(
+    135deg,
+    oklch(var(--p)) 0%,
+    oklch(var(--s)) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 700;
+}
+
+/* Dark theme: bright gradient text */
+[data-theme="night"] .hero-badge-text {
+  background: linear-gradient(
+    135deg,
+    #38bdf8 0%,
+    #818cf8 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Legend Badge - Royal Electric Gold */
+.legend-badge-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.legend-badge-wrapper::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    #fbbf24,
+    #fcd34d,
+    #f59e0b,
+    #fbbf24
+  );
+  background-size: 200% 100%;
+  filter: blur(6px);
+  opacity: 0.7;
+  animation: legend-badge-glow 3s ease-in-out infinite;
+}
+
+.legend-badge-wrapper::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(252, 211, 77, 0.8),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: badge-shine 2s ease-in-out infinite;
+}
+
+.legend-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 9999px;
+  background: linear-gradient(
+    135deg,
+    #fef3c7 0%,
+    #fde68a 25%,
+    #fcd34d 50%,
+    #fde68a 75%,
+    #fef3c7 100%
+  );
+  background-size: 200% 200%;
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  box-shadow:
+    0 2px 12px -2px rgba(251, 191, 36, 0.5),
+    0 4px 20px -4px rgba(245, 158, 11, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(217, 119, 6, 0.2);
+  animation: legend-badge-shimmer 3s ease-in-out infinite;
+}
+
+.legend-badge-icon {
+  color: #b45309;
+  filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.8));
+  animation: crown-bounce 2s ease-in-out infinite;
+}
+
+.legend-badge-text {
+  background: linear-gradient(
+    135deg,
+    #92400e 0%,
+    #b45309 30%,
+    #d97706 50%,
+    #b45309 70%,
+    #92400e 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: legend-text-shimmer 3s ease-in-out infinite;
+}
+
+/* Badge Animations */
+@keyframes badge-glow-pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes legend-badge-glow {
+  0%, 100% {
+    opacity: 0.6;
+    background-position: 0% 50%;
+  }
+  50% {
+    opacity: 0.9;
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes badge-shine {
+  0%, 100% {
+    background-position: -100% 50%;
+    opacity: 0;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 1;
+  }
+}
+
+@keyframes legend-badge-shimmer {
+  0%, 100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+}
+
+@keyframes legend-text-shimmer {
+  0%, 100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+}
+
+@keyframes icon-sparkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 4px oklch(var(--p) / 0.5));
+  }
+  25% {
+    transform: scale(1.1) rotate(-5deg);
+    filter: drop-shadow(0 0 8px oklch(var(--p) / 0.7));
+  }
+  75% {
+    transform: scale(1.05) rotate(5deg);
+    filter: drop-shadow(0 0 6px oklch(var(--p) / 0.6));
+  }
+}
+
+@keyframes crown-bounce {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+    filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.8));
+  }
+  25% {
+    transform: translateY(-1px) rotate(-3deg);
+    filter: drop-shadow(0 0 6px rgba(251, 191, 36, 1));
+  }
+  75% {
+    transform: translateY(-1px) rotate(3deg);
+    filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.9));
+  }
+}
+
+/* ============================================
+   PREMIUM CTA - Free User Upgrade Button
+   ============================================ */
+
+.premium-cta-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.08) 0%,
+    rgba(245, 158, 11, 0.05) 50%,
+    rgba(251, 191, 36, 0.08) 100%
+  );
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.premium-cta-wrapper:hover {
+  transform: translateY(-2px);
+  border-color: rgba(251, 191, 36, 0.5);
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.12) 0%,
+    rgba(245, 158, 11, 0.08) 50%,
+    rgba(251, 191, 36, 0.12) 100%
+  );
+}
+
+.premium-cta-glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 14px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(251, 191, 36, 0.4) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  opacity: 0;
+  filter: blur(8px);
+  transition: opacity 0.3s ease;
+  animation: premium-cta-shimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.premium-cta-wrapper:hover .premium-cta-glow {
+  opacity: 1;
+}
+
+.premium-cta-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  position: relative;
+  z-index: 1;
+}
+
+.premium-cta-subtitle {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: oklch(var(--bc) / 0.6);
+  transition: color 0.3s ease;
+}
+
+.premium-cta-wrapper:hover .premium-cta-subtitle {
+  color: oklch(var(--bc) / 0.8);
+}
+
+.premium-cta-main {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: linear-gradient(
+    135deg,
+    #fbbf24 0%,
+    #f59e0b 40%,
+    #d97706 60%,
+    #f59e0b 100%
+  );
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: premium-text-shimmer 4s ease-in-out infinite;
+}
+
+@keyframes premium-cta-shimmer {
+  0%, 100% {
+    background-position: -100% 50%;
+  }
+  50% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes premium-text-shimmer {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Dark theme adjustments */
+[data-theme="night"] .premium-cta-wrapper {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.1) 0%,
+    rgba(245, 158, 11, 0.06) 50%,
+    rgba(251, 191, 36, 0.1) 100%
+  );
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+[data-theme="night"] .premium-cta-wrapper:hover {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.15) 0%,
+    rgba(245, 158, 11, 0.1) 50%,
+    rgba(251, 191, 36, 0.15) 100%
+  );
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
+[data-theme="night"] .premium-cta-subtitle {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+[data-theme="night"] .premium-cta-wrapper:hover .premium-cta-subtitle {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ============================================
+   UPGRADE MODAL - Legend Card Style
+   ============================================ */
+
+.legend-upgrade-card {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.1) 0%,
+    rgba(245, 158, 11, 0.05) 25%,
+    rgba(252, 211, 77, 0.08) 50%,
+    rgba(245, 158, 11, 0.05) 75%,
+    rgba(251, 191, 36, 0.1) 100%
+  );
+  background-size: 200% 200%;
+  animation: legend-card-shimmer 4s ease-in-out infinite;
+}
+
+@keyframes legend-card-shimmer {
+  0%, 100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+}
+
+/* Dark theme enhancement */
+[data-theme="night"] .legend-upgrade-card {
+  background: linear-gradient(
+    135deg,
+    rgba(251, 191, 36, 0.15) 0%,
+    rgba(245, 158, 11, 0.08) 25%,
+    rgba(252, 211, 77, 0.12) 50%,
+    rgba(245, 158, 11, 0.08) 75%,
+    rgba(251, 191, 36, 0.15) 100%
+  );
+}

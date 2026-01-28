@@ -108,28 +108,118 @@
     - [x] Configure PocketBase API Rules to restrict `/admin` strictly to Admin UUIDs.
 
 
-## Phase 8: Reliability & Scaling (Production-Grade)
+## Phase 7.5: Tiered Logic & Multi-Dashboard Refinement
+*Goal: Implementing a 3-tier subscription system with per-user data isolation and conversion-optimized pricing.*
+
+- [ ] **Task 7.5.1: Tier System Foundation**
+    - [ ] Update PocketBase schema: Add `tier` field (number: 0=Free, 1=Hero, 2=Legend).
+    - [ ] Remove `is_premium` boolean, migrate logic to use `tier >= 1`.
+    - [ ] Update `useAuth` hook and TypeScript types to support `tier`.
+    - [ ] Create `TierGate` component for conditional feature rendering.
+- [ ] **Task 7.5.2: Per-User Data Isolation (Bug Fix)**
+    - [ ] Fix localStorage sharing bug: Store `partner_name`, `recipient_role` in PocketBase per user.
+    - [ ] Update Dashboard to load/save user-specific data from database.
+    - [ ] Ensure data isolation between different user sessions.
+- [ ] **Task 7.5.3: Dashboard Tier-Based Features**
+    - [ ] Free (Tier 0): Show blurred/locked automation with "Upgrade" CTA, last 3 days history only.
+    - [ ] Hero (Tier 1): Full automation settings, full streak history.
+    - [ ] Legend (Tier 2): All Hero features + exclusive streak card styles.
+- [ ] **Task 7.5.4: Pricing & Conversion Page (`/pricing`)**
+    - [ ] Create dedicated pricing page showing all 3 tiers side-by-side.
+    - [ ] Apply conversion psychology: Highlight value, social proof, urgency.
+    - [ ] Design compelling feature comparison matrix.
+    - [ ] Integrate with Lemon Squeezy checkout for Hero & Legend tiers.
+- [ ] **Task 7.5.5: Streak Card Styles & Social Sharing**
+    - [ ] Create multiple streak card design templates.
+    - [ ] Hero: Access to basic styles. Legend: Access to all styles (basic locked for Hero).
+    - [ ] Add social sharing buttons: WhatsApp, Instagram, Facebook.
+    - [ ] Include marketing tagline/URL in shared content for viral growth.
+- [ ] **Task 7.5.6: Admin + User Dashboard Access**
+    - [ ] Allow admin users to access both `/admin` AND `/dashboard`.
+    - [ ] Update dropdown menu to show both options for admins.
+- [ ] **Task 7.5.7: Algorithm Update for Tiers**
+    - [ ] Free/Hero: Use `Hash(Date)` for shared daily spark.
+    - [ ] Legend: Use `Hash(UserUUID + Date)` for truly unique 1-of-1 spark.
+
+
+## Phase 8: Legend Tier Enhancements (Premium Experience)
+*Goal: Making Legend tier irresistibly valuable with exclusive features that deepen emotional connection.*
+
+- [ ] **Task 8.1: Love Language Mode**
+    - [ ] Add `love_language` field to user schema (Words of Affirmation, Acts of Service, Quality Time, Physical Touch, Receiving Gifts).
+    - [ ] Create love language quiz/selector in onboarding or dashboard.
+    - [ ] Build message templates tailored to each love language.
+    - [ ] Modify `getPremiumSpark` to incorporate love language into message selection.
+- [ ] **Task 8.2: Anniversary Intelligence**
+    - [ ] Add `anniversary_date`, `partner_birthday` fields to user schema.
+    - [ ] Create date input UI in dashboard relationship profile.
+    - [ ] Build special anniversary/birthday message pool (50+ messages each).
+    - [ ] Implement automatic detection and delivery of special messages on dates.
+    - [ ] Add countdown widget: "23 days until your anniversary!"
+- [ ] **Task 8.3: Partner Link (Two-Way Mode)**
+    - [ ] Design partner invitation system with unique link generation.
+    - [ ] Create `partner_links` collection in PocketBase.
+    - [ ] Build partner acceptance flow and account linking.
+    - [ ] Implement "Love Ping" - instant mutual notification feature.
+    - [ ] Create shared streak counter visible to both partners.
+- [ ] **Task 8.4: Premium Poet Pool (Exclusive Content)**
+    - [ ] Curate 200+ Legend-exclusive poetic messages.
+    - [ ] Implement tiered message pools (Free < Hero < Legend).
+    - [ ] Create content rotation system to prevent repetition.
+    - [ ] Add "Message Rarity" indicator (Common, Rare, Epic, Legendary).
+- [ ] **Task 8.5: Unlimited Spark Archive**
+    - [ ] Build full history view for Legend users (no date limit).
+    - [ ] Add search/filter functionality for past sparks.
+    - [ ] Implement "Favorites" system to bookmark special messages.
+    - [ ] Create export feature (PDF/printable format).
+- [ ] **Task 8.6: Photo Memory Cards**
+    - [ ] Add photo upload to user profile/dashboard.
+    - [ ] Integrate uploaded photos into shareable streak cards.
+    - [ ] Build multiple photo card templates with different layouts.
+    - [ ] Implement photo storage in PocketBase files collection.
+- [ ] **Task 8.7: Emotional Tone Selection**
+    - [ ] Add tone preference setting (Playful, Romantic, Passionate, Sweet, Poetic).
+    - [ ] Tag messages in pool with tone categories.
+    - [ ] Update algorithm to weight messages by selected tone.
+    - [ ] Create tone preview in settings UI.
+- [ ] **Task 8.8: Auto-Reply Suggestions**
+    - [ ] Build "Suggested Response" feature for received sparks.
+    - [ ] Create response message pool (100+ quick replies).
+    - [ ] Implement one-tap copy for suggested responses.
+    - [ ] Add personalization with partner name in responses.
+- [ ] **Task 8.9: Premium Streak Card Templates**
+    - [ ] Design 10+ exclusive streak card templates for Legend.
+    - [ ] Add animated card options (subtle effects).
+    - [ ] Create seasonal/holiday themed templates.
+    - [ ] Implement template preview and selection UI.
+- [ ] **Task 8.10: Advanced Integrations (Power Users)**
+    - [ ] Build API key generation for Legend users.
+    - [ ] Create webhook support for external integrations.
+    - [ ] Document API endpoints for developers.
+    - [ ] Add Zapier/Make integration templates.
+
+## Phase 9: Reliability & Scaling (Production-Grade)
 *Goal: Hardening the system against abuse and ensuring revenue recovery.*
 
-- [ ] **Task 8.1: Anti-Spam & Security**
+- [ ] **Task 9.1: Anti-Spam & Security**
     - [ ] Implement `lru-cache` rate-limiting on OTP requests (3 requests / 15 mins).
     - [ ] Set up Webhook signature verification for Lemon Squeezy to prevent spoofing.
-- [ ] **Task 8.2: Data Recovery & Sync**
+- [ ] **Task 9.2: Data Recovery & Sync**
     - [ ] Create `src/scripts/sync-subs.ts`: A manual recovery script to sync LS subscriptions to PB.
     - [ ] Implement Webhook Idempotency: Verify `is_premium` status before redundant DB writes.
-- [ ] **Task 8.3: Automated Quality Assurance**
+- [ ] **Task 9.3: Automated Quality Assurance**
     - [ ] **Unit Tests:** Vitest for `algo.ts` (determinism) and `rateLimit.ts`.
     - [ ] **E2E Tests:** Playwright for the "Copy Spark" -> "Toast" -> "Counter Increment" flow.
     - [ ] **API Tests:** Mock webhook payloads to verify premium unlocking logic.
 
-## Phase 9: Deployment & Handover
+## Phase 10: Deployment & Handover
 *Goal: Orchestrating the "Sovereign" VPS environment.*
 
-- [ ] **Task 9.1: Process Management**
+- [ ] **Task 10.1: Process Management**
     - [ ] Configure `PM2` for dual-process management: `luvora-web` and `luvora-broadcast`.
-- [ ] **Task 9.2: CI/CD "Sovereign Script"**
+- [ ] **Task 10.2: CI/CD "Sovereign Script"**
     - [ ] Build `deploy.sh`: One-click SSH, `git pull`, `bun build`, and PM2 restart.
-- [ ] **Task 9.3: Messaging Compliance**
+- [ ] **Task 10.3: Messaging Compliance**
     - [ ] Register WhatsApp "Morning Spark" Templates in the Meta Developer Portal.
 
 

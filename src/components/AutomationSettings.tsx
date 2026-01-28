@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { Clock, MessageCircle, X } from 'lucide-react';
@@ -33,7 +34,9 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
         }
     };
 
-    return (
+    if (typeof document === 'undefined') return null;
+
+    return createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
             <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
@@ -110,6 +113,7 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
                     </button>
                 </div>
             </motion.div>
-        </div>
+        </div>,
+        document.body
     );
 }

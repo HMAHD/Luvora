@@ -3,21 +3,22 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { AuthGuard, PremiumGuard } from '@/components/guards/PremiumGuard';
+import { AuthGuard } from '@/components/guards/PremiumGuard';
+import { HeroGate } from '@/components/guards/TierGate';
+import { TierBadge } from '@/components/TierBadge';
+import { TIER, TIER_NAMES } from '@/lib/types';
 import {
   User,
   Clock,
-  MessageCircle,
   Heart,
   Flame,
   Calendar,
   Settings,
   ArrowLeft,
   Check,
-  RefreshCw,
   Sparkles,
   Copy,
+  Crown,
 } from 'lucide-react';
 import Link from 'next/link';
 import { getDailySpark } from '@/lib/algo';
@@ -26,42 +27,42 @@ type Role = 'neutral' | 'masculine' | 'feminine';
 
 function DashboardContent() {
   const { user, pb } = useAuth();
-  const [partnerName, setPartnerName] = useLocalStorage<string>('partner_name', '');
-  const [role, setRole] = useLocalStorage<Role>('recipient_role', 'neutral');
   const [activeTab, setActiveTab] = useState<'profile' | 'automation' | 'history'>('profile');
 
-  // Form states
-  const [formPartnerName, setFormPartnerName] = useState(partnerName);
-  const [formRole, setFormRole] = useState<Role>(role);
-  const [morningTime, setMorningTime] = useState(user?.morning_time || '08:00');
-  const [platform, setPlatform] = useState<'whatsapp' | 'telegram'>(user?.messaging_platform || 'telegram');
-  const [msgId, setMsgId] = useState(user?.messaging_id || '');
+  // Form states - Initialize from user object (PocketBase), NOT localStorage
+  const [formPartnerName, setFormPartnerName] = useState('');
+  const [formRole, setFormRole] = useState<Role>('neutral');
+  const [morningTime, setMorningTime] = useState('08:00');
+  const [platform, setPlatform] = useState<'whatsapp' | 'telegram'>('telegram');
+  const [msgId, setMsgId] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // Streak history (mock data - would come from DB)
+  // Streak history
   const [sparkHistory, setSparkHistory] = useState<Array<{ date: string; morning: string; night: string }>>([]);
 
-  useEffect(() => {
-    setFormPartnerName(partnerName);
-    setFormRole(role);
-  }, [partnerName, role]);
+  // User tier (default to FREE)
+  const userTier = user?.tier ?? TIER.FREE;
 
+  // Load user data from PocketBase on mount/user change
   useEffect(() => {
     if (user) {
+      setFormPartnerName(user.partner_name || '');
+      setFormRole(user.recipient_role || 'neutral');
       setMorningTime(user.morning_time || '08:00');
       setPlatform(user.messaging_platform || 'telegram');
       setMsgId(user.messaging_id || '');
     }
   }, [user]);
 
-  // Generate spark history for last 7 days
+  // Generate spark history - Free users see 3 days, Hero+ see 7 days
   useEffect(() => {
+    const daysToShow = userTier >= TIER.HERO ? 7 : 3;
     const history = [];
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < daysToShow; i++) {
       const date = new Date();
       date.setDate(date.getDate() - i);
-      const spark = getDailySpark(date, role);
+      const spark = getDailySpark(date, formRole);
       history.push({
         date: date.toISOString().split('T')[0],
         morning: spark.morning.content,
@@ -69,22 +70,21 @@ function DashboardContent() {
       });
     }
     setSparkHistory(history);
-  }, [role]);
+  }, [formRole, userTier]);
 
   const handleSaveProfile = async () => {
+    if (!user?.id) return;
     setSaving(true);
     try {
-      // Update local storage
-      setPartnerName(formPartnerName);
-      setRole(formRole);
+      // Save to PocketBase (user-specific data)
+      await pb.collection('users').update(user.id, {
+        partner_name: formPartnerName,
+        recipient_role: formRole,
+      });
 
-      // Update PocketBase if logged in
-      if (user?.id) {
-        await pb.collection('users').update(user.id, {
-          partner_name: formPartnerName,
-          recipient_role: formRole,
-        });
-      }
+      // Also update localStorage for SparkCard (synced)
+      localStorage.setItem('partner_name', JSON.stringify(formPartnerName));
+      localStorage.setItem('recipient_role', JSON.stringify(formRole));
 
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -137,12 +137,7 @@ function DashboardContent() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            {user?.is_premium && (
-              <div className="badge badge-warning gap-1">
-                <Sparkles className="w-3 h-3" />
-                Premium
-              </div>
-            )}
+            <TierBadge tier={userTier} size="md" />
             <div className="w-10 h-10 rounded-full bg-primary text-primary-content flex items-center justify-center">
               <span className="text-sm font-bold">{user?.email?.charAt(0).toUpperCase()}</span>
             </div>
@@ -203,7 +198,15 @@ function DashboardContent() {
                   <Heart className="w-8 h-8" />
                 </div>
                 <div className="stat-title text-xs">Partner</div>
-                <div className="stat-value text-lg truncate">{partnerName || 'Not set'}</div>
+                <div className="stat-value text-lg truncate">{user?.partner_name || 'Not set'}</div>
+              </div>
+              <div className="stat bg-base-100 rounded-2xl shadow-sm border border-base-content/5">
+                <div className="stat-figure text-info">
+                  {userTier === TIER.LEGEND ? <Crown className="w-8 h-8" /> : <Sparkles className="w-8 h-8" />}
+                </div>
+                <div className="stat-title text-xs">Tier</div>
+                <div className="stat-value text-lg">{TIER_NAMES[userTier]}</div>
+                <div className="stat-desc">{userTier === TIER.FREE ? <Link href="/pricing" className="link link-primary">Upgrade</Link> : 'Active'}</div>
               </div>
             </div>
 
@@ -281,7 +284,7 @@ function DashboardContent() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <PremiumGuard requiredTier="hero">
+            <HeroGate blur>
               <div className="card bg-base-100 shadow-sm border border-base-content/5">
                 <div className="card-body">
                   <h2 className="card-title text-lg flex items-center gap-2">
@@ -378,7 +381,7 @@ function DashboardContent() {
                   </div>
                 </div>
               </div>
-            </PremiumGuard>
+            </HeroGate>
           </motion.div>
         )}
 
@@ -394,7 +397,14 @@ function DashboardContent() {
                 <Calendar className="w-5 h-5 text-primary" />
                 Spark History
               </h2>
-              <span className="text-sm text-base-content/60">Last 7 days</span>
+              <span className="text-sm text-base-content/60">
+                Last {userTier >= TIER.HERO ? '7' : '3'} days
+                {userTier < TIER.HERO && (
+                  <Link href="/pricing" className="ml-2 link link-primary text-xs">
+                    Upgrade for full history
+                  </Link>
+                )}
+              </span>
             </div>
 
             <div className="space-y-3">

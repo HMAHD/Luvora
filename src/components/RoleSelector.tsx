@@ -1,15 +1,26 @@
 'use client';
 
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useAuth } from '@/hooks/useAuth';
 import { ChevronDown } from 'lucide-react';
 
 type Role = 'neutral' | 'masculine' | 'feminine';
 
 export function RoleSelector() {
-    const [role, setRole] = useLocalStorage<Role>('recipient_role', 'neutral');
+    const { user, pb } = useAuth();
+    const role = (user?.recipient_role as Role) || 'neutral';
 
-    const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setRole(e.target.value as Role);
+    const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const newRole = e.target.value as Role;
+        if (user?.id) {
+            try {
+                // Update PocketBase user record
+                await pb.collection('users').update(user.id, {
+                    recipient_role: newRole,
+                });
+            } catch (err) {
+                console.error('Failed to update role:', err);
+            }
+        }
     };
 
     return (

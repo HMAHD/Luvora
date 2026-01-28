@@ -8,6 +8,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { UserCircle, Settings, LogOut, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { pb } from '@/lib/pocketbase';
+import { TierBadge } from '@/components/TierBadge';
+import { TIER } from '@/lib/types';
 
 export default function Home() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -31,36 +33,42 @@ export default function Home() {
       <DynamicTitle />
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
 
-      {/* Auth Button (Top Right) */}
-      <div className="absolute top-4 right-4 z-50">
+      {/* Auth Button (Top Right) - z-40 so modals (z-50) appear above */}
+      <div className="absolute top-4 right-4 z-40">
         {isMounted && (
           user ? (
-            <div className="dropdown dropdown-end">
-              <div
-                tabIndex={0}
-                role="button"
-                className="btn btn-circle btn-ghost bg-base-100 border border-base-content/15 hover:bg-base-200 hover:border-base-content/25 shadow-md transition-all duration-200"
-              >
-                <div className="w-8 h-8 rounded-full bg-primary text-primary-content flex items-center justify-center">
-                  <span className="text-xs font-bold">{user.email?.charAt(0).toUpperCase()}</span>
+            <div className="flex items-center gap-2">
+              {/* Tier Badge (left of profile) */}
+              {(user.tier ?? TIER.FREE) >= TIER.HERO && (
+                <TierBadge tier={user.tier ?? TIER.FREE} size="sm" />
+              )}
+
+              {/* Profile Dropdown */}
+              <div className="dropdown dropdown-end">
+                <div
+                  tabIndex={0}
+                  role="button"
+                  className="btn btn-circle btn-ghost bg-base-100 border border-base-content/15 hover:bg-base-200 hover:border-base-content/25 shadow-md transition-all duration-200"
+                >
+                  <div className="w-8 h-8 rounded-full bg-primary text-primary-content flex items-center justify-center">
+                    <span className="text-xs font-bold">{user.email?.charAt(0).toUpperCase()}</span>
+                  </div>
                 </div>
-              </div>
               <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-52 p-2 shadow-lg border border-base-content/10 mt-2">
                 <li className="menu-title px-2 py-1">
                   <span className="text-xs truncate">{user.email}</span>
                 </li>
-                {isAdmin ? (
+                <li>
+                  <Link href="/dashboard" className="flex items-center gap-2">
+                    <Settings className="w-4 h-4" />
+                    Dashboard
+                  </Link>
+                </li>
+                {isAdmin && (
                   <li>
                     <Link href="/admin" className="flex items-center gap-2">
                       <Shield className="w-4 h-4" />
                       Admin Panel
-                    </Link>
-                  </li>
-                ) : (
-                  <li>
-                    <Link href="/dashboard" className="flex items-center gap-2">
-                      <Settings className="w-4 h-4" />
-                      Dashboard
                     </Link>
                   </li>
                 )}
@@ -77,6 +85,7 @@ export default function Home() {
                   </button>
                 </li>
               </ul>
+              </div>
             </div>
           ) : (
             <button
