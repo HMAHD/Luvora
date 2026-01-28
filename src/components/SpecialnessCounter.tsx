@@ -61,13 +61,13 @@ export function SpecialnessCounter() {
     }, [springCount]);
 
     return (
-        <div className="stats shadow bg-base-100/50 backdrop-blur-sm mt-8 mx-auto border border-white/5">
-            <div className="stat place-items-center py-2 px-6">
-                <div className="stat-title text-xs uppercase tracking-widest opacity-70">Sparks Shared Today</div>
-                <motion.div className="stat-value text-primary text-2xl font-mono">
+        <div className="stats glass shadow-lg bg-base-100/50 mt-8 mx-auto border border-base-content/5">
+            <div className="stat place-items-center py-3 px-8">
+                <div className="stat-title text-xs uppercase tracking-widest text-base-content/60">Sparks Shared Today</div>
+                <motion.div className="stat-value text-primary text-2xl font-mono tabular-nums">
                     {displayCount}
                 </motion.div>
-                <div className="stat-desc text-xs">Happening right now</div>
+                <div className="stat-desc text-xs text-base-content/50">Happening right now</div>
             </div>
         </div>
     );

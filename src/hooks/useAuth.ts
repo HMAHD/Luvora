@@ -1,49 +1,55 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { pb } from '@/lib/pocketbase';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
 import type { User } from '@/lib/types';
 
+// Initialize user from authStore immediately (not in useEffect)
+const getInitialUser = (): User | null => {
+    if (typeof window === 'undefined') return null;
+    return pb.authStore.model as unknown as User | null;
+};
+
 export function useAuth() {
-    const [user, setUser] = useState<User | null>(null);
-    const [partnerName, setPartnerName] = useLocalStorage<string>('partner_name', '');
+    const [user, setUser] = useState<User | null>(getInitialUser);
+    const hasInitializedRef = useRef(false);
+
+    // Memoized sync function to avoid recreating on every render
+    const syncPartnerName = useCallback((authUser: User) => {
+        if (authUser.partner_name) {
+            const currentName = localStorage.getItem('partner_name');
+            if (currentName !== JSON.stringify(authUser.partner_name)) {
+                localStorage.setItem('partner_name', JSON.stringify(authUser.partner_name));
+            }
+        }
+    }, []);
 
     useEffect(() => {
-        // Helper to sync partner name from DB if needed
-        const syncData = (authUser: User) => {
-            if (authUser.partner_name && authUser.partner_name !== partnerName) {
-                console.log('Syncing from DB:', authUser.partner_name);
-                setPartnerName(authUser.partner_name);
-            }
-        };
+        // Prevent double initialization in strict mode
+        if (hasInitializedRef.current) return;
+        hasInitializedRef.current = true;
 
-        // 1. Initial Load
+        // Sync partner name on initial load if user exists
         const model = pb.authStore.model as unknown as User | null;
         if (model) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setUser(model);
-            syncData(model);
-        } else {
-            // Fallback for Guests / Initial State
-            // We ensure we never leave it entirely undefined if we can help it, 
-            // though user=null is handled by UI. 
-            // The critical part is local storage defaults which are handled by the hook initializer.
+            syncPartnerName(model);
         }
 
-        // 2. Subscribe to Auth Changes
+        // Subscribe to Auth Changes
         const unsubscribeAuth = pb.authStore.onChange((token, model) => {
             console.log('Auth Store Change:', { token, model });
             const u = model as unknown as User | null;
             setUser(u);
-            if (u) syncData(u);
+            if (u) {
+                syncPartnerName(u);
+            }
         });
 
         // Cleanup subscription
         return () => {
             unsubscribeAuth();
         };
-    }, [partnerName, setPartnerName]);
+    }, [syncPartnerName]);
 
     // 3. Realtime Subscription (for Instant Magic)
     useEffect(() => {

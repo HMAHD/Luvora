@@ -100,19 +100,19 @@ export function SparkCard() {
       {isShareOpen && <ShareCard onClose={() => setIsShareOpen(false)} />}
       {isAutoSettingsOpen && <AutomationSettings onClose={() => setIsAutoSettingsOpen(false)} />}
 
-      {/* 
-        GOLDEN GLOW WRAPPER 
+      {/*
+        GOLDEN GLOW WRAPPER
         We wrap the Motion Card in a static div that handles the Glow/Border.
         This prevents the 'pulse' animation from fighting with the 'scale' entry animation.
       */}
-      <div className={`relative w-full max-w-md p-[2px] rounded-3xl transition-all duration-500 ${isPremium ? 'bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-200 animate-pulse shadow-[0_0_30px_rgba(234,179,8,0.4)]' : ''}`}>
+      <div className={`relative w-full max-w-md p-[2px] rounded-3xl transition-all duration-500 ${isPremium ? 'gradient-gold animate-subtle-pulse shadow-[0_0_40px_rgba(234,179,8,0.35)]' : ''}`}>
 
         {/* Main Card (Glass) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className={`card w-full h-full bg-base-100/40 glass shadow-2xl overflow-hidden backdrop-blur-xl border ${isPremium ? 'border-none' : 'border-white/10'}`}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className={`card w-full h-full glass shadow-2xl overflow-hidden border ${isPremium ? 'border-none bg-base-100/50' : 'border-base-content/5 bg-base-100/60'}`}
         >
           <div className="card-body items-center text-center p-8 sm:p-10 relative">
             <div className={`absolute top-0 left-0 w-full h-32 bg-gradient-to-b ${isPremium ? 'from-yellow-400/20' : 'from-primary/10'} to-transparent pointer-events-none`} />
@@ -158,11 +158,11 @@ export function SparkCard() {
             <div className="card-actions w-full justify-center flex-col items-center gap-3">
               <button
                 onClick={handleCopy}
-                className={`btn btn-lg w-full sm:w-auto shadow-lg group relative overflow-hidden ${isPremium ? 'btn-warning text-white' : 'btn-primary'}`}
+                className={`btn btn-lg w-full sm:w-auto shadow-lg group relative overflow-hidden transition-all duration-200 ${isPremium ? 'gradient-gold text-base-100 hover:shadow-[0_8px_24px_-4px_rgba(234,179,8,0.5)]' : 'btn-primary hover:shadow-[0_8px_24px_-4px_rgba(20,184,166,0.4)]'}`}
               >
-                <span className="relative z-10 flex items-center gap-2 text-base-content text-opacity-100">
+                <span className="relative z-10 flex items-center gap-2">
                   <div className="flex items-center justify-center w-6 h-6">
-                    {copied ? <Heart size={24} strokeWidth={2} className="fill-current opacity-100" /> : <Copy size={24} strokeWidth={2} className="opacity-100" />}
+                    {copied ? <Heart size={24} strokeWidth={2} className="fill-current animate-float" /> : <Copy size={24} strokeWidth={2} />}
                   </div>
                   {copied ? "Sent to Heart!" : "Copy Spark"}
                 </span>
@@ -188,10 +188,16 @@ export function SparkCard() {
 
       {
         copied && (
-          <div className="toast toast-bottom toast-center z-50">
-            <motion.div initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="alert alert-success shadow-lg">
-              <Heart className="w-4 h-4 fill-current" />
-              <span>Spark ready for {displayNickname}! 💖</span>
+          <div className="toast toast-bottom toast-center z-50 safe-area-inset-bottom">
+            <motion.div
+              initial={{ y: 50, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 50, opacity: 0, scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              className="alert alert-success shadow-xl border border-success/20"
+            >
+              <Heart className="w-5 h-5 fill-current" />
+              <span className="font-medium">Spark ready for {displayNickname}!</span>
             </motion.div>
           </div>
         )

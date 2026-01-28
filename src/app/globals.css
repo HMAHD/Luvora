@@ -3,9 +3,16 @@
   themes: cupcake, luxury;
 }
 
+/* ============================================
+   LUVORA - Enhanced DaisyUI Theme
+   Romantic, warm, device-friendly styling
+   ============================================ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fef7f3;
+  --foreground: #2d2d2d;
+  --luvora-glow: rgba(20, 184, 166, 0.15);
+  --luvora-accent: #14b8a6;
 }
 
 @theme inline {
@@ -17,13 +24,211 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f0f0f;
+    --foreground: #f5f5f5;
+    --luvora-glow: rgba(20, 184, 166, 0.2);
   }
 }
 
+/* Base Styles */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Enhanced Focus States for Accessibility */
+*:focus-visible {
+  outline: 2px solid var(--luvora-accent);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Custom DaisyUI Component Enhancements
+   ============================================ */
+
+/* Softer Card Shadows */
+.card {
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.08),
+              0 8px 40px -8px rgba(0, 0, 0, 0.04);
+}
+
+/* Enhanced Button Hover States */
+.btn-primary {
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px -2px rgba(20, 184, 166, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Glass Effect Enhancement */
+.glass {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass {
+    background: rgba(15, 15, 15, 0.7);
+  }
+}
+
+/* Input Focus Enhancement */
+.input:focus,
+.input-bordered:focus {
+  border-color: var(--luvora-accent);
+  box-shadow: 0 0 0 3px var(--luvora-glow);
+}
+
+/* ============================================
+   Animation Utilities
+   ============================================ */
+
+/* Subtle Pulse for Premium Elements */
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+
+.animate-subtle-pulse {
+  animation: subtle-pulse 2s ease-in-out infinite;
+}
+
+/* Slow Spin for Decorative Elements */
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
+/* Float Animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* Shimmer Effect for Loading States */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* ============================================
+   Gradient Utilities
+   ============================================ */
+
+.gradient-teal {
+  background: linear-gradient(135deg, #14b8a6 0%, #10b981 50%, #06b6d4 100%);
+}
+
+.gradient-teal-text {
+  background: linear-gradient(135deg, #14b8a6 0%, #10b981 50%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-warm {
+  background: linear-gradient(135deg, #f97316 0%, #ec4899 50%, #8b5cf6 100%);
+}
+
+/* Premium Gold Gradient */
+.gradient-gold {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
+}
+
+/* ============================================
+   Responsive Utilities
+   ============================================ */
+
+/* Safe area insets for mobile devices */
+@supports (padding: max(0px)) {
+  .safe-area-inset-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .safe-area-inset-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+}
+
+/* Better touch targets for mobile */
+@media (pointer: coarse) {
+  .btn {
+    min-height: 44px;
+  }
+
+  .input {
+    min-height: 44px;
+  }
+}
+
+/* ============================================
+   Typography Enhancements
+   ============================================ */
+
+/* Serif for headings (romantic feel) */
+.font-romantic {
+  font-family: Georgia, 'Times New Roman', serif;
+  letter-spacing: -0.01em;
+}
+
+/* Better text rendering for large text */
+h1, h2, h3, .text-2xl, .text-3xl, .text-4xl {
+  text-rendering: optimizeLegibility;
+}
+
+/* ============================================
+   Selection & Scrollbar Styling
+   ============================================ */
+
+::selection {
+  background-color: rgba(20, 184, 166, 0.3);
+  color: inherit;
+}
+
+/* Custom Scrollbar (webkit) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(20, 184, 166, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(20, 184, 166, 0.5);
 }

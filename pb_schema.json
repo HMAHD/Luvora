@@ -1,186 +1,69 @@
 [
     {
-        "id": "_pb_users_auth_",
         "name": "users",
         "type": "auth",
         "system": false,
+        "schema": [
+            {
+                "name": "partner_name",
+                "type": "text",
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "name": "is_premium",
+                "type": "bool",
+                "required": false,
+                "options": {}
+            },
+            {
+                "name": "timezone",
+                "type": "text",
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            },
+            {
+                "name": "morning_time",
+                "type": "text",
+                "required": false,
+                "options": {
+                    "min": null,
+                    "max": null,
+                    "pattern": ""
+                }
+            }
+        ],
         "options": {
             "allowEmailAuth": true,
             "allowOAuth2Auth": true,
-            "allowUsernameAuth": true,
-            "exceptEmailDomains": null,
-            "manageRule": null,
+            "allowUsernameAuth": false,
+            "requireEmail": true,
             "minPasswordLength": 8,
-            "onlyEmailDomains": null,
-            "onlyVerified": false,
-            "requireEmail": false
-        },
-        "fields": [
-            {
-                "id": "text3208210256",
-                "name": "id",
-                "type": "text",
-                "system": true,
-                "required": true,
-                "options": {
-                    "pattern": "^[a-z0-9]+$",
-                    "min": 15,
-                    "max": 15
-                }
-            },
-            {
-                "id": "password901924565",
-                "name": "password",
-                "type": "password",
-                "system": true,
-                "required": true,
-                "options": {
-                    "min": 8,
-                    "max": 72,
-                    "pattern": ""
-                }
-            },
-            {
-                "id": "text2504183744",
-                "name": "tokenKey",
-                "type": "text",
-                "system": true,
-                "required": true,
-                "options": {
-                    "pattern": "",
-                    "min": 0,
-                    "max": 0
-                }
-            },
-            {
-                "id": "email3885137012",
-                "name": "email",
-                "type": "email",
-                "system": true,
-                "required": true,
-                "options": {
-                    "exceptDomains": null,
-                    "onlyDomains": null
-                }
-            },
-            {
-                "id": "bool1547992806",
-                "name": "emailVisibility",
-                "type": "bool",
-                "system": true,
-                "required": false,
-                "options": {}
-            },
-            {
-                "id": "bool256245529",
-                "name": "verified",
-                "type": "bool",
-                "system": true,
-                "required": false,
-                "options": {}
-            },
-            {
-                "id": "users_name",
-                "name": "name",
-                "type": "text",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null,
-                    "pattern": ""
-                }
-            },
-            {
-                "id": "users_avatar",
-                "name": "avatar",
-                "type": "file",
-                "system": false,
-                "required": false,
-                "options": {
-                    "maxSelect": 1,
-                    "maxSize": 5242880,
-                    "mimeTypes": [
-                        "image/jpeg",
-                        "image/png",
-                        "image/svg+xml",
-                        "image/gif",
-                        "image/webp"
-                    ],
-                    "thumbs": null,
-                    "protected": false
-                }
-            },
-            {
-                "id": "a1b2c3d4e5f6g7h",
-                "name": "partner_name",
-                "type": "text",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null,
-                    "pattern": ""
-                }
-            },
-            {
-                "id": "h7g6f5e4d3c2b1a",
-                "name": "is_premium",
-                "type": "bool",
-                "system": false,
-                "required": false,
-                "options": {}
-            },
-            {
-                "id": "i8j9k0l1m2n3o4p",
-                "name": "timezone",
-                "type": "text",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null,
-                    "pattern": ""
-                }
-            },
-            {
-                "id": "p4o3n2m1l0k9j8i",
-                "name": "morning_time",
-                "type": "text",
-                "system": false,
-                "required": false,
-                "options": {
-                    "min": null,
-                    "max": null,
-                    "pattern": ""
-                }
-            }
-        ]
+            "onlyVerified": false
+        }
     },
     {
-        "id": "q5r6s7t8u9v0w1x",
         "name": "message_stats",
         "type": "base",
         "system": false,
-        "options": {},
-        "fields": [
+        "schema": [
             {
-                "id": "y2z3a4b5c6d7e8f",
                 "name": "date",
                 "type": "text",
-                "system": false,
                 "required": true,
-                "options": {
-                    "min": null,
-                    "max": null,
-                    "pattern": ""
-                }
+                "options": {}
             },
             {
-                "id": "g9h0i1j2k3l4m5n",
                 "name": "copy_count",
                 "type": "number",
-                "system": false,
                 "required": false,
                 "options": {
                     "min": null,
@@ -189,10 +72,8 @@
                 }
             },
             {
-                "id": "o6p7q8r9s0t1u2v",
                 "name": "total_users",
                 "type": "number",
-                "system": false,
                 "required": false,
                 "options": {
                     "min": null,
@@ -203,41 +84,25 @@
         ]
     },
     {
-        "id": "w3x4y5z6a7b8c9d",
         "name": "messages",
         "type": "base",
         "system": false,
-        "options": {},
-        "fields": [
+        "schema": [
             {
-                "id": "m7n8o9p0q1r2s3t",
                 "name": "target",
                 "type": "text",
-                "system": false,
                 "required": false,
-                "options": {
-                    "min": null,
-                    "max": null,
-                    "pattern": ""
-                }
+                "options": {}
             },
             {
-                "id": "e0f1g2h3i4j5k6l",
                 "name": "content",
                 "type": "text",
-                "system": false,
                 "required": true,
-                "options": {
-                    "min": null,
-                    "max": null,
-                    "pattern": ""
-                }
+                "options": {}
             },
             {
-                "id": "u4v5w6x7y8z9a0b",
                 "name": "is_premium",
                 "type": "bool",
-                "system": false,
                 "required": false,
                 "options": {}
             }

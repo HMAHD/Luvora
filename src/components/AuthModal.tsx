@@ -88,20 +88,21 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
                     {/* Modal */}
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        className="relative bg-base-100/90 backdrop-blur-xl border border-white/10 w-full max-w-sm overflow-hidden rounded-3xl shadow-2xl p-6"
+                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        className="relative glass bg-base-100/80 border border-base-content/5 w-full max-w-sm overflow-hidden rounded-3xl shadow-2xl p-6"
                     >
                         <button onClick={onClose} className="absolute top-4 right-4 btn btn-circle btn-ghost btn-xs opacity-50">
                             <X className="w-4 h-4" />
                         </button>
 
                         <div className="text-center mb-6">
-                            <h3 className="text-2xl font-bold bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-500 bg-clip-text text-transparent">
+                            <h3 className="text-2xl font-bold font-romantic bg-gradient-to-r from-teal-600 via-emerald-500 to-cyan-600 bg-clip-text text-transparent">
                                 {status === 'verifying' ? 'Check Your Inbox' : 'Unlock Magic'}
                             </h3>
-                            <p className="text-sm text-base-content/70 mt-1">
+                            <p className="text-sm text-base-content/60 mt-2">
                                 {status === 'verifying' ? `Code sent to ${email}` : 'Log in to save your special moments'}
                             </p>
                         </div>
@@ -127,9 +128,12 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                     onChange={(e) => setOtpCode(e.target.value)}
                                     autoFocus
                                 />
-                                <button type="submit" className="btn btn-primary w-full gap-2">
-                                    Verify Code <ArrowRight className="w-4 h-4" />
+                                <button type="submit" className="btn btn-primary w-full gap-2 group">
+                                    Verify Code <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </button>
+                                <p className="text-xs text-base-content/50 text-center">
+                                    Check your spam/junk folder if you don&apos;t see the email
+                                </p>
                                 <div className="text-center">
                                     <button
                                         type="button"

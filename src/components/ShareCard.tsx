@@ -32,10 +32,11 @@ export function ShareCard({ onClose }: { onClose: () => void }) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md" onClick={onClose}>
             <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
+                initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                animate={{ scale: 1, opacity: 1, y: 0 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 className="flex flex-col gap-4 items-center"
                 onClick={(e) => e.stopPropagation()}
             >
@@ -70,12 +71,12 @@ export function ShareCard({ onClose }: { onClose: () => void }) {
 
                 {/* Actions */}
                 <div className="flex gap-4">
-                    <button onClick={downloadImage} className="btn btn-primary btn-wide group">
+                    <button onClick={downloadImage} className="btn btn-primary btn-wide group shadow-lg hover:shadow-[0_8px_24px_-4px_rgba(20,184,166,0.4)] transition-all duration-200">
                         {loading ? <span className="loading loading-spinner" /> : <Download className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />}
                         Download Card
                     </button>
                 </div>
-                <button onClick={onClose} className="btn btn-ghost btn-sm text-white/50">Close</button>
+                <button onClick={onClose} className="btn btn-ghost btn-sm text-white/60 hover:text-white">Close</button>
             </motion.div>
         </div>
     );
