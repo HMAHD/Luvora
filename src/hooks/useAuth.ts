@@ -24,10 +24,16 @@ export function useAuth() {
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setUser(model);
             syncData(model);
+        } else {
+            // Fallback for Guests / Initial State
+            // We ensure we never leave it entirely undefined if we can help it, 
+            // though user=null is handled by UI. 
+            // The critical part is local storage defaults which are handled by the hook initializer.
         }
 
         // 2. Subscribe to Auth Changes
         const unsubscribeAuth = pb.authStore.onChange((token, model) => {
+            console.log('Auth Store Change:', { token, model });
             const u = model as unknown as User | null;
             setUser(u);
             if (u) syncData(u);

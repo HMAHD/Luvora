@@ -46,24 +46,24 @@ export function ShareCard({ onClose }: { onClose: () => void }) {
                         <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
 
                         <div className="z-10 mt-4">
-                            <h4 className="font-bold text-lg mb-1">Spread the Love</h4>
-                            <p className="text-xs opacity-70 mb-4">&quot;A shared joy is a double joy.&quot; — Swedish Proverb</p>
+                            <h4 className="font-bold text-lg mb-1 text-base-content">Spread the Love</h4>
+                            <p className="text-xs text-base-content/70 mb-4">&quot;A shared joy is a double joy.&quot; — Swedish Proverb</p>
                         </div>
 
                         <div className="z-10 flex flex-col items-center">
-                            <div className="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary drop-shadow-sm">
+                            <div className="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-500 via-emerald-400 to-cyan-500 drop-shadow-sm">
                                 {streak}
                             </div>
-                            <div className="flex items-center gap-2 text-warning font-bold uppercase tracking-wider text-sm mt-2">
+                            <div className="flex items-center gap-2 text-amber-500 font-bold uppercase tracking-wider text-sm mt-2">
                                 <Flame className="w-5 h-5 fill-current animate-pulse" /> Days
                             </div>
                         </div>
 
                         <div className="z-10 mb-4">
-                            <p className="text-sm italic opacity-60">
+                            <p className="text-sm italic text-base-content/70">
                                 &quot;Consistency is the language of love.&quot;
                             </p>
-                            <div className="badge badge-outline mt-4 opacity-40">Celebrating {partner}</div>
+                            <div className="badge badge-outline mt-4 text-base-content/60 border-base-content/40">Celebrating {partner}</div>
                         </div>
                     </div>
                 </div>

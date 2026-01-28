@@ -18,7 +18,7 @@ export function RoleSelector() {
             <select
                 value={role}
                 onChange={handleChange}
-                className="appearance-none bg-base-100/50 backdrop-blur-md border border-base-content/10 pl-4 pr-10 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-base-100/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20"
+                className="appearance-none bg-base-100/50 backdrop-blur-md border border-base-content/10 px-8 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-base-100/80 transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20 text-base-content text-opacity-100 text-center"
             >
                 <option value="neutral">Partner</option>
                 <option value="masculine">He</option>
@@ -30,7 +30,7 @@ export function RoleSelector() {
             </div>
 
             {/* Tooltip-ish help text on hover */}
-            <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] whitespace-nowrap bg-base-300 px-2 py-1 rounded shadow-lg pointer-events-none">
+            <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] whitespace-nowrap bg-neutral text-neutral-content px-2 py-1 rounded shadow-lg pointer-events-none">
                 Adjust the vibe
             </div>
         </div>

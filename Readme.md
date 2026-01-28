@@ -77,17 +77,26 @@ Ensure your `.env.local` (or production env) has:
 - `POCKETBASE_ADMIN_EMAIL`
 - `POCKETBASE_ADMIN_PASSWORD`
 
-### 3. PocketBase Schema
-Import `pb_schema.json` into your production PocketBase instance to create the necessary automation fields.
+### 3. PocketBase Setup
+1. **Download & Run**: Install PocketBase v0.24+ and run `./pocketbase serve`.
+2. **Import Schema**: Go to Settings > Import Collections and paste the contents of `pb_schema.json`.
+3. **Configure Environment**:
+   Duplicate `.env.example` to `.env.local` and add:
+   ```bash
+   NEXT_PUBLIC_POCKETBASE_URL=http://127.0.0.1:8090
+   POCKETBASE_ADMIN_EMAIL=your-admin-email
+   POCKETBASE_ADMIN_PASSWORD=your-admin-password
+   ```
 
 ## 🗺 Roadmap Status
 
 | Phase | Goal | Status |
 | :--- | :--- | :--- |
 | **Phase 0** | **Project Genesis** (Infrastructure) | ✅ **Complete** |
-| **Phase 1** | **Core Logic** (The Engine) | 🚧 *Upcoming* |
-| **Phase 2** | **Frontend "Pro-Max"** (The Interface) | ⏳ *Pending* |
-| **Phase 3** | **Sovereign Backend** (PocketBase) | ⏳ *Pending* |
+| **Phase 1** | **Core Logic** (The Engine) | ✅ **Complete** |
+| **Phase 2** | **Frontend "Pro-Max"** (The Interface) |  **Complete** |
+| **Phase 3** | **Sovereign Backend** (PocketBase) | ✅ **Complete** |
+| **Phase 4** | **Premium & Payments** | 🚧 *In Progress* |
 
 ---
 

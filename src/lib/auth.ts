@@ -18,7 +18,12 @@ export async function requestOTP(email: string) {
     try {
         return await pb.collection('users').requestOTP(email);
     } catch (error) {
-        console.error('Error requesting OTP:', error);
+        console.error('CRITICAL: SMTP/Auth Failure in requestOTP:', error);
+        // Log the full error object for inspection
+        if (typeof error === 'object' && error !== null) {
+            // @ts-ignore
+            console.error('Error Details:', JSON.stringify(error?.data || error, null, 2));
+        }
         throw error;
     }
 }

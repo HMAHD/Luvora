@@ -89,6 +89,11 @@ export function SparkCard() {
     );
   }
 
+  // Debug logs for Role/Partner (Diagnostic Mode)
+  if (process.env.NODE_ENV !== 'production' || true) { // Force log for now
+    console.log('[SparkCard] Render State:', { role, partnerName, isPremium, user });
+  }
+
   return (
     <div className="flex flex-col items-center w-full px-4 relative">
       <UpgradeModal isOpen={isUpgradeOpen} onClose={() => setIsUpgradeOpen(false)} />
@@ -126,23 +131,25 @@ export function SparkCard() {
               className="mb-8"
             >
               {message.content.split(" ").map((word, i) => (
-                <motion.span key={i} variants={item} className="inline-block mr-1 text-2xl sm:text-3xl font-serif leading-tight text-base-content/90">
+                <motion.span key={i} variants={item} className="inline-block mr-1 text-2xl sm:text-3xl font-serif leading-tight text-base-content text-opacity-100">
                   {word}
                 </motion.span>
               ))}
             </motion.div>
 
             {/* Recipient */}
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-sm font-medium opacity-50 mb-8">
-              For {displayNickname}
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-sm font-medium opacity-100 text-base-content text-opacity-100 mb-8 inline-block px-2">
+              For {displayNickname || 'favorite human'}
             </motion.p>
 
             <button
               onClick={() => setIsShareOpen(true)}
-              className="absolute top-4 left-4 btn btn-ghost btn-circle btn-sm opacity-50 hover:opacity-100"
+              className="absolute top-4 left-4 btn btn-ghost btn-circle btn-sm text-base-content hover:bg-base-200"
               title="Share Streak"
             >
-              <Share2 className="w-4 h-4" />
+              <div className="flex items-center justify-center w-6 h-6">
+                <Share2 size={20} strokeWidth={2} />
+              </div>
             </button>
 
             {/* Note: Settings button removed as RoleSelector is now primary control */}
@@ -153,14 +160,16 @@ export function SparkCard() {
                 onClick={handleCopy}
                 className={`btn btn-lg w-full sm:w-auto shadow-lg group relative overflow-hidden ${isPremium ? 'btn-warning text-white' : 'btn-primary'}`}
               >
-                <span className="relative z-10 flex items-center gap-2">
-                  {copied ? <Heart className="w-5 h-5 fill-current" /> : <Copy className="w-5 h-5" />}
+                <span className="relative z-10 flex items-center gap-2 text-base-content text-opacity-100">
+                  <div className="flex items-center justify-center w-6 h-6">
+                    {copied ? <Heart size={24} strokeWidth={2} className="fill-current opacity-100" /> : <Copy size={24} strokeWidth={2} className="opacity-100" />}
+                  </div>
                   {copied ? "Sent to Heart!" : "Copy Spark"}
                 </span>
               </button>
 
               {!isPremium && (
-                <button onClick={() => setIsUpgradeOpen(true)} className="btn btn-ghost btn-xs opacity-50 hover:opacity-100">
+                <button onClick={() => setIsUpgradeOpen(true)} className="btn btn-ghost btn-xs text-base-content/60 hover:text-base-content">
                   Unlock 1-of-1 Exclusivity
                 </button>
               )}

@@ -98,10 +98,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         </button>
 
                         <div className="text-center mb-6">
-                            <h3 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                            <h3 className="text-2xl font-bold bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-500 bg-clip-text text-transparent">
                                 {status === 'verifying' ? 'Check Your Inbox' : 'Unlock Magic'}
                             </h3>
-                            <p className="text-xs text-base-content/60 mt-1">
+                            <p className="text-sm text-base-content/70 mt-1">
                                 {status === 'verifying' ? `Code sent to ${email}` : 'Log in to save your special moments'}
                             </p>
                         </div>
@@ -122,7 +122,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                 <input
                                     type="text"
                                     placeholder="Enter OTP Code"
-                                    className="input input-bordered w-full text-center tracking-[1em] font-mono text-lg"
+                                    className="input input-bordered w-full text-center tracking-[1em] font-mono text-lg text-base-content placeholder:text-base-content/40 placeholder:tracking-normal"
                                     value={otpCode}
                                     onChange={(e) => setOtpCode(e.target.value)}
                                     autoFocus
@@ -143,11 +143,11 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         ) : (
                             <form onSubmit={handleRequestOTP} className="flex flex-col gap-4">
                                 <div className="relative">
-                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-40" />
+                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/50" />
                                     <input
                                         type="email"
                                         placeholder="hello@example.com"
-                                        className="input input-bordered w-full pl-10"
+                                        className="input input-bordered w-full pl-10 text-base-content placeholder:text-base-content/40"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
