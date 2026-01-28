@@ -82,15 +82,15 @@
 ## Phase 6: SEO & Organic Growth (The Traffic Engine)
 *Goal: Creating a "Content Moat" to capture high-intent romantic search traffic.*
 
-- [ ] **Task 6.1: Programmatic SEO Architecture**
-    - [ ] Create dynamic routes: `src/app/sparks/[category]/page.tsx` (e.g., `/sparks/morning-messages-for-her`).
-    - [ ] Implement `generateStaticParams` to pre-render 50+ high-traffic category pages.
-    - [ ] Build a "Category Hero" component to display curated message previews.
-- [ ] **Task 6.2: Metadata & Structured Data**
-    - [ ] Implement dynamic `Metadata` API for unique titles/descriptions per category.
-    - [ ] Add **JSON-LD Schema** (CreativeWork/Message) to enable Google "Rich Snippets."
-- [ ] **Task 6.3: OpenGraph (OG) Automation**
-    - [ ] Integrate `@vercel/og` (Satori) to generate dynamic preview images for every SEO page and user streak.
+- [x] **Task 6.1: Programmatic SEO Architecture**
+    - [x] Create dynamic routes: `src/app/sparks/[category]/page.tsx` (e.g., `/sparks/morning-messages-for-her`).
+    - [x] Implement `generateStaticParams` to pre-render 50+ high-traffic category pages.
+    - [x] Build a "Category Hero" component to display curated message previews.
+- [x] **Task 6.2: Metadata & Structured Data**
+    - [x] Implement dynamic `Metadata` API for unique titles/descriptions per category.
+    - [x] Add **JSON-LD Schema** (CreativeWork/Message) to enable Google "Rich Snippets."
+- [x] **Task 6.3: OpenGraph (OG) Automation**
+    - [x] Integrate `@vercel/og` (Satori) to generate dynamic preview images for every SEO page and user streak.
 
 ## Phase 7: Management Hubs (The Business Layer)
 *Goal: Providing tools for user self-service and administrative oversight.*
