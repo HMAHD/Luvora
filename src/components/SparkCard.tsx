@@ -168,7 +168,7 @@ export function SparkCard() {
           </button>
 
           {/* Actions */}
-          <div className="card-actions w-full justify-center flex-col gap-3">
+          <div className="card-actions w-full justify-center flex-col items-center gap-3">
             <button
               onClick={handleCopy}
               className={`btn btn-lg w-full sm:w-auto shadow-lg group relative overflow-hidden ${isPremium ? 'btn-warning text-white' : 'btn-primary'}`}
