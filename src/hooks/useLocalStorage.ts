@@ -17,14 +17,39 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsMounted(true);
-        try {
-            const item = window.localStorage.getItem(key);
-            if (item) {
-                setStoredValue(JSON.parse(item));
+
+        const readValue = () => {
+            try {
+                const item = window.localStorage.getItem(key);
+                if (item) {
+                    setStoredValue(JSON.parse(item));
+                }
+            } catch (error) {
+                console.warn(`Error reading localStorage key "${key}":`, error);
             }
-        } catch (error) {
-            console.warn(`Error reading localStorage key "${key}":`, error);
-        }
+        };
+
+        // 1. Initial read
+        readValue();
+
+        // 2. Listen for changes from other components (dispatching custom event)
+        const handleStorageChange = (e: Event) => {
+            const customEvent = e as CustomEvent;
+            // Check if this specific key was updated
+            if (customEvent.detail === key) {
+                readValue();
+            }
+        };
+
+        window.addEventListener('local-storage', handleStorageChange);
+
+        // 3. Listen for changes from other tabs
+        window.addEventListener('storage', readValue);
+
+        return () => {
+            window.removeEventListener('local-storage', handleStorageChange);
+            window.removeEventListener('storage', readValue);
+        };
     }, [key]);
 
     const setValue = (value: T | ((val: T) => T)) => {
@@ -36,6 +61,8 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
 
             if (typeof window !== 'undefined') {
                 window.localStorage.setItem(key, JSON.stringify(valueToStore));
+                // Dispatch custom event to notify other components
+                window.dispatchEvent(new CustomEvent('local-storage', { detail: key }));
             }
         } catch (error) {
             console.warn(`Error setting localStorage key "${key}":`, error);

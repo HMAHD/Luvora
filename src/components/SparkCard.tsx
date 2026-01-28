@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Copy, Heart, Share2, Zap } from 'lucide-react';
 import { getDailySpark, getPremiumSpark, type DailySpark } from '@/lib/algo';
@@ -22,25 +22,30 @@ export function SparkCard() {
   const [role] = useLocalStorage<Role>('recipient_role', 'neutral');
 
   // State for Spark
-  const [spark, setSpark] = useState<DailySpark>(getDailySpark(new Date(), role));
+  // State for Spark (Initialize with memoized daily derivative)
+  // useMemo ensures we recalculate sync spark immediately when role changes
+  const dailySpark = useMemo(() => getDailySpark(new Date(), role), [role, partnerName]);
+
+  const [spark, setSpark] = useState<DailySpark>(dailySpark);
   const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isAutoSettingsOpen, setIsAutoSettingsOpen] = useState(false);
 
   const isPremium = user?.is_premium;
 
-  // Effect to handle Partner/Premium Spark generation
+  // Effect to handle Partner/Premium Spark generation (Async)
   useEffect(() => {
     async function loadSpark() {
       if (isPremium && user?.id) {
         const premiumSpark = await getPremiumSpark(new Date(), user.id, role);
         setSpark(premiumSpark);
       } else {
-        setSpark(getDailySpark(new Date(), role));
+        // If not premium, revert to standard daily spark
+        setSpark(dailySpark);
       }
     }
     loadSpark();
-  }, [user, role, isPremium]);
+  }, [user, role, isPremium, dailySpark]);
 
   const [copied, setCopied] = useState(false);
 
