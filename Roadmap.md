@@ -78,3 +78,59 @@
     - [x] Setup Node-Cron job on VPS to pull unique messages and send at 07:00 AM local.
 - [x] **Task 5.3: Viral Loop "Love Streak"**
     - [x] Build image generator (Canvas/HTML) for social media sharing.
+
+## Phase 6: SEO & Organic Growth (The Traffic Engine)
+*Goal: Creating a "Content Moat" to capture high-intent romantic search traffic.*
+
+- [ ] **Task 6.1: Programmatic SEO Architecture**
+    - [ ] Create dynamic routes: `src/app/sparks/[category]/page.tsx` (e.g., `/sparks/morning-messages-for-her`).
+    - [ ] Implement `generateStaticParams` to pre-render 50+ high-traffic category pages.
+    - [ ] Build a "Category Hero" component to display curated message previews.
+- [ ] **Task 6.2: Metadata & Structured Data**
+    - [ ] Implement dynamic `Metadata` API for unique titles/descriptions per category.
+    - [ ] Add **JSON-LD Schema** (CreativeWork/Message) to enable Google "Rich Snippets."
+- [ ] **Task 6.3: OpenGraph (OG) Automation**
+    - [ ] Integrate `@vercel/og` (Satori) to generate dynamic preview images for every SEO page and user streak.
+
+## Phase 7: Management Hubs (The Business Layer)
+*Goal: Providing tools for user self-service and administrative oversight.*
+
+- [ ] **Task 7.1: The User Command Center (`/dashboard`)**
+    - [ ] **Automation Hub:** UI to manage `morning_time`, `timezone`, and `messaging_id`.
+    - [ ] **Relationship Profile:** Section to update `partner_name` and `recipient_role`.
+    - [ ] **Streak History:** A grid view of previous sparks with a one-click "Re-send" button.
+- [ ] **Task 7.2: The Admin Cockpit (`/admin`)**
+    - [ ] **Financial Dashboard:** Real-time MRR and subscriber count via Lemon Squeezy API.
+    - [ ] **Content Management:** Custom CRUD interface for the PocketBase `messages` collection.
+    - [ ] **Broadcast Monitor:** Status table showing successful/failed automated sends.
+- [ ] **Task 7.3: Feature Gate & RBAC**
+    - [ ] Build a `PremiumGuard` middleware to lock dashboards features based on `tier`.
+    - [ ] Configure PocketBase API Rules to restrict `/admin` strictly to Admin UUIDs.
+
+
+## Phase 8: Reliability & Scaling (Production-Grade)
+*Goal: Hardening the system against abuse and ensuring revenue recovery.*
+
+- [ ] **Task 8.1: Anti-Spam & Security**
+    - [ ] Implement `lru-cache` rate-limiting on OTP requests (3 requests / 15 mins).
+    - [ ] Set up Webhook signature verification for Lemon Squeezy to prevent spoofing.
+- [ ] **Task 8.2: Data Recovery & Sync**
+    - [ ] Create `src/scripts/sync-subs.ts`: A manual recovery script to sync LS subscriptions to PB.
+    - [ ] Implement Webhook Idempotency: Verify `is_premium` status before redundant DB writes.
+- [ ] **Task 8.3: Automated Quality Assurance**
+    - [ ] **Unit Tests:** Vitest for `algo.ts` (determinism) and `rateLimit.ts`.
+    - [ ] **E2E Tests:** Playwright for the "Copy Spark" -> "Toast" -> "Counter Increment" flow.
+    - [ ] **API Tests:** Mock webhook payloads to verify premium unlocking logic.
+
+## Phase 9: Deployment & Handover
+*Goal: Orchestrating the "Sovereign" VPS environment.*
+
+- [ ] **Task 9.1: Process Management**
+    - [ ] Configure `PM2` for dual-process management: `luvora-web` and `luvora-broadcast`.
+- [ ] **Task 9.2: CI/CD "Sovereign Script"**
+    - [ ] Build `deploy.sh`: One-click SSH, `git pull`, `bun build`, and PM2 restart.
+- [ ] **Task 9.3: Messaging Compliance**
+    - [ ] Register WhatsApp "Morning Spark" Templates in the Meta Developer Portal.
+
+
+
