@@ -51,23 +51,23 @@
 ## Phase 3.5: Inclusivity Update (Role-Aware)
 *Goal: Personalized messages based on recipient role (He/She/They).*
 
-- [ ] **Task 3.5.1: Database/Pool Expansion**
-    - [ ] Add `target` field to logic and PB schema.
-    - [ ] Populate `pool.json` with Masculine/Feminine variants.
-- [ ] **Task 3.5.2: Logic Refactor**
-    - [ ] Update `getDailySpark` to filter by `recipient_role`.
-- [ ] **Task 3.5.3: UI Toggle**
-    - [ ] Add Settings Cog to SparkCard to switch roles.
+- [x] **Task 3.5.1: Database/Pool Expansion**
+    - [x] Add `target` field to logic and PB schema.
+    - [x] Populate `pool.json` with Masculine/Feminine variants.
+- [x] **Task 3.5.2: Logic Refactor**
+    - [x] Update `getDailySpark` to filter by `recipient_role`.
+- [x] **Task 3.5.3: UI Toggle**
+    - [x] Add Settings Cog to SparkCard to switch roles.
 
 ## Phase 4: Monetization & Exclusivity
 *Goal: Converting visitors into paying "Heroes."*
 
-- [ ] **Task 4.1: The "Unique Seed" Algorithm**
-    - [ ] Logic: `PremiumIdx = Hash(UserUUID + Today) % PremiumPoolSize`.
-- [ ] **Task 4.2: Payment Gateway (Stripe/Lemon Squeezy)**
-    - [ ] Implement Webhook listener to update `is_premium` status in PocketBase.
-- [ ] **Task 4.3: The Upgrade Modal**
-    - [ ] Design a high-conversion daisyUI modal: "Don't be 1 of 14,000. Be 1 of 1."
+- [x] **Task 4.1: The "Unique Seed" Algorithm**
+    - [x] Logic: `PremiumIdx = Hash(UserUUID + Today) % PremiumPoolSize`.
+- [x] **Task 4.2: Payment Gateway (Stripe/Lemon Squeezy)**
+    - [x] Implement Webhook listener to update `is_premium` status in PocketBase.
+- [x] **Task 4.3: The Upgrade Modal**
+    - [x] Design a high-conversion daisyUI modal: "Don't be 1 of 14,000. Be 1 of 1."
 
 ## Phase 5: Automation (The "Lazy Hero" Tier)
 *Goal: Scaling to high-ticket subscriptions with automated delivery.*

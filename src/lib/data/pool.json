@@ -285,6 +285,36 @@
                     "target": "masculine"
                 }
             ]
-        }
+        },
+        "premium": [
+            {
+                "content": "Destiny is not a matter of chance; it is a matter of choice. I choose you.",
+                "target": "neutral"
+            },
+            {
+                "content": "You are the finest, loveliest, tenderest, and most beautiful person I have ever known.",
+                "target": "neutral"
+            },
+            {
+                "content": "If I know what love is, it is because of you.",
+                "target": "neutral"
+            },
+            {
+                "content": "You are my heart, my life, my one and only thought.",
+                "target": "neutral"
+            },
+            {
+                "content": "My love for you is past the mind, beyond my heart, and into my soul.",
+                "target": "neutral"
+            },
+            {
+                "content": "You make me want to be a better man.",
+                "target": "masculine"
+            },
+            {
+                "content": "To the world you may be one person, but to one person you are the world.",
+                "target": "feminine"
+            }
+        ]
     }
 }

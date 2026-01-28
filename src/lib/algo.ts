@@ -86,3 +86,69 @@ export function getDailySpark(date: Date = new Date(), role: Role = 'neutral'): 
         night: { content: nightFiltered[nightIndex].content, vibe: nightVibe },
     };
 }
+
+/**
+ * Generates a Premium Unique Spark.
+ * Seed = UserID + Date.
+ * Uses SHA-256 for high entropy distribution.
+ */
+export async function getPremiumSpark(date: Date, userId: string, role: Role): Promise<DailySpark> {
+    const dateStr = date.toISOString().split('T')[0];
+    const seed = `${userId}-${dateStr}`;
+
+    // Check environment for crypto
+    let spin = 0;
+    if (typeof crypto !== 'undefined' && crypto.subtle) {
+        const msgBuffer = new TextEncoder().encode(seed);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        // Take first 4 bytes as integer
+        spin = (hashArray[0] << 24) | (hashArray[1] << 16) | (hashArray[2] << 8) | hashArray[3];
+    } else {
+        // Fallback or Node env (though Bun supports subtle)
+        // Simple string hash fallback if async is annoying, but we made this async.
+        spin = fnv1a(seed);
+    }
+
+    // Abs for index
+    const safeSpin = Math.abs(spin);
+
+    // 1. Nickname (Standard pool, unique spin)
+    const nickname = pool.nicknames[safeSpin % pool.nicknames.length];
+
+    // 2. Vibes (Standard)
+    const morningVibe = selectVibe(`${seed}-mV`);
+    const nightVibe = selectVibe(`${seed}-nV`);
+
+    // 3. Premium Filter
+    // Try to get from Premium pool first
+    let premiumMsgs = (pool.messages as any).premium as MessageObj[] || [];
+    let targetedPremium = filterPool(premiumMsgs, role);
+
+    let morningContent = "";
+    let nightContent = "";
+
+    // Fallback Logic: If premium pool empty/exhausted for role, use standard pool with UNIQUE seed
+    if (targetedPremium.length > 0) {
+        morningContent = targetedPremium[safeSpin % targetedPremium.length].content;
+        // Shift spin for night
+        nightContent = targetedPremium[(safeSpin + 1) % targetedPremium.length].content;
+    } else {
+        // Fallback to standard but unique index
+        const rawMorning = pool.messages.morning[morningVibe as keyof typeof pool.messages.morning] as MessageObj[];
+        const rawNight = pool.messages.night[nightVibe as keyof typeof pool.messages.night] as MessageObj[];
+
+        const mFiltered = filterPool(rawMorning, role);
+        const nFiltered = filterPool(rawNight, role);
+
+        morningContent = mFiltered[safeSpin % mFiltered.length].content;
+        nightContent = nFiltered[(safeSpin + 1) % nFiltered.length].content;
+    }
+
+    return {
+        date: dateStr,
+        nickname,
+        morning: { content: morningContent, vibe: morningVibe },
+        night: { content: nightContent, vibe: nightVibe }
+    };
+}
