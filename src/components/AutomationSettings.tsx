@@ -25,6 +25,8 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
                 messaging_id: msgId,
                 timezone: timezone
             });
+            // Refresh auth to update user data in context
+            await pb.collection('users').authRefresh();
             setSuccess(true);
             setTimeout(onClose, 1500);
         } catch (err) {
