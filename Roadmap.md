@@ -220,7 +220,7 @@
 - [ ] **Task 10.2: CI/CD "Sovereign Script"**
     - [ ] Build `deploy.sh`: One-click SSH, `git pull`, `bun build`, and PM2 restart.
 - [ ] **Task 10.3: Messaging Compliance**
-    - [ ] Register WhatsApp "Morning Spark" Templates in the Meta Developer Portal.
+    - [ ] Register WhatsApp "Luvora Spark" Templates in the Meta Developer Portal.
 
 
 

@@ -70,21 +70,36 @@ function getMessagesForCategory(category: ReturnType<typeof getCategoryBySlug>) 
 
   type MessageObj = { content: string; target: string };
   const messages: { content: string; vibe: string }[] = [];
-  const vibes = category.vibe ? [category.vibe] : ['poetic', 'playful', 'minimal'] as const;
+  // Phase 8: Updated tones (replaced 'minimal' with new emotional tones)
+  const AVAILABLE_TONES = ['poetic', 'playful', 'romantic', 'passionate', 'sweet', 'supportive'] as const;
+  type ToneName = typeof AVAILABLE_TONES[number];
+
+  // Map old vibe names to Phase 8 tones
+  const mapVibeToTone = (vibe: string | undefined): ToneName[] => {
+    if (!vibe) return [...AVAILABLE_TONES];
+    if (vibe === 'minimal') return ['sweet']; // Map minimal to sweet
+    if (AVAILABLE_TONES.includes(vibe as ToneName)) return [vibe as ToneName];
+    return [...AVAILABLE_TONES];
+  };
+
+  const tones = mapVibeToTone(category.vibe);
   const times = category.timeOfDay === 'both'
     ? ['morning', 'night'] as const
     : [category.timeOfDay] as const;
 
   for (const time of times) {
-    for (const vibe of vibes) {
-      const poolMessages = pool.messages[time][vibe] as MessageObj[];
+    for (const tone of tones) {
+      const timePool = pool.messages[time as 'morning' | 'night'] as Record<ToneName, MessageObj[]>;
+      const poolMessages = timePool[tone];
+      if (!poolMessages) continue;
+
       const filtered = poolMessages.filter(
         (m) => m.target === 'neutral' || m.target === category.target
       );
 
-      // Take up to 2 messages from each vibe/time combo
+      // Take up to 2 messages from each tone/time combo
       filtered.slice(0, 2).forEach((m) => {
-        messages.push({ content: m.content, vibe });
+        messages.push({ content: m.content, vibe: tone });
       });
     }
   }

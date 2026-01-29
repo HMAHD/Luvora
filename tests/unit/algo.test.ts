@@ -81,17 +81,17 @@ describe('Logic: Role-Based Differentiation (Phase 7.5)', () => {
         expect(spark).toHaveProperty('morning');
         expect(spark).toHaveProperty('night');
         expect(spark.morning).toHaveProperty('content');
-        expect(spark.morning).toHaveProperty('vibe');
+        expect(spark.morning).toHaveProperty('tone');
         expect(spark.night).toHaveProperty('content');
-        expect(spark.night).toHaveProperty('vibe');
+        expect(spark.night).toHaveProperty('tone');
     });
 
-    test('Vibe is one of valid options', () => {
+    test('Tone is one of valid options (Phase 8)', () => {
         const spark = getDailySpark(date, 'neutral');
-        const validVibes = ['poetic', 'playful', 'minimal'];
+        const validTones = ['poetic', 'playful', 'romantic', 'passionate', 'sweet', 'supportive'];
 
-        expect(validVibes).toContain(spark.morning.vibe);
-        expect(validVibes).toContain(spark.night.vibe);
+        expect(validTones).toContain(spark.morning.tone);
+        expect(validTones).toContain(spark.night.tone);
     });
 });
 

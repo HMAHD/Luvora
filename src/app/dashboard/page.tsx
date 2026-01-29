@@ -4,9 +4,15 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { AuthGuard } from '@/components/guards/PremiumGuard';
-import { HeroGate } from '@/components/guards/TierGate';
+import { HeroGate, LegendGate } from '@/components/guards/TierGate';
 import { TierBadge } from '@/components/TierBadge';
-import { TIER, TIER_NAMES } from '@/lib/types';
+import { LoveLanguageQuiz } from '@/components/LoveLanguageQuiz';
+import { ToneSelector } from '@/components/ToneSelector';
+import { CountdownWidget, CountdownWidgetMini } from '@/components/CountdownWidget';
+import { SparkArchive } from '@/components/SparkArchive';
+import { PartnerLink } from '@/components/PartnerLink';
+import { DeveloperIntegrations } from '@/components/DeveloperIntegrations';
+import { TIER, TIER_NAMES, LOVE_LANGUAGE_NAMES, type LoveLanguage } from '@/lib/types';
 import {
   User,
   Clock,
@@ -17,9 +23,11 @@ import {
   ArrowLeft,
   Check,
   Sparkles,
-  Copy,
   Crown,
   MessageCircle,
+  Cake,
+  Gift,
+  MessageCircleHeart,
 } from 'lucide-react';
 import Link from 'next/link';
 import { getDailySpark } from '@/lib/algo';
@@ -28,7 +36,7 @@ type Role = 'neutral' | 'masculine' | 'feminine';
 
 function DashboardContent() {
   const { user, pb } = useAuth();
-  const [activeTab, setActiveTab] = useState<'profile' | 'automation' | 'history'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'automation' | 'history'>('profile');
 
   // Form states - Initialize from user object (PocketBase), NOT localStorage
   const [formPartnerName, setFormPartnerName] = useState('');
@@ -39,8 +47,11 @@ function DashboardContent() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // Streak history
-  const [sparkHistory, setSparkHistory] = useState<Array<{ date: string; morning: string; night: string }>>([]);
+  // Phase 8: Legend tier fields
+  const [showLoveLanguageQuiz, setShowLoveLanguageQuiz] = useState(false);
+  const [anniversaryDate, setAnniversaryDate] = useState('');
+  const [partnerBirthday, setPartnerBirthday] = useState('');
+  const [relationshipStart, setRelationshipStart] = useState('');
 
   // User tier (default to FREE)
   const userTier = user?.tier ?? TIER.FREE;
@@ -53,25 +64,12 @@ function DashboardContent() {
       setMorningTime(user.morning_time || '08:00');
       setPlatform(user.messaging_platform || 'telegram');
       setMsgId(user.messaging_id || '');
+      // Phase 8 fields
+      setAnniversaryDate(user.anniversary_date || '');
+      setPartnerBirthday(user.partner_birthday || '');
+      setRelationshipStart(user.relationship_start || '');
     }
   }, [user]);
-
-  // Generate spark history - Free users see 3 days, Hero+ see 7 days
-  useEffect(() => {
-    const daysToShow = userTier >= TIER.HERO ? 7 : 3;
-    const history = [];
-    for (let i = 0; i < daysToShow; i++) {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      const spark = getDailySpark(date, formRole);
-      history.push({
-        date: date.toISOString().split('T')[0],
-        morning: spark.morning.content,
-        night: spark.night.content,
-      });
-    }
-    setSparkHistory(history);
-  }, [formRole, userTier]);
 
   const handleSaveProfile = async () => {
     if (!user?.id) return;
@@ -86,6 +84,16 @@ function DashboardContent() {
       // Also update localStorage for SparkCard (synced)
       localStorage.setItem('partner_name', JSON.stringify(formPartnerName));
       localStorage.setItem('recipient_role', JSON.stringify(formRole));
+
+      // Update auth store to trigger realtime updates
+      const currentRecord = pb.authStore.record;
+      if (currentRecord) {
+        pb.authStore.save(pb.authStore.token!, {
+          ...currentRecord,
+          partner_name: formPartnerName,
+          recipient_role: formRole,
+        });
+      }
 
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -116,10 +124,32 @@ function DashboardContent() {
     }
   };
 
-  const handleCopySpark = (content: string) => {
-    navigator.clipboard.writeText(content);
-    if (navigator.vibrate) {
-      navigator.vibrate([15, 50, 15]);
+  const handleSaveDates = async () => {
+    if (!user?.id) return;
+    setSaving(true);
+    try {
+      await pb.collection('users').update(user.id, {
+        anniversary_date: anniversaryDate || null,
+        partner_birthday: partnerBirthday || null,
+        relationship_start: relationshipStart || null,
+      });
+
+      const currentRecord = pb.authStore.record;
+      if (currentRecord) {
+        pb.authStore.save(pb.authStore.token!, {
+          ...currentRecord,
+          anniversary_date: anniversaryDate || null,
+          partner_birthday: partnerBirthday || null,
+          relationship_start: relationshipStart || null,
+        });
+      }
+
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      console.error('Failed to save dates:', err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -138,6 +168,13 @@ function DashboardContent() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            {/* Countdown Mini Widget */}
+            {userTier >= TIER.LEGEND && (
+              <CountdownWidgetMini
+                anniversaryDate={user?.anniversary_date}
+                partnerBirthday={user?.partner_birthday}
+              />
+            )}
             <TierBadge tier={userTier} size="md" />
             <div className="w-10 h-10 rounded-full bg-primary text-primary-content flex items-center justify-center">
               <span className="text-sm font-bold">{user?.email?.charAt(0).toUpperCase()}</span>
@@ -156,6 +193,13 @@ function DashboardContent() {
             >
               <Heart className="w-4 h-4" />
               Profile
+            </button>
+            <button
+              onClick={() => setActiveTab('preferences')}
+              className={`tab tab-lg gap-2 ${activeTab === 'preferences' ? 'tab-active' : ''}`}
+            >
+              <Crown className="w-4 h-4" />
+              Preferences
             </button>
             <button
               onClick={() => setActiveTab('automation')}
@@ -209,6 +253,23 @@ function DashboardContent() {
                 <div className="stat-value text-lg">{TIER_NAMES[userTier]}</div>
                 <div className="stat-desc">{userTier === TIER.FREE ? <Link href="/pricing" className="link link-primary">Upgrade</Link> : 'Active'}</div>
               </div>
+              {/* Love Language Stat (Legend only) */}
+              {userTier >= TIER.LEGEND && (
+                <div className="stat bg-base-100 rounded-2xl shadow-sm border border-base-content/5">
+                  <div className="stat-figure text-pink-400">
+                    <MessageCircleHeart className="w-8 h-8" />
+                  </div>
+                  <div className="stat-title text-xs">Love Language</div>
+                  <div className="stat-value text-sm truncate">
+                    {user?.love_language ? LOVE_LANGUAGE_NAMES[user.love_language as LoveLanguage] : 'Not set'}
+                  </div>
+                  <div className="stat-desc">
+                    <button onClick={() => setShowLoveLanguageQuiz(true)} className="link link-primary text-xs">
+                      {user?.love_language ? 'Retake Quiz' : 'Take Quiz'}
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Relationship Profile */}
@@ -276,6 +337,180 @@ function DashboardContent() {
                 </div>
               </div>
             </div>
+
+          </motion.div>
+        )}
+
+        {/* Preferences Tab */}
+        {activeTab === 'preferences' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <LegendGate blur>
+              {/* Love Language & Tone Preferences */}
+              <div className="card bg-base-100 shadow-sm border border-base-content/5">
+                <div className="card-body gap-6">
+                  {/* Header */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-lg shadow-yellow-500/20">
+                      <Crown className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="font-bold text-lg">Legend Preferences</h2>
+                      <p className="text-xs text-base-content/50">Personalized sparks just for you</p>
+                    </div>
+                  </div>
+
+                  <div className="divider my-0"></div>
+
+                  {/* Love Language Section */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <MessageCircleHeart className="w-4 h-4 text-pink-400" />
+                      <span className="font-medium text-sm">Love Language</span>
+                    </div>
+
+                    {user?.love_language ? (
+                      <div className="flex items-center justify-between bg-base-200/50 rounded-xl p-4 border border-base-300">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-pink-400/10 flex items-center justify-center">
+                            <Heart className="w-5 h-5 text-pink-400" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-base-content">
+                              {LOVE_LANGUAGE_NAMES[user.love_language as LoveLanguage]}
+                            </p>
+                            <p className="text-xs text-base-content/50">Your primary love language</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setShowLoveLanguageQuiz(true)}
+                          className="btn btn-ghost btn-sm"
+                        >
+                          Retake
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowLoveLanguageQuiz(true)}
+                        className="w-full btn btn-outline btn-primary gap-2"
+                      >
+                        <Heart className="w-4 h-4" />
+                        Discover Your Love Language
+                      </button>
+                    )}
+                    <p className="text-xs text-base-content/40 pl-1">
+                      Get sparks that speak directly to how you experience love
+                    </p>
+                  </div>
+
+                  <div className="divider my-0"></div>
+
+                  {/* Emotional Tone */}
+                  <ToneSelector />
+                </div>
+              </div>
+
+              {/* Important Dates */}
+              <div className="card bg-base-100 shadow-sm border border-base-content/5 mt-6">
+                <div className="card-body">
+                  <h2 className="card-title text-lg flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-primary" />
+                    Important Dates
+                  </h2>
+                  <p className="text-sm text-base-content/60 mb-4">
+                    Get special sparks on your most cherished days
+                  </p>
+
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text flex items-center gap-2">
+                          <Heart className="w-4 h-4 text-pink-400" />
+                          Anniversary
+                        </span>
+                      </label>
+                      <input
+                        type="date"
+                        className="input input-bordered w-full"
+                        value={anniversaryDate}
+                        onChange={(e) => setAnniversaryDate(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text flex items-center gap-2">
+                          <Cake className="w-4 h-4 text-amber-400" />
+                          Partner&apos;s Birthday
+                        </span>
+                      </label>
+                      <input
+                        type="date"
+                        className="input input-bordered w-full"
+                        value={partnerBirthday}
+                        onChange={(e) => setPartnerBirthday(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text flex items-center gap-2">
+                          <Gift className="w-4 h-4 text-purple-400" />
+                          Started Dating
+                        </span>
+                      </label>
+                      <input
+                        type="date"
+                        className="input input-bordered w-full"
+                        value={relationshipStart}
+                        onChange={(e) => setRelationshipStart(e.target.value)}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleSaveDates}
+                    disabled={saving}
+                    className={`btn w-full mt-4 ${saved ? 'btn-success' : 'btn-primary'}`}
+                  >
+                    {saving ? (
+                      <span className="loading loading-spinner" />
+                    ) : saved ? (
+                      <>
+                        <Check className="w-4 h-4" /> Saved!
+                      </>
+                    ) : (
+                      'Save Important Dates'
+                    )}
+                  </button>
+
+                  {/* Countdown Widget */}
+                  {(anniversaryDate || partnerBirthday || relationshipStart) && (
+                    <div className="mt-6 pt-6 border-t border-base-content/10">
+                      <CountdownWidget
+                        anniversaryDate={anniversaryDate}
+                        partnerBirthday={partnerBirthday}
+                        relationshipStart={relationshipStart}
+                        partnerName={formPartnerName || 'Partner'}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Partner Link Section */}
+              <div className="mt-6">
+                <PartnerLink />
+              </div>
+
+              {/* Developer Integrations */}
+              <div className="mt-6">
+                <DeveloperIntegrations />
+              </div>
+            </LegendGate>
           </motion.div>
         )}
 
@@ -391,84 +626,17 @@ function DashboardContent() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="space-y-4"
           >
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-base-content flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-primary" />
-                Spark History
-              </h2>
-              <span className="text-sm text-base-content/60">
-                Last {userTier >= TIER.HERO ? '7' : '3'} days
-                {userTier < TIER.HERO && (
-                  <Link href="/pricing" className="ml-2 link link-primary text-xs">
-                    Upgrade for full history
-                  </Link>
-                )}
-              </span>
-            </div>
-
-            <div className="space-y-3">
-              {sparkHistory.map((spark, index) => {
-                const date = new Date(spark.date);
-                const isToday = index === 0;
-                const dayName = isToday ? 'Today' : date.toLocaleDateString('en-US', { weekday: 'short' });
-                const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-
-                return (
-                  <div
-                    key={spark.date}
-                    className={`card bg-base-100 shadow-sm border ${isToday ? 'border-primary/30' : 'border-base-content/5'}`}
-                  >
-                    <div className="card-body p-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <span className={`font-bold ${isToday ? 'text-primary' : 'text-base-content'}`}>
-                            {dayName}
-                          </span>
-                          <span className="text-sm text-base-content/50">{dateStr}</span>
-                        </div>
-                        {isToday && (
-                          <span className="badge badge-primary badge-sm">Current</span>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <div className="flex items-start gap-3 p-3 bg-base-200/50 rounded-lg">
-                          <span className="text-lg">☀️</span>
-                          <div className="flex-1">
-                            <p className="text-sm text-base-content">{spark.morning}</p>
-                          </div>
-                          <button
-                            onClick={() => handleCopySpark(spark.morning)}
-                            className="btn btn-ghost btn-xs"
-                            title="Copy"
-                          >
-                            <Copy className="w-3 h-3" />
-                          </button>
-                        </div>
-                        <div className="flex items-start gap-3 p-3 bg-base-200/50 rounded-lg">
-                          <span className="text-lg">🌙</span>
-                          <div className="flex-1">
-                            <p className="text-sm text-base-content">{spark.night}</p>
-                          </div>
-                          <button
-                            onClick={() => handleCopySpark(spark.night)}
-                            className="btn btn-ghost btn-xs"
-                            title="Copy"
-                          >
-                            <Copy className="w-3 h-3" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+            <SparkArchive userTier={userTier} role={formRole} />
           </motion.div>
         )}
       </main>
+
+      {/* Love Language Quiz Modal */}
+      <LoveLanguageQuiz
+        isOpen={showLoveLanguageQuiz}
+        onClose={() => setShowLoveLanguageQuiz(false)}
+      />
     </div>
   );
 }

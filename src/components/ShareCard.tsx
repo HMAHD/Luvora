@@ -132,6 +132,52 @@ const CARD_STYLES: CardStyle[] = [
     accentColor: 'text-orange-400',
     minTier: TIER.LEGEND,
   },
+  // Premium Legend Templates (Phase 8)
+  {
+    id: 'velvet',
+    name: 'Velvet Night',
+    gradient: 'from-violet-600 via-purple-700 to-indigo-800',
+    textGradient: 'from-violet-300 via-purple-300 to-pink-300',
+    bgColor: 'bg-gradient-to-br from-violet-950 to-indigo-950',
+    accentColor: 'text-violet-300',
+    minTier: TIER.LEGEND,
+  },
+  {
+    id: 'champagne',
+    name: 'Champagne',
+    gradient: 'from-amber-200 via-yellow-300 to-amber-400',
+    textGradient: 'from-amber-600 via-yellow-600 to-orange-600',
+    bgColor: 'bg-gradient-to-br from-amber-50 to-yellow-100',
+    accentColor: 'text-amber-700',
+    minTier: TIER.LEGEND,
+  },
+  {
+    id: 'nebula',
+    name: 'Nebula',
+    gradient: 'from-fuchsia-500 via-purple-600 to-blue-700',
+    textGradient: 'from-fuchsia-400 via-purple-400 to-cyan-400',
+    bgColor: 'bg-gradient-to-br from-fuchsia-950 via-purple-950 to-blue-950',
+    accentColor: 'text-fuchsia-400',
+    minTier: TIER.LEGEND,
+  },
+  {
+    id: 'arctic',
+    name: 'Arctic Frost',
+    gradient: 'from-cyan-300 via-blue-400 to-indigo-500',
+    textGradient: 'from-cyan-400 via-blue-300 to-white',
+    bgColor: 'bg-gradient-to-br from-cyan-100 to-blue-100',
+    accentColor: 'text-cyan-600',
+    minTier: TIER.LEGEND,
+  },
+  {
+    id: 'eternal',
+    name: 'Eternal Love',
+    gradient: 'from-rose-500 via-red-500 to-pink-600',
+    textGradient: 'from-rose-200 via-pink-200 to-white',
+    bgColor: 'bg-gradient-to-br from-rose-900 via-red-950 to-pink-950',
+    accentColor: 'text-rose-300',
+    minTier: TIER.LEGEND,
+  },
 ];
 
 // Marketing text for sharing

@@ -2,33 +2,46 @@ import { describe, expect, test } from 'vitest';
 import { SEO_CATEGORIES, getCategoryBySlug } from '../../src/lib/seo-categories';
 import pool from '../../src/lib/data/pool.json';
 
-type MessageObj = { content: string; target: string };
+type MessageObj = { content: string; target: string; love_language?: string; rarity?: string };
+
+// Phase 8: Updated tones (replaced 'minimal' with new emotional tones)
+const AVAILABLE_TONES = ['poetic', 'playful', 'romantic', 'passionate', 'sweet', 'supportive'] as const;
 
 /**
  * Helper: Get messages for a category (mirrors page logic)
+ * Updated for Phase 8: Uses tones instead of vibes
  */
 function getMessagesForCategory(slug: string) {
   const category = getCategoryBySlug(slug);
   if (!category) return [];
 
-  const messages: { content: string; vibe: string }[] = [];
-  const vibes = category.vibe
-    ? [category.vibe]
-    : (['poetic', 'playful', 'minimal'] as const);
+  const messages: { content: string; tone: string }[] = [];
+
+  // Map old vibe names to Phase 8 tones
+  const mapVibeToTone = (vibe: string | undefined) => {
+    if (!vibe) return AVAILABLE_TONES;
+    if (vibe === 'minimal') return ['sweet']; // Map minimal to sweet
+    return [vibe];
+  };
+
+  const tones = mapVibeToTone(category.vibe);
   const times =
     category.timeOfDay === 'both'
       ? (['morning', 'night'] as const)
       : ([category.timeOfDay] as const);
 
   for (const time of times) {
-    for (const vibe of vibes) {
-      const poolMessages = pool.messages[time][vibe] as MessageObj[];
+    for (const tone of tones) {
+      const timePool = pool.messages[time as 'morning' | 'night'] as Record<string, MessageObj[]>;
+      const poolMessages = timePool[tone];
+      if (!poolMessages) continue;
+
       const filtered = poolMessages.filter(
         (m) => m.target === 'neutral' || m.target === category.target
       );
 
       filtered.slice(0, 2).forEach((m) => {
-        messages.push({ content: m.content, vibe });
+        messages.push({ content: m.content, tone });
       });
     }
   }
@@ -100,10 +113,10 @@ describe('SEO Page: Message Retrieval', () => {
     const messages = getMessagesForCategory('morning-messages-for-her');
     expect(messages.length).toBeGreaterThan(0);
 
-    // All messages should be valid
+    // All messages should be valid - Phase 8 uses tones
     messages.forEach((msg) => {
       expect(msg.content).toBeTruthy();
-      expect(['poetic', 'playful', 'minimal']).toContain(msg.vibe);
+      expect(AVAILABLE_TONES).toContain(msg.tone);
     });
   });
 
@@ -117,13 +130,13 @@ describe('SEO Page: Message Retrieval', () => {
     expect(messages.length).toBeGreaterThan(0);
   });
 
-  test('retrieves messages for vibe-specific category', () => {
+  test('retrieves messages for tone-specific category', () => {
     const messages = getMessagesForCategory('poetic-love-messages');
     expect(messages.length).toBeGreaterThan(0);
 
-    // All should be poetic vibe
+    // All should be poetic tone
     messages.forEach((msg) => {
-      expect(msg.vibe).toBe('poetic');
+      expect(msg.tone).toBe('poetic');
     });
   });
 

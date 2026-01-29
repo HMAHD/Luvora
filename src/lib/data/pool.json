@@ -1,320 +1,263 @@
 {
     "nicknames": [
-        "Nova",
-        "Suki",
-        "Luna",
-        "Kai",
-        "Milo",
-        "Echo",
-        "Aria",
-        "Zion",
-        "Cleo",
-        "Ezra",
-        "Juno",
-        "Bowie",
-        "Nico",
-        "Remi",
-        "Sage",
-        "Veda",
-        "Wren",
-        "Xena",
-        "Yara",
-        "Zane",
-        "Atlas",
-        "Bear",
-        "Coco",
-        "Dove",
-        "Elio",
-        "Faye",
-        "Grey",
-        "Halo",
-        "Indie",
-        "Jazz",
-        "Koda",
-        "Lux",
-        "Mars",
-        "Navy",
-        "Onyx",
-        "Pip",
-        "Quinn",
-        "Rue",
-        "Sky",
-        "True",
-        "Uma",
-        "Vale",
-        "Wolf",
-        "Xyle",
-        "Yolo",
-        "Zola",
-        "Ace",
-        "Blue",
-        "Chip",
-        "Dash",
-        "Elm",
-        "Fox",
-        "Gem",
-        "Hawk",
-        "Ivy",
-        "Jet",
-        "Kit",
-        "Lark",
-        "Moon",
-        "Nori"
+        "Nova", "Suki", "Luna", "Kai", "Milo", "Echo", "Aria", "Zion", "Cleo", "Ezra",
+        "Juno", "Bowie", "Nico", "Remi", "Sage", "Veda", "Wren", "Xena", "Yara", "Zane",
+        "Atlas", "Bear", "Coco", "Dove", "Elio", "Faye", "Grey", "Halo", "Indie", "Jazz",
+        "Koda", "Lux", "Mars", "Navy", "Onyx", "Pip", "Quinn", "Rue", "Sky", "True",
+        "Uma", "Vale", "Wolf", "Xyle", "Yolo", "Zola", "Ace", "Blue", "Chip", "Dash",
+        "Elm", "Fox", "Gem", "Hawk", "Ivy", "Jet", "Kit", "Lark", "Moon", "Nori"
     ],
     "messages": {
         "morning": {
             "poetic": [
-                {
-                    "content": "The sun rose just to see your smile today.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Morning light paints the world, but you color my life.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Awake, my love. The universe has written a new page for us.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Softly the day begins, like a whisper of hope.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "The dawn breaks, and with it, my love for you renews.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "You are the poetry the morning writes in light.",
-                    "target": "feminine"
-                },
-                {
-                    "content": "Your beauty outshines the sunrise, my love.",
-                    "target": "feminine"
-                },
-                {
-                    "content": "Waking up to you is like finding a rare flower in bloom.",
-                    "target": "feminine"
-                },
-                {
-                    "content": "Rise, my king. The world awaits your strength.",
-                    "target": "masculine"
-                },
-                {
-                    "content": "The morning sun honors your resilience.",
-                    "target": "masculine"
-                },
-                {
-                    "content": "Walk into this day with the heart of a warrior.",
-                    "target": "masculine"
-                }
+                { "content": "The sun rose just to see your smile today.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Morning light paints the world, but you color my life.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Awake, my love. The universe has written a new page for us.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Softly the day begins, like a whisper of hope.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "The dawn breaks, and with it, my love for you renews.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "You are the poetry the morning writes in light.", "target": "feminine", "love_language": "words_of_affirmation", "rarity": "epic" },
+                { "content": "Your beauty outshines the sunrise, my love.", "target": "feminine", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Waking up to you is like finding a rare flower in bloom.", "target": "feminine", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Rise, my king. The world awaits your strength.", "target": "masculine", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "The morning sun honors your resilience.", "target": "masculine", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Walk into this day with the heart of a warrior.", "target": "masculine", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Each morning with you is a verse in my favorite poem.", "target": "neutral", "love_language": "quality_time", "rarity": "epic" },
+                { "content": "The stars handed their light to the sun, and it reminded me of you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" }
             ],
             "playful": [
-                {
-                    "content": "Good morning! I love you more than coffee (and that's a lot).",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Rise and shine, superstar!",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Warning: You look too good this morning.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Top o' the morning to my favorite human.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Hello gorgeous! Try not to break too many hearts today.",
-                    "target": "feminine"
-                },
-                {
-                    "content": "Wakey wakey, beautiful! The world needs your sparkle.",
-                    "target": "feminine"
-                },
-                {
-                    "content": "Hey handsome, save some cool for the rest of us.",
-                    "target": "masculine"
-                },
-                {
-                    "content": "Morning, champ. Time to dominate (after coffee).",
-                    "target": "masculine"
-                },
-                {
-                    "content": "Look at you, all handsome and awake. Just wow.",
-                    "target": "masculine"
-                }
+                { "content": "Good morning! I love you more than coffee (and that's a lot).", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Rise and shine, superstar!", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Warning: You look too good this morning.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Top o' the morning to my favorite human.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Hello gorgeous! Try not to break too many hearts today.", "target": "feminine", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Wakey wakey, beautiful! The world needs your sparkle.", "target": "feminine", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Hey handsome, save some cool for the rest of us.", "target": "masculine", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Morning, champ. Time to dominate (after coffee).", "target": "masculine", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Look at you, all handsome and awake. Just wow.", "target": "masculine", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Did it hurt when you fell out of bed? Because you landed perfectly.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "I'm jealous of the pillow that got to be close to you all night.", "target": "neutral", "love_language": "physical_touch", "rarity": "epic" }
             ],
-            "minimal": [
-                {
-                    "content": "Today is yours.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Breathe. Begin.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Morning, love.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "New day. New grace.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "You are radiant.",
-                    "target": "feminine"
-                },
-                {
-                    "content": "Shine on.",
-                    "target": "feminine"
-                },
-                {
-                    "content": "Hello, beauty.",
-                    "target": "feminine"
-                },
-                {
-                    "content": "Stand tall.",
-                    "target": "masculine"
-                },
-                {
-                    "content": "Lead on.",
-                    "target": "masculine"
-                },
-                {
-                    "content": "Stay strong.",
-                    "target": "masculine"
-                }
+            "romantic": [
+                { "content": "Every morning I wake up grateful that you're in my life.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "My first thought this morning was you. My last thought tonight will be you too.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "I wish I could start every day holding your hand.", "target": "neutral", "love_language": "physical_touch", "rarity": "rare" },
+                { "content": "You make my heart skip a beat, even before I've had my coffee.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Missing your warmth beside me this morning.", "target": "neutral", "love_language": "physical_touch", "rarity": "common" },
+                { "content": "I can't wait to build a beautiful day with you.", "target": "neutral", "love_language": "quality_time", "rarity": "common" },
+                { "content": "You are my sunshine, my forever sunrise.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Wake up knowing you're the most loved person on this planet.", "target": "feminine", "love_language": "words_of_affirmation", "rarity": "epic" },
+                { "content": "You're not just my partner, you're my home. Good morning, home.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+                { "content": "I dreamed of us, and waking up made it even better.", "target": "neutral", "love_language": "quality_time", "rarity": "rare" }
+            ],
+            "passionate": [
+                { "content": "I woke up burning to see you today.", "target": "neutral", "love_language": "physical_touch", "rarity": "rare" },
+                { "content": "The fire in my heart for you never sleeps.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Can't stop thinking about the way you look at me.", "target": "neutral", "love_language": "physical_touch", "rarity": "common" },
+                { "content": "Every morning without you feels incomplete.", "target": "neutral", "love_language": "physical_touch", "rarity": "common" },
+                { "content": "I crave your presence like the dawn craves the sun.", "target": "neutral", "love_language": "physical_touch", "rarity": "epic" },
+                { "content": "My soul recognizes yours across any distance.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+                { "content": "You intoxicate my senses, even from afar.", "target": "neutral", "love_language": "physical_touch", "rarity": "epic" },
+                { "content": "Counting every moment until I can hold you again.", "target": "neutral", "love_language": "physical_touch", "rarity": "rare" }
+            ],
+            "sweet": [
+                { "content": "Sending you the sweetest morning hugs.", "target": "neutral", "love_language": "physical_touch", "rarity": "common" },
+                { "content": "Just wanted to remind you how special you are.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Hope your morning is as lovely as your smile.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "You deserve all the good things today brings.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Thinking of you with a big smile on my face.", "target": "neutral", "love_language": "quality_time", "rarity": "common" },
+                { "content": "You're the honey in my morning tea.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Just knowing you exist makes everything better.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "You're my favorite notification to wake up to.", "target": "neutral", "love_language": "quality_time", "rarity": "rare" },
+                { "content": "Wrapped in thoughts of you this cozy morning.", "target": "neutral", "love_language": "quality_time", "rarity": "common" }
+            ],
+            "supportive": [
+                { "content": "Whatever today brings, remember I believe in you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "You've got this. And you've got me, always.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Take on today knowing someone is cheering for you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Your strength inspires me every single day.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "No matter what happens today, I'm proud of you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Remember: You are capable of amazing things.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "I'm here for you, today and always.", "target": "neutral", "love_language": "acts_of_service", "rarity": "common" },
+                { "content": "Go show the world what I already know: you're incredible.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "epic" },
+                { "content": "Your courage in facing each day amazes me.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Whatever mountain you're climbing today, I'll be waiting at the top.", "target": "neutral", "love_language": "acts_of_service", "rarity": "epic" }
             ]
         },
         "night": {
             "poetic": [
-                {
-                    "content": "The stars are just holes in the floor of heaven, watching over you.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Let the moonlight guide your dreams tonight.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Sleep softly, for the night holds you in its arms.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "The day is done, but my love for you is endless.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Rest now, my beautiful muse. The stars envy your light.",
-                    "target": "feminine"
-                },
-                {
-                    "content": "May your dreams be as lovely as you are.",
-                    "target": "feminine"
-                },
-                {
-                    "content": "Rest your strength, my hero. The battle pauses for the night.",
-                    "target": "masculine"
-                },
-                {
-                    "content": "The night sky bows to your quiet power.",
-                    "target": "masculine"
-                }
+                { "content": "The stars are just holes in the floor of heaven, watching over you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Let the moonlight guide your dreams tonight.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Sleep softly, for the night holds you in its arms.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "The day is done, but my love for you is endless.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Rest now, my beautiful muse. The stars envy your light.", "target": "feminine", "love_language": "words_of_affirmation", "rarity": "epic" },
+                { "content": "May your dreams be as lovely as you are.", "target": "feminine", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Rest your strength, my hero. The battle pauses for the night.", "target": "masculine", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "The night sky bows to your quiet power.", "target": "masculine", "love_language": "words_of_affirmation", "rarity": "epic" },
+                { "content": "The moon carries my whispered love to you tonight.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+                { "content": "As the world sleeps, know that my heart stays awake for you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "epic" }
             ],
             "playful": [
-                {
-                    "content": "Goodnight! Don't let the bed bugs bite (seriously).",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Sleep tight, don't text and drive... wait, you're sleeping.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Dream of me, or I'll be jealous.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Sleep well, pretty lady.",
-                    "target": "feminine"
-                },
-                {
-                    "content": "Beauty sleep time! (Not that you need it).",
-                    "target": "feminine"
-                },
-                {
-                    "content": "Night, tough guy. Recharge those batteries.",
-                    "target": "masculine"
-                },
-                {
-                    "content": "Rest up, handsome. You've got a world to conquer tomorrow.",
-                    "target": "masculine"
-                }
+                { "content": "Goodnight! Don't let the bed bugs bite (seriously).", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Sleep tight, don't text and drive... wait, you're sleeping.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Dream of me, or I'll be jealous.", "target": "neutral", "love_language": "quality_time", "rarity": "common" },
+                { "content": "Sleep well, pretty lady.", "target": "feminine", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Beauty sleep time! (Not that you need it).", "target": "feminine", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Night, tough guy. Recharge those batteries.", "target": "masculine", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Rest up, handsome. You've got a world to conquer tomorrow.", "target": "masculine", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "If you snore, I'll still love you. Probably.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Don't forget to dream about your favorite person (hint: it's me).", "target": "neutral", "love_language": "quality_time", "rarity": "epic" }
             ],
-            "minimal": [
-                {
-                    "content": "Rest well.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Sleep deep.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Goodnight.",
-                    "target": "neutral"
-                },
-                {
-                    "content": "Sweet dreams.",
-                    "target": "feminine"
-                },
-                {
-                    "content": "Sleep, beauty.",
-                    "target": "feminine"
-                },
-                {
-                    "content": "Rest, king.",
-                    "target": "masculine"
-                },
-                {
-                    "content": "At ease.",
-                    "target": "masculine"
-                }
+            "romantic": [
+                { "content": "Wishing I could fall asleep beside you tonight.", "target": "neutral", "love_language": "physical_touch", "rarity": "common" },
+                { "content": "Close your eyes and feel my love wrapping around you.", "target": "neutral", "love_language": "physical_touch", "rarity": "rare" },
+                { "content": "Tonight, know that someone loves you more than words can say.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "I'll meet you in my dreams, my love.", "target": "neutral", "love_language": "quality_time", "rarity": "common" },
+                { "content": "Every night without you makes me cherish you more.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "The best part of tomorrow is waking up loving you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "epic" },
+                { "content": "Sweet dreams, my everything.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "I'm counting the stars and naming them after reasons I love you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" }
+            ],
+            "passionate": [
+                { "content": "The night feels empty without your warmth.", "target": "neutral", "love_language": "physical_touch", "rarity": "common" },
+                { "content": "I ache to be near you tonight.", "target": "neutral", "love_language": "physical_touch", "rarity": "rare" },
+                { "content": "Thoughts of you keep me wide awake.", "target": "neutral", "love_language": "physical_touch", "rarity": "common" },
+                { "content": "My heart races when I think of seeing you again.", "target": "neutral", "love_language": "physical_touch", "rarity": "rare" },
+                { "content": "The distance between us tonight is torture.", "target": "neutral", "love_language": "physical_touch", "rarity": "epic" },
+                { "content": "I'm burning with longing for you.", "target": "neutral", "love_language": "physical_touch", "rarity": "epic" },
+                { "content": "Every fiber of my being wants to be with you right now.", "target": "neutral", "love_language": "physical_touch", "rarity": "legendary" }
+            ],
+            "sweet": [
+                { "content": "Sleep tight, my favorite person.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Sending you a thousand goodnight kisses.", "target": "neutral", "love_language": "physical_touch", "rarity": "common" },
+                { "content": "You make every day worth living. Sweet dreams.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Can't wait to hear about your dreams tomorrow.", "target": "neutral", "love_language": "quality_time", "rarity": "common" },
+                { "content": "Tucking you in from afar with all my love.", "target": "neutral", "love_language": "physical_touch", "rarity": "rare" },
+                { "content": "You're the best thing that happened to me today.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Rest well, knowing you're deeply loved.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Goodnight, my heart.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" }
+            ],
+            "supportive": [
+                { "content": "You handled today beautifully. Rest now.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "I'm so proud of everything you did today.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "Leave today's worries behind. Tomorrow is a fresh start.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Whatever happened today, you are still amazing.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Rest well. You deserve peace.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "common" },
+                { "content": "Tomorrow's challenges don't stand a chance against you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "I'll be here when you wake, cheering you on.", "target": "neutral", "love_language": "acts_of_service", "rarity": "rare" },
+                { "content": "You made it through another day. That's strength.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "epic" }
             ]
         },
         "premium": [
-            {
-                "content": "Destiny is not a matter of chance; it is a matter of choice. I choose you.",
-                "target": "neutral"
-            },
-            {
-                "content": "You are the finest, loveliest, tenderest, and most beautiful person I have ever known.",
-                "target": "neutral"
-            },
-            {
-                "content": "If I know what love is, it is because of you.",
-                "target": "neutral"
-            },
-            {
-                "content": "You are my heart, my life, my one and only thought.",
-                "target": "neutral"
-            },
-            {
-                "content": "My love for you is past the mind, beyond my heart, and into my soul.",
-                "target": "neutral"
-            },
-            {
-                "content": "You make me want to be a better man.",
-                "target": "masculine"
-            },
-            {
-                "content": "To the world you may be one person, but to one person you are the world.",
-                "target": "feminine"
-            }
-        ]
+            { "content": "Destiny is not a matter of chance; it is a matter of choice. I choose you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+            { "content": "You are the finest, loveliest, tenderest, and most beautiful person I have ever known.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+            { "content": "If I know what love is, it is because of you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+            { "content": "You are my heart, my life, my one and only thought.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+            { "content": "My love for you is past the mind, beyond my heart, and into my soul.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+            { "content": "You make me want to be a better man.", "target": "masculine", "love_language": "words_of_affirmation", "rarity": "epic" },
+            { "content": "To the world you may be one person, but to one person you are the world.", "target": "feminine", "love_language": "words_of_affirmation", "rarity": "legendary" },
+            { "content": "In all the world, there is no heart for me like yours.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+            { "content": "I have waited for this opportunity for more than half a century, to repeat to you once again my vow of eternal fidelity and everlasting love.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+            { "content": "You have bewitched me, body and soul, and I love, I love, I love you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+            { "content": "Whatever our souls are made of, yours and mine are the same.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+            { "content": "I would rather spend one lifetime with you, than face all the ages of this world alone.", "target": "neutral", "love_language": "quality_time", "rarity": "legendary" },
+            { "content": "You are my today and all of my tomorrows.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "epic" },
+            { "content": "I love you not only for what you are, but for what I am when I am with you.", "target": "neutral", "love_language": "quality_time", "rarity": "legendary" },
+            { "content": "In case you ever foolishly forget: I am never not thinking of you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "epic" },
+            { "content": "I fell in love the way you fall asleep: slowly, and then all at once.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+            { "content": "I wish I had done everything on earth with you.", "target": "neutral", "love_language": "quality_time", "rarity": "epic" },
+            { "content": "You are the answer to every prayer I've offered.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+            { "content": "You don't love someone for their looks, or their clothes, but because they sing a song only you can hear.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+            { "content": "I could watch you for a single minute and find a thousand things that I love about you.", "target": "neutral", "love_language": "quality_time", "rarity": "epic" }
+        ],
+        "special_occasions": {
+            "anniversary": [
+                { "content": "Another year of loving you, and I'd do it all again in a heartbeat.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+                { "content": "Happy Anniversary to the one who makes every day feel like a celebration.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "epic" },
+                { "content": "Every moment with you has been a gift. Here's to many more.", "target": "neutral", "love_language": "quality_time", "rarity": "legendary" },
+                { "content": "Today marks another chapter in our beautiful story.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "epic" },
+                { "content": "I fall more in love with you every single year.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+                { "content": "You're still my favorite adventure.", "target": "neutral", "love_language": "quality_time", "rarity": "rare" },
+                { "content": "The best decision I ever made was choosing to love you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+                { "content": "Happy Anniversary, my forever person.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "epic" }
+            ],
+            "birthday": [
+                { "content": "Happy Birthday to the one who makes my world complete.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "epic" },
+                { "content": "Today the world received its greatest gift: you.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+                { "content": "Another year of you being amazing. Happy Birthday, my love.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "epic" },
+                { "content": "On your special day, I hope you feel as loved as you make me feel every day.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+                { "content": "Happy Birthday! May your day be as wonderful as you are.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "I'm so grateful you were born. Happy Birthday, my everything.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "legendary" },
+                { "content": "Celebrating you today and every day. Happy Birthday!", "target": "neutral", "love_language": "receiving_gifts", "rarity": "epic" },
+                { "content": "You make growing older look like an adventure.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" }
+            ],
+            "milestone": [
+                { "content": "What an incredible milestone! I'm so proud to be by your side.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "epic" },
+                { "content": "You did it! I never doubted you for a second.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" },
+                { "content": "This is just the beginning of your greatness.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "epic" },
+                { "content": "Watching you achieve your dreams is my greatest joy.", "target": "neutral", "love_language": "quality_time", "rarity": "legendary" },
+                { "content": "Congratulations, my love. You inspire me every day.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "epic" },
+                { "content": "I knew you could do it. You're unstoppable.", "target": "neutral", "love_language": "words_of_affirmation", "rarity": "rare" }
+            ]
+        },
+        "love_language_specific": {
+            "words_of_affirmation": [
+                { "content": "You are worthy of all the love in the world.", "target": "neutral", "rarity": "common" },
+                { "content": "I admire your strength, your kindness, your soul.", "target": "neutral", "rarity": "rare" },
+                { "content": "Everything about you is exactly what I love.", "target": "neutral", "rarity": "rare" },
+                { "content": "You have no idea how incredible you truly are.", "target": "neutral", "rarity": "common" },
+                { "content": "Your presence makes every room brighter.", "target": "neutral", "rarity": "rare" },
+                { "content": "I could write a thousand poems about you and still not capture your beauty.", "target": "neutral", "rarity": "epic" },
+                { "content": "You are the definition of extraordinary.", "target": "neutral", "rarity": "rare" },
+                { "content": "I see magic in everything you do.", "target": "neutral", "rarity": "epic" },
+                { "content": "Your heart is the most beautiful thing I've ever known.", "target": "neutral", "rarity": "legendary" },
+                { "content": "You inspire me to be the best version of myself.", "target": "neutral", "rarity": "common" }
+            ],
+            "acts_of_service": [
+                { "content": "I'll always be here to lighten your load.", "target": "neutral", "rarity": "common" },
+                { "content": "Tell me what you need, and consider it done.", "target": "neutral", "rarity": "common" },
+                { "content": "Let me take care of you today.", "target": "neutral", "rarity": "rare" },
+                { "content": "Your burdens are my burdens. We carry them together.", "target": "neutral", "rarity": "rare" },
+                { "content": "I'd move mountains just to see you smile.", "target": "neutral", "rarity": "epic" },
+                { "content": "Rest. I've got this handled.", "target": "neutral", "rarity": "rare" },
+                { "content": "Nothing brings me more joy than making your life easier.", "target": "neutral", "rarity": "epic" },
+                { "content": "I'm your partner, your teammate, your support system.", "target": "neutral", "rarity": "rare" },
+                { "content": "Anything for you. Always.", "target": "neutral", "rarity": "legendary" },
+                { "content": "You deserve someone who shows up, and I'm here.", "target": "neutral", "rarity": "common" }
+            ],
+            "receiving_gifts": [
+                { "content": "I saw something that reminded me of you. It's on its way.", "target": "neutral", "rarity": "rare" },
+                { "content": "Every gift I give you is just a fraction of what you deserve.", "target": "neutral", "rarity": "epic" },
+                { "content": "I love finding little treasures for you.", "target": "neutral", "rarity": "common" },
+                { "content": "You're worth every thoughtful gesture I can give.", "target": "neutral", "rarity": "rare" },
+                { "content": "I'm always thinking of ways to surprise you.", "target": "neutral", "rarity": "common" },
+                { "content": "One day, I'll give you the world.", "target": "neutral", "rarity": "legendary" },
+                { "content": "Every gift is just a symbol of how much you mean to me.", "target": "neutral", "rarity": "epic" },
+                { "content": "I can't wait to see your face when you open your surprise.", "target": "neutral", "rarity": "rare" }
+            ],
+            "quality_time": [
+                { "content": "Every moment with you is precious to me.", "target": "neutral", "rarity": "common" },
+                { "content": "I don't care what we do, as long as I'm with you.", "target": "neutral", "rarity": "rare" },
+                { "content": "You have my full attention. Always.", "target": "neutral", "rarity": "rare" },
+                { "content": "The best part of my day is the time I spend with you.", "target": "neutral", "rarity": "common" },
+                { "content": "I'd choose a quiet evening with you over anything else.", "target": "neutral", "rarity": "epic" },
+                { "content": "Time with you is the greatest gift.", "target": "neutral", "rarity": "legendary" },
+                { "content": "Let's make today about us.", "target": "neutral", "rarity": "rare" },
+                { "content": "I never feel more at peace than when I'm by your side.", "target": "neutral", "rarity": "epic" },
+                { "content": "You're my favorite person to do nothing with.", "target": "neutral", "rarity": "rare" },
+                { "content": "I'm saving all my best moments for you.", "target": "neutral", "rarity": "epic" }
+            ],
+            "physical_touch": [
+                { "content": "I wish I could hold you right now.", "target": "neutral", "rarity": "common" },
+                { "content": "Your touch is my favorite feeling in the world.", "target": "neutral", "rarity": "rare" },
+                { "content": "I'm saving a big hug just for you.", "target": "neutral", "rarity": "common" },
+                { "content": "Even the smallest touch from you sends electricity through me.", "target": "neutral", "rarity": "epic" },
+                { "content": "I miss the feeling of being wrapped in your arms.", "target": "neutral", "rarity": "rare" },
+                { "content": "One kiss from you can heal any bad day.", "target": "neutral", "rarity": "rare" },
+                { "content": "I crave the warmth of your embrace.", "target": "neutral", "rarity": "epic" },
+                { "content": "Holding hands with you feels like home.", "target": "neutral", "rarity": "rare" },
+                { "content": "Every touch from you writes poetry on my skin.", "target": "neutral", "rarity": "legendary" },
+                { "content": "I count the moments until I can be close to you again.", "target": "neutral", "rarity": "common" }
+            ]
+        }
     }
 }

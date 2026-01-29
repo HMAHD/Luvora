@@ -44,8 +44,23 @@ const PRICING = {
     }
 };
 
+// Feature item type
+type FeatureItem = {
+    name: string;
+    free: string | boolean;
+    hero: string | boolean;
+    legend: string | boolean;
+    highlight?: string;
+    description?: string;
+};
+
+type FeatureCategory = {
+    category: string;
+    items: FeatureItem[];
+};
+
 // Feature comparison data with enhanced Legend features
-const features = [
+const features: FeatureCategory[] = [
     {
         category: 'Core Features',
         items: [

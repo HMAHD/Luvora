@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Lock, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { TIER } from '@/lib/types';
 
 interface PremiumGuardProps {
   children: React.ReactNode;
@@ -32,10 +33,11 @@ export function PremiumGuard({ children, requiredTier = 'hero', fallback }: Prem
     );
   }
 
-  // Check if user has required tier
-  const hasAccess = user?.is_premium ||
-    (requiredTier === 'hero' && (user?.tier === 'hero' || user?.tier === 'legend')) ||
-    (requiredTier === 'legend' && user?.tier === 'legend');
+  // Check if user has required tier (0=Free, 1=Hero, 2=Legend)
+  const userTier = user?.tier ?? TIER.FREE;
+  const hasAccess =
+    (requiredTier === 'hero' && userTier >= TIER.HERO) ||
+    (requiredTier === 'legend' && userTier >= TIER.LEGEND);
 
   if (!hasAccess) {
     if (fallback) {

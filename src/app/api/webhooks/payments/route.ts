@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import PocketBase from 'pocketbase';
 
+// Tier constants (0=Free, 1=Hero, 2=Legend)
+const TIER = {
+    FREE: 0,
+    HERO: 1,
+    LEGEND: 2,
+} as const;
+
 export async function POST(request: Request) {
     try {
         // 1. Raw Body Reading (Text) for Signature Verification
@@ -26,42 +33,44 @@ export async function POST(request: Request) {
         // 3. Parse JSON after verification
         const payload = JSON.parse(rawBody);
         const eventName = payload.meta.event_name;
-        const customData = payload.data.attributes.first_order_item?.order_item_name ?
-            payload.meta.custom_data : // Webhook structure varies, relies on meta usually
-            payload.meta.custom_data || payload.data.attributes.checkout_data?.custom;
 
-        // Lemon Squeezy Webhook Payload Structure: 
-        // meta: { event_name: 'order_created', custom_data: { user_id: '...' } }
+        // Lemon Squeezy Webhook Payload Structure:
+        // meta: { event_name: 'order_created', custom_data: { user_id: '...', tier: 'hero' | 'legend' } }
 
         // Verify event type
         if (eventName === 'order_created' || eventName === 'order_paid') {
-            const userId = payload.meta.custom_data?.user_id;
+            const customData = payload.meta.custom_data ||
+                payload.data.attributes.checkout_data?.custom || {};
+            const userId = customData.user_id;
+            const purchasedTier = customData.tier || 'hero'; // Default to hero if not specified
 
             if (userId) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const adminPb = new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090');
                 await adminPb.admins.authWithPassword(
                     process.env.POCKETBASE_ADMIN_EMAIL || '',
                     process.env.POCKETBASE_ADMIN_PASSWORD || ''
                 );
 
-                // 5. Idempotency Check
+                // Map tier string to numeric value
+                const newTier = purchasedTier === 'legend' ? TIER.LEGEND : TIER.HERO;
+
                 try {
                     const user = await adminPb.collection('users').getOne(userId);
+                    const currentTier = user.tier ?? TIER.FREE;
 
-                    if (user.is_premium) {
-                        console.log(`User ${userId} already premium. Skipping.`);
+                    // Idempotency: Only upgrade if new tier is higher
+                    if (currentTier >= newTier) {
+                        console.log(`User ${userId} already has tier ${currentTier}. Skipping.`);
                         return NextResponse.json({ message: 'Idempotent success' });
                     }
 
-                    // 6. Update
+                    // Update user tier
                     await adminPb.collection('users').update(userId, {
-                        is_premium: true,
-                        tier: 'hero'
+                        tier: newTier
                     });
-                    console.log(`User ${userId} upgraded to Premium.`);
+                    console.log(`User ${userId} upgraded to tier ${newTier} (${purchasedTier}).`);
 
-                } catch (err: unknown) { // Changed 'any' to 'unknown'
+                } catch (err: unknown) {
                     console.error("User lookup failed:", err);
                     return NextResponse.json({ error: 'User not found' }, { status: 404 });
                 }
