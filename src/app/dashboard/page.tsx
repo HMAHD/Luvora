@@ -19,6 +19,7 @@ import {
   Sparkles,
   Copy,
   Crown,
+  MessageCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { getDailySpark } from '@/lib/algo';

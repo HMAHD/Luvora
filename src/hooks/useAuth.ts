@@ -1,18 +1,17 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { pb } from '@/lib/pocketbase';
 import type { User } from '@/lib/types';
 
 // Initialize user from authStore immediately (not in useEffect)
 const getInitialUser = (): User | null => {
     if (typeof window === 'undefined') return null;
-    return pb.authStore.model as unknown as User | null;
+    return pb.authStore.record as unknown as User | null;
 };
 
 export function useAuth() {
     const [user, setUser] = useState<User | null>(getInitialUser);
-    const hasInitializedRef = useRef(false);
 
     // Memoized sync function to avoid recreating on every render
     const syncPartnerName = useCallback((authUser: User) => {
@@ -24,20 +23,17 @@ export function useAuth() {
         }
     }, []);
 
+    // Subscribe to Auth Store changes
     useEffect(() => {
-        // Prevent double initialization in strict mode
-        if (hasInitializedRef.current) return;
-        hasInitializedRef.current = true;
-
         // Sync partner name on initial load if user exists
-        const model = pb.authStore.model as unknown as User | null;
-        if (model) {
-            syncPartnerName(model);
+        const record = pb.authStore.record as unknown as User | null;
+        if (record) {
+            syncPartnerName(record);
         }
 
-        // Subscribe to Auth Changes
+        // Subscribe to Auth Changes - this must run on every mount
+        // to ensure subscription is active after Strict Mode re-mounts
         const unsubscribeAuth = pb.authStore.onChange((token, model) => {
-            console.log('Auth Store Change:', { token, model });
             const u = model as unknown as User | null;
             setUser(u);
             if (u) {
@@ -45,7 +41,7 @@ export function useAuth() {
             }
         });
 
-        // Cleanup subscription
+        // Cleanup subscription on unmount
         return () => {
             unsubscribeAuth();
         };

@@ -76,8 +76,9 @@ export function getDailySpark(date: Date = new Date(), role: Role = 'neutral'): 
     const morningFiltered = filterPool(rawMorning, role);
     const nightFiltered = filterPool(rawNight, role);
 
-    const morningIndex = selectIndex(morningFiltered.length, `${dateStr}-morning-msg`);
-    const nightIndex = selectIndex(nightFiltered.length, `${dateStr}-night-msg`);
+    // Include role in seed so different roles get different messages
+    const morningIndex = selectIndex(morningFiltered.length, `${dateStr}-${role}-morning-msg`);
+    const nightIndex = selectIndex(nightFiltered.length, `${dateStr}-${role}-night-msg`);
 
     return {
         date: dateStr,
@@ -94,7 +95,8 @@ export function getDailySpark(date: Date = new Date(), role: Role = 'neutral'): 
  */
 export async function getPremiumSpark(date: Date, userId: string, role: Role): Promise<DailySpark> {
     const dateStr = date.toISOString().split('T')[0];
-    const seed = `${userId}-${dateStr}`;
+    // Include role in seed so different roles get different messages
+    const seed = `${userId}-${dateStr}-${role}`;
 
     // Check environment for crypto
     let spin = 0;

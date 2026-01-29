@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { ChevronDown } from 'lucide-react';
 
@@ -7,18 +8,41 @@ type Role = 'neutral' | 'masculine' | 'feminine';
 
 export function RoleSelector() {
     const { user, pb } = useAuth();
-    const role = (user?.recipient_role as Role) || 'neutral';
+    const [localRole, setLocalRole] = useState<Role>('neutral');
+
+    // Sync local state with user data
+    useEffect(() => {
+        if (user?.recipient_role) {
+            setLocalRole(user.recipient_role as Role);
+        }
+    }, [user?.recipient_role]);
 
     const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
         const newRole = e.target.value as Role;
+
+        // Optimistic update - immediately reflect the change
+        setLocalRole(newRole);
+
         if (user?.id) {
             try {
                 // Update PocketBase user record
                 await pb.collection('users').update(user.id, {
                     recipient_role: newRole,
                 });
+
+                // Directly update auth store record to trigger onChange in ALL components
+                // This ensures SparkCard and other components see the change immediately
+                const currentRecord = pb.authStore.record;
+                if (currentRecord) {
+                    pb.authStore.save(pb.authStore.token!, {
+                        ...currentRecord,
+                        recipient_role: newRole,
+                    });
+                }
             } catch (err) {
                 console.error('Failed to update role:', err);
+                // Revert on error
+                setLocalRole((user.recipient_role as Role) || 'neutral');
             }
         }
     };
@@ -27,7 +51,7 @@ export function RoleSelector() {
         <div className="relative group">
             {/* Custom Select Appearance */}
             <select
-                value={role}
+                value={localRole}
                 onChange={handleChange}
                 className="appearance-none bg-base-100 border border-base-content/20 px-8 py-2 rounded-full text-xs font-bold uppercase tracking-widest cursor-pointer hover:bg-base-200 hover:border-base-content/30 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/30 text-base-content text-center"
             >

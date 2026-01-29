@@ -108,38 +108,38 @@
     - [x] Configure PocketBase API Rules to restrict `/admin` strictly to Admin UUIDs.
 
 
-## Phase 7.5: Tiered Logic & Multi-Dashboard Refinement
+## Phase 7.5: Tiered Logic & Multi-Dashboard Refinement ✅
 *Goal: Implementing a 3-tier subscription system with per-user data isolation and conversion-optimized pricing.*
 
-- [ ] **Task 7.5.1: Tier System Foundation**
-    - [ ] Update PocketBase schema: Add `tier` field (number: 0=Free, 1=Hero, 2=Legend).
-    - [ ] Remove `is_premium` boolean, migrate logic to use `tier >= 1`.
-    - [ ] Update `useAuth` hook and TypeScript types to support `tier`.
-    - [ ] Create `TierGate` component for conditional feature rendering.
-- [ ] **Task 7.5.2: Per-User Data Isolation (Bug Fix)**
-    - [ ] Fix localStorage sharing bug: Store `partner_name`, `recipient_role` in PocketBase per user.
-    - [ ] Update Dashboard to load/save user-specific data from database.
-    - [ ] Ensure data isolation between different user sessions.
-- [ ] **Task 7.5.3: Dashboard Tier-Based Features**
-    - [ ] Free (Tier 0): Show blurred/locked automation with "Upgrade" CTA, last 3 days history only.
-    - [ ] Hero (Tier 1): Full automation settings, full streak history.
-    - [ ] Legend (Tier 2): All Hero features + exclusive streak card styles.
-- [ ] **Task 7.5.4: Pricing & Conversion Page (`/pricing`)**
-    - [ ] Create dedicated pricing page showing all 3 tiers side-by-side.
-    - [ ] Apply conversion psychology: Highlight value, social proof, urgency.
-    - [ ] Design compelling feature comparison matrix.
-    - [ ] Integrate with Lemon Squeezy checkout for Hero & Legend tiers.
-- [ ] **Task 7.5.5: Streak Card Styles & Social Sharing**
-    - [ ] Create multiple streak card design templates.
-    - [ ] Hero: Access to basic styles. Legend: Access to all styles (basic locked for Hero).
-    - [ ] Add social sharing buttons: WhatsApp, Instagram, Facebook.
-    - [ ] Include marketing tagline/URL in shared content for viral growth.
-- [ ] **Task 7.5.6: Admin + User Dashboard Access**
-    - [ ] Allow admin users to access both `/admin` AND `/dashboard`.
-    - [ ] Update dropdown menu to show both options for admins.
-- [ ] **Task 7.5.7: Algorithm Update for Tiers**
-    - [ ] Free/Hero: Use `Hash(Date)` for shared daily spark.
-    - [ ] Legend: Use `Hash(UserUUID + Date)` for truly unique 1-of-1 spark.
+- [x] **Task 7.5.1: Tier System Foundation**
+    - [x] Update PocketBase schema: Add `tier` field (number: 0=Free, 1=Hero, 2=Legend).
+    - [x] Remove `is_premium` boolean, migrate logic to use `tier >= 1`.
+    - [x] Update `useAuth` hook and TypeScript types to support `tier`.
+    - [x] Create `TierGate` component for conditional feature rendering.
+- [x] **Task 7.5.2: Per-User Data Isolation (Bug Fix)**
+    - [x] Fix localStorage sharing bug: Store `partner_name`, `recipient_role` in PocketBase per user.
+    - [x] Update Dashboard to load/save user-specific data from database.
+    - [x] Ensure data isolation between different user sessions.
+- [x] **Task 7.5.3: Dashboard Tier-Based Features**
+    - [x] Free (Tier 0): Show blurred/locked automation with "Upgrade" CTA, last 3 days history only.
+    - [x] Hero (Tier 1): Full automation settings, full streak history.
+    - [x] Legend (Tier 2): All Hero features + exclusive streak card styles.
+- [x] **Task 7.5.4: Pricing & Conversion Page (`/pricing`)**
+    - [x] Create dedicated pricing page showing all 3 tiers side-by-side.
+    - [x] Apply conversion psychology: Highlight value, social proof, urgency.
+    - [x] Design compelling feature comparison matrix.
+    - [x] Integrate with Lemon Squeezy checkout for Hero & Legend tiers.
+- [x] **Task 7.5.5: Streak Card Styles & Social Sharing**
+    - [x] Create multiple streak card design templates.
+    - [x] Hero: Access to basic styles. Legend: Access to all styles (basic locked for Hero).
+    - [x] Add social sharing buttons: WhatsApp, Instagram, Facebook.
+    - [x] Include marketing tagline/URL in shared content for viral growth.
+- [x] **Task 7.5.6: Admin + User Dashboard Access**
+    - [x] Allow admin users to access both `/admin` AND `/dashboard`.
+    - [x] Update dropdown menu to show both options for admins.
+- [x] **Task 7.5.7: Algorithm Update for Tiers**
+    - [x] Free/Hero: Use `Hash(Date)` for shared daily spark.
+    - [x] Legend: Use `Hash(UserUUID + Date)` for truly unique 1-of-1 spark.
 
 
 ## Phase 8: Legend Tier Enhancements (Premium Experience)
