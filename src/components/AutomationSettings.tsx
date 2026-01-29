@@ -4,27 +4,74 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import { Clock, MessageCircle, X } from 'lucide-react';
+import {
+    Clock,
+    MessageCircle,
+    X,
+    Sun,
+    Moon,
+    Heart,
+    Sparkles,
+    Calendar,
+    Crown,
+    Gift
+} from 'lucide-react';
+import { TIER, LOVE_LANGUAGE_NAMES, EMOTIONAL_TONE_NAMES } from '@/lib/types';
+import type { LoveLanguage, EmotionalTone } from '@/lib/types';
 
 export function AutomationSettings({ onClose }: { onClose: () => void }) {
     const { user, pb } = useAuth();
-    const [morningTime, setMorningTime] = useState(user?.morning_time || '08:00');
+
+    // Basic settings (Hero+)
     const [platform, setPlatform] = useState<'whatsapp' | 'telegram'>(user?.messaging_platform || 'telegram');
     const [msgId, setMsgId] = useState(user?.messaging_id || '');
+
+    // Delivery times
+    const [morningEnabled, setMorningEnabled] = useState(user?.morning_enabled ?? true);
+    const [morningTime, setMorningTime] = useState(user?.morning_time || '08:00');
+    const [eveningEnabled, setEveningEnabled] = useState(user?.evening_enabled ?? false);
+    const [eveningTime, setEveningTime] = useState(user?.evening_time || '20:00');
+
+    // Legend settings
+    const [loveLanguage, setLoveLanguage] = useState<LoveLanguage | ''>(user?.love_language || '');
+    const [preferredTone, setPreferredTone] = useState<EmotionalTone | ''>(user?.preferred_tone || '');
+    const [anniversaryDate, setAnniversaryDate] = useState(user?.anniversary_date || '');
+    const [partnerBirthday, setPartnerBirthday] = useState(user?.partner_birthday || '');
+    const [specialOccasionsEnabled, setSpecialOccasionsEnabled] = useState(user?.special_occasions_enabled ?? true);
+
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+
+    const isLegend = (user?.tier ?? 0) >= TIER.LEGEND;
+    const isHeroPlus = (user?.tier ?? 0) >= TIER.HERO;
 
     const handleSave = async () => {
         if (!user?.id) return;
         setLoading(true);
         try {
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            await pb.collection('users').update(user.id, {
-                morning_time: morningTime,
+            const updateData: Record<string, unknown> = {
+                // Basic
                 messaging_platform: platform,
                 messaging_id: msgId,
-                timezone: timezone
-            });
+                timezone: timezone,
+                // Delivery times
+                morning_enabled: morningEnabled,
+                morning_time: morningTime,
+                evening_enabled: eveningEnabled,
+                evening_time: eveningTime,
+            };
+
+            // Legend-only fields
+            if (isLegend) {
+                updateData.love_language = loveLanguage || null;
+                updateData.preferred_tone = preferredTone || null;
+                updateData.anniversary_date = anniversaryDate || null;
+                updateData.partner_birthday = partnerBirthday || null;
+                updateData.special_occasions_enabled = specialOccasionsEnabled;
+            }
+
+            await pb.collection('users').update(user.id, updateData);
             // Refresh auth to update user data in context
             await pb.collection('users').authRefresh();
             setSuccess(true);
@@ -43,50 +90,45 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
             <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                className="bg-base-100 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden relative"
+                className="bg-base-100 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden relative max-h-[90vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
             >
-                <button onClick={onClose} className="absolute top-4 right-4 btn btn-circle btn-ghost btn-sm">
+                <button onClick={onClose} className="absolute top-4 right-4 btn btn-circle btn-ghost btn-sm z-10">
                     <X className="w-4 h-4" />
                 </button>
 
-                <div className="p-8">
-                    <h2 className="text-2xl font-bold font-serif mb-1">Lazy Hero Settings</h2>
-                    <p className="opacity-60 text-sm mb-6">Automate your daily spark delivery.</p>
+                <div className="p-6">
+                    <div className="flex items-center gap-3 mb-1">
+                        <Sparkles className="w-6 h-6 text-primary" />
+                        <h2 className="text-2xl font-bold font-serif">Automation Hub</h2>
+                    </div>
+                    <p className="opacity-60 text-sm mb-6">Set up automatic spark delivery to your partner.</p>
 
-                    <div className="space-y-4">
-                        {/* Time */}
+                    {/* Messaging Platform */}
+                    <div className="space-y-5">
                         <div className="form-control">
                             <label className="label">
-                                <span className="label-text flex items-center gap-2"><Clock className="w-4 h-4" /> Delivery Time</span>
-                            </label>
-                            <input
-                                type="time"
-                                className="input input-bordered w-full"
-                                value={morningTime}
-                                onChange={(e) => setMorningTime(e.target.value)}
-                            />
-                            <div className="text-xs opacity-50 mt-1">Detected Timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}</div>
-                        </div>
-
-                        {/* Platform */}
-                        <div className="form-control">
-                            <label className="label">
-                                <span className="label-text flex items-center gap-2"><MessageCircle className="w-4 h-4" /> Messaging App</span>
+                                <span className="label-text flex items-center gap-2 font-medium">
+                                    <MessageCircle className="w-4 h-4" /> Messaging App
+                                </span>
                             </label>
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => setPlatform('telegram')}
                                     className={`btn flex-1 ${platform === 'telegram' ? 'btn-primary' : 'btn-outline'}`}
-                                >Telegram</button>
+                                >
+                                    Telegram
+                                </button>
                                 <button
                                     onClick={() => setPlatform('whatsapp')}
                                     className={`btn flex-1 ${platform === 'whatsapp' ? 'btn-primary' : 'btn-outline'}`}
-                                >WhatsApp</button>
+                                >
+                                    WhatsApp
+                                </button>
                             </div>
                         </div>
 
-                        {/* ID */}
+                        {/* Messaging ID */}
                         <div className="form-control">
                             <label className="label">
                                 <span className="label-text">
@@ -101,18 +143,214 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
                                 onChange={(e) => setMsgId(e.target.value)}
                             />
                             {platform === 'telegram' && (
-                                <a href="https://t.me/userinfobot" target="_blank" className="text-xs link link-hover opacity-50 mt-1">Find Key via @userinfobot</a>
+                                <div className="flex gap-2 mt-1">
+                                    <a href="https://t.me/userinfobot" target="_blank" className="text-xs link link-hover opacity-50">
+                                        Get Chat ID via @userinfobot
+                                    </a>
+                                </div>
                             )}
                         </div>
-                    </div>
 
-                    <button
-                        onClick={handleSave}
-                        disabled={loading || success}
-                        className={`btn btn-block mt-8 ${success ? 'btn-success' : 'btn-primary'}`}
-                    >
-                        {loading ? <span className="loading loading-spinner" /> : (success ? 'Saved!' : 'Save Automation')}
-                    </button>
+                        <div className="divider text-xs opacity-50">DELIVERY SCHEDULE</div>
+
+                        {/* Morning Delivery */}
+                        <div className="card bg-base-200/50 p-4">
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <Sun className="w-5 h-5 text-warning" />
+                                    <span className="font-medium">Morning Spark</span>
+                                </div>
+                                <input
+                                    type="checkbox"
+                                    className="toggle toggle-primary"
+                                    checked={morningEnabled}
+                                    onChange={(e) => setMorningEnabled(e.target.checked)}
+                                />
+                            </div>
+                            {morningEnabled && (
+                                <div className="form-control">
+                                    <label className="label py-1">
+                                        <span className="label-text text-xs flex items-center gap-1">
+                                            <Clock className="w-3 h-3" /> Delivery Time
+                                        </span>
+                                    </label>
+                                    <input
+                                        type="time"
+                                        className="input input-bordered input-sm w-full"
+                                        value={morningTime}
+                                        onChange={(e) => setMorningTime(e.target.value)}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Evening Delivery */}
+                        <div className="card bg-base-200/50 p-4">
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <Moon className="w-5 h-5 text-info" />
+                                    <span className="font-medium">Evening Spark</span>
+                                </div>
+                                <input
+                                    type="checkbox"
+                                    className="toggle toggle-primary"
+                                    checked={eveningEnabled}
+                                    onChange={(e) => setEveningEnabled(e.target.checked)}
+                                />
+                            </div>
+                            {eveningEnabled && (
+                                <div className="form-control">
+                                    <label className="label py-1">
+                                        <span className="label-text text-xs flex items-center gap-1">
+                                            <Clock className="w-3 h-3" /> Delivery Time
+                                        </span>
+                                    </label>
+                                    <input
+                                        type="time"
+                                        className="input input-bordered input-sm w-full"
+                                        value={eveningTime}
+                                        onChange={(e) => setEveningTime(e.target.value)}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="text-xs opacity-50 text-center">
+                            Timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                        </div>
+
+                        {/* Legend Exclusive Section */}
+                        {isLegend ? (
+                            <>
+                                <div className="divider text-xs">
+                                    <span className="flex items-center gap-1 text-warning">
+                                        <Crown className="w-3 h-3" /> LEGEND FEATURES
+                                    </span>
+                                </div>
+
+                                {/* Love Language */}
+                                <div className="form-control">
+                                    <label className="label">
+                                        <span className="label-text flex items-center gap-2 font-medium">
+                                            <Heart className="w-4 h-4 text-error" /> Love Language
+                                        </span>
+                                    </label>
+                                    <select
+                                        className="select select-bordered w-full"
+                                        value={loveLanguage}
+                                        onChange={(e) => setLoveLanguage(e.target.value as LoveLanguage)}
+                                    >
+                                        <option value="">Auto (Varied messages)</option>
+                                        {Object.entries(LOVE_LANGUAGE_NAMES).map(([key, name]) => (
+                                            <option key={key} value={key}>{name}</option>
+                                        ))}
+                                    </select>
+                                    <label className="label py-1">
+                                        <span className="label-text-alt opacity-50">Messages tailored to how your partner feels love</span>
+                                    </label>
+                                </div>
+
+                                {/* Emotional Tone */}
+                                <div className="form-control">
+                                    <label className="label">
+                                        <span className="label-text flex items-center gap-2 font-medium">
+                                            <Sparkles className="w-4 h-4 text-secondary" /> Emotional Tone
+                                        </span>
+                                    </label>
+                                    <select
+                                        className="select select-bordered w-full"
+                                        value={preferredTone}
+                                        onChange={(e) => setPreferredTone(e.target.value as EmotionalTone)}
+                                    >
+                                        <option value="">Auto (Varied tones)</option>
+                                        {Object.entries(EMOTIONAL_TONE_NAMES).map(([key, name]) => (
+                                            <option key={key} value={key}>{name}</option>
+                                        ))}
+                                    </select>
+                                    <label className="label py-1">
+                                        <span className="label-text-alt opacity-50">Set the mood of your daily sparks</span>
+                                    </label>
+                                </div>
+
+                                {/* Special Occasions */}
+                                <div className="card bg-warning/5 border border-warning/20 p-4">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <Gift className="w-5 h-5 text-warning" />
+                                            <span className="font-medium">Special Occasion Sparks</span>
+                                        </div>
+                                        <input
+                                            type="checkbox"
+                                            className="toggle toggle-warning"
+                                            checked={specialOccasionsEnabled}
+                                            onChange={(e) => setSpecialOccasionsEnabled(e.target.checked)}
+                                        />
+                                    </div>
+                                    <p className="text-xs opacity-60 mb-3">
+                                        Get extra special messages on anniversaries and birthdays
+                                    </p>
+
+                                    {specialOccasionsEnabled && (
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <div className="form-control">
+                                                <label className="label py-1">
+                                                    <span className="label-text text-xs flex items-center gap-1">
+                                                        <Calendar className="w-3 h-3" /> Anniversary
+                                                    </span>
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    className="input input-bordered input-sm w-full"
+                                                    value={anniversaryDate}
+                                                    onChange={(e) => setAnniversaryDate(e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="form-control">
+                                                <label className="label py-1">
+                                                    <span className="label-text text-xs flex items-center gap-1">
+                                                        <Gift className="w-3 h-3" /> Partner Birthday
+                                                    </span>
+                                                </label>
+                                                <input
+                                                    type="date"
+                                                    className="input input-bordered input-sm w-full"
+                                                    value={partnerBirthday}
+                                                    onChange={(e) => setPartnerBirthday(e.target.value)}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </>
+                        ) : isHeroPlus ? (
+                            <div className="card bg-warning/5 border border-warning/20 p-4">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Crown className="w-5 h-5 text-warning" />
+                                    <span className="font-medium text-warning">Unlock Legend Features</span>
+                                </div>
+                                <p className="text-xs opacity-60 mb-3">
+                                    Get Love Language mode, Emotional Tones, Anniversary Intelligence, and more!
+                                </p>
+                                <a href="/pricing" className="btn btn-warning btn-sm">
+                                    Upgrade to Legend
+                                </a>
+                            </div>
+                        ) : null}
+
+                        <button
+                            onClick={handleSave}
+                            disabled={loading || success || !msgId}
+                            className={`btn btn-block mt-4 ${success ? 'btn-success' : 'btn-primary'}`}
+                        >
+                            {loading ? <span className="loading loading-spinner" /> : (success ? 'Saved!' : 'Save Automation')}
+                        </button>
+
+                        {!msgId && (
+                            <p className="text-xs text-center text-error">
+                                Please enter your {platform === 'telegram' ? 'Telegram Chat ID' : 'WhatsApp number'}
+                            </p>
+                        )}
+                    </div>
                 </div>
             </motion.div>
         </div>,

@@ -23,19 +23,14 @@ export async function GET(request: Request) {
             process.env.POCKETBASE_ADMIN_PASSWORD || ''
         );
 
-        // Get current time in HH:MM format
-        const now = new Date();
-        const currentHour = now.getUTCHours();
-        const currentMinute = now.getUTCMinutes();
-
-        // Find users who need delivery now
-        // We need to check users whose local time matches their morning_time
+        // Find users who need delivery (Hero+ with messaging configured)
         const users = await pb.collection('users').getFullList({
-            filter: `tier >= 1 && messaging_id != "" && morning_time != ""`
+            filter: `tier >= 1 && messaging_id != ""`
         });
 
         let sent = 0;
         let errors = 0;
+        const results: string[] = [];
 
         for (const user of users) {
             try {
@@ -48,23 +43,73 @@ export async function GET(request: Request) {
                     hour12: false
                 });
 
-                // Compare with morning_time (format: "HH:MM")
-                if (userTime === user.morning_time) {
-                    // Get today's spark message for this user
-                    const spark = await getDailySparkForUser(pb, user);
+                // Get today's date in user's timezone for special occasions
+                const userDate = new Date().toLocaleDateString('en-CA', {
+                    timeZone: userTimezone
+                }); // YYYY-MM-DD format
+
+                let shouldSend = false;
+                let messageType: 'morning' | 'evening' | 'anniversary' | 'birthday' = 'morning';
+
+                // Check morning delivery
+                if (user.morning_enabled && user.morning_time && userTime === user.morning_time) {
+                    shouldSend = true;
+                    messageType = 'morning';
+                }
+
+                // Check evening delivery
+                if (user.evening_enabled && user.evening_time && userTime === user.evening_time) {
+                    shouldSend = true;
+                    messageType = 'evening';
+                }
+
+                // Check special occasions (Legend tier only)
+                if (user.tier >= 2 && user.special_occasions_enabled) {
+                    const todayMonthDay = userDate.slice(5); // MM-DD
+
+                    // Anniversary check (send at morning time or 09:00 default)
+                    if (user.anniversary_date) {
+                        const anniversaryMonthDay = user.anniversary_date.slice(5);
+                        if (todayMonthDay === anniversaryMonthDay) {
+                            const targetTime = user.morning_time || '09:00';
+                            if (userTime === targetTime) {
+                                shouldSend = true;
+                                messageType = 'anniversary';
+                            }
+                        }
+                    }
+
+                    // Birthday check
+                    if (user.partner_birthday) {
+                        const birthdayMonthDay = user.partner_birthday.slice(5);
+                        if (todayMonthDay === birthdayMonthDay) {
+                            const targetTime = user.morning_time || '09:00';
+                            if (userTime === targetTime) {
+                                shouldSend = true;
+                                messageType = 'birthday';
+                            }
+                        }
+                    }
+                }
+
+                if (shouldSend) {
+                    // Get appropriate spark message
+                    const spark = await getDailySparkForUser(pb, user, messageType);
 
                     if (spark) {
                         const success = await sendMessage({
                             to: user.messaging_id,
                             platform: user.messaging_platform || 'telegram',
-                            body: formatSparkMessage(spark, user.partner_name)
+                            body: formatSparkMessage(spark, user.partner_name, messageType)
                         });
 
                         if (success) {
                             sent++;
-                            console.log(`Sent to ${user.email} via ${user.messaging_platform}`);
+                            results.push(`✓ ${user.email} (${messageType})`);
+                            console.log(`Sent ${messageType} to ${user.email} via ${user.messaging_platform}`);
                         } else {
                             errors++;
+                            results.push(`✗ ${user.email} - send failed`);
                             console.error(`Failed to send to ${user.email}`);
                         }
                     }
@@ -80,7 +125,8 @@ export async function GET(request: Request) {
             processed: users.length,
             sent,
             errors,
-            timestamp: now.toISOString()
+            results,
+            timestamp: new Date().toISOString()
         });
 
     } catch (error) {
@@ -89,45 +135,75 @@ export async function GET(request: Request) {
     }
 }
 
-async function getDailySparkForUser(pb: PocketBase, user: { id: string; tier: number }) {
+interface UserData {
+    id: string;
+    tier: number;
+    love_language?: string;
+    preferred_tone?: string;
+}
+
+async function getDailySparkForUser(
+    pb: PocketBase,
+    user: UserData,
+    messageType: 'morning' | 'evening' | 'anniversary' | 'birthday'
+) {
     const today = new Date().toISOString().split('T')[0];
 
-    // Try to get a message for today
-    // Legend users (tier 2) get unique messages
-    // Hero users (tier 1) get shared messages
-
     try {
-        if (user.tier >= 2) {
-            // Legend: unique message based on user+date hash
-            const messages = await pb.collection('messages').getFullList({
-                filter: `tier = 2 || tier = 0`,
-                sort: '-created'
-            });
+        // Build filter based on message type and user preferences
+        let filter = '';
 
-            if (messages.length > 0) {
-                // Use deterministic selection based on user ID + date
-                const hash = simpleHash(user.id + today);
-                const index = hash % messages.length;
-                return messages[index];
+        // Special occasion messages
+        if (messageType === 'anniversary') {
+            filter = `occasion = "anniversary"`;
+        } else if (messageType === 'birthday') {
+            filter = `occasion = "birthday"`;
+        } else {
+            // Regular sparks - filter by tier access
+            if (user.tier >= 2) {
+                // Legend: access to all messages
+                filter = `tier <= 2`;
+
+                // Apply love language filter if set
+                if (user.love_language) {
+                    filter += ` && (love_language = "${user.love_language}" || love_language = "")`;
+                }
+
+                // Apply emotional tone filter if set
+                if (user.preferred_tone) {
+                    filter += ` && (tone = "${user.preferred_tone}" || tone = "")`;
+                }
+            } else {
+                // Hero: shared messages only
+                filter = `tier <= 1`;
             }
         }
 
-        // Hero/Free: get shared daily message
         const messages = await pb.collection('messages').getFullList({
-            filter: `tier <= 1`,
-            sort: '-created',
-            limit: 30
+            filter,
+            sort: '-created'
         });
 
-        if (messages.length > 0) {
-            // Use date-based selection for shared message
-            const dayHash = simpleHash(today);
-            const index = dayHash % messages.length;
-            return messages[index];
+        if (messages.length === 0) {
+            // Fallback to any message
+            const fallback = await pb.collection('messages').getFullList({
+                sort: '-created',
+                limit: 50
+            });
+            if (fallback.length > 0) {
+                const hash = simpleHash(user.id + today + messageType);
+                return fallback[hash % fallback.length];
+            }
+            return null;
         }
 
-        return null;
-    } catch {
+        // Deterministic selection based on user ID + date + message type
+        const hash = simpleHash(user.id + today + messageType);
+        const index = hash % messages.length;
+        return messages[index];
+
+    } catch (err) {
+        console.error('Error getting spark:', err);
         return null;
     }
 }
@@ -142,7 +218,11 @@ function simpleHash(str: string): number {
     return Math.abs(hash);
 }
 
-function formatSparkMessage(spark: { body: string }, partnerName?: string): string {
+function formatSparkMessage(
+    spark: { body: string },
+    partnerName?: string,
+    messageType: 'morning' | 'evening' | 'anniversary' | 'birthday' = 'morning'
+): string {
     let message = spark.body;
 
     // Replace placeholder with partner name
@@ -151,5 +231,15 @@ function formatSparkMessage(spark: { body: string }, partnerName?: string): stri
         message = message.replace(/\{name\}/gi, partnerName);
     }
 
-    return `💝 Your Daily Spark\n\n${message}\n\n— Luvora`;
+    // Different headers based on message type
+    let header = '💝 Your Daily Spark';
+    if (messageType === 'evening') {
+        header = '🌙 Your Evening Spark';
+    } else if (messageType === 'anniversary') {
+        header = '💕 Happy Anniversary!';
+    } else if (messageType === 'birthday') {
+        header = '🎂 Birthday Wishes';
+    }
+
+    return `${header}\n\n${message}\n\n— Luvora`;
 }

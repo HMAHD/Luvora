@@ -76,6 +76,9 @@ export interface User {
     // Automation Fields
     timezone?: string;
     morning_time?: string; // "08:00"
+    morning_enabled?: boolean;
+    evening_time?: string; // "20:00"
+    evening_enabled?: boolean;
     messaging_platform?: 'whatsapp' | 'telegram';
     messaging_id?: string;
     streak?: number;
@@ -90,6 +93,7 @@ export interface User {
     partner_birthday?: string; // YYYY-MM-DD
     relationship_start?: string; // YYYY-MM-DD
     linked_partner_id?: string; // Partner's user ID for two-way mode
+    special_occasions_enabled?: boolean; // Auto-send on anniversary/birthday
 
     created: string;
     updated: string;
