@@ -130,35 +130,35 @@ const features: FeatureCategory[] = [
                 name: 'Love Language Mode',
                 free: false,
                 hero: false,
-                legend: 'Coming Soon',
+                legend: true,
                 highlight: 'legend',
             },
             {
                 name: 'Anniversary & Birthday Intelligence',
                 free: false,
                 hero: false,
-                legend: 'Coming Soon',
+                legend: true,
                 highlight: 'legend',
             },
             {
                 name: 'Partner Link (Two-Way Mode)',
                 free: false,
                 hero: false,
-                legend: 'Coming Soon',
+                legend: true,
                 highlight: 'legend',
             },
             {
                 name: 'Photo Memory Cards',
                 free: false,
                 hero: false,
-                legend: 'Coming Soon',
+                legend: true,
                 highlight: 'legend',
             },
             {
                 name: 'Emotional Tone Selection',
                 free: false,
                 hero: false,
-                legend: 'Coming Soon',
+                legend: true,
                 highlight: 'legend',
             },
         ],
@@ -188,7 +188,7 @@ const features: FeatureCategory[] = [
                 name: 'Seasonal/Holiday Themes',
                 free: false,
                 hero: false,
-                legend: 'Coming Soon',
+                legend: true,
             },
         ],
     },
@@ -257,6 +257,8 @@ export default function PricingPage() {
     const { pricing } = usePricing();
     const [isLoading, setIsLoading] = useState<'hero' | 'legend' | null>(null);
     const [socialProof, setSocialProof] = useState({ today: 0, total: 0 });
+    const [coupleCount, setCoupleCount] = useState(0);
+    const [targetCoupleCount, setTargetCoupleCount] = useState(0);
 
     const userTier = user?.tier ?? TIER.FREE;
 
@@ -269,7 +271,35 @@ export default function PricingPage() {
         const baseToday = 23 + Math.floor(Math.random() * 15);
         const baseTotal = 4200 + Math.floor(Math.random() * 300);
         setSocialProof({ today: baseToday, total: baseTotal });
+
+        // Random 5-digit number for couple count
+        const randomCount = 10000 + Math.floor(Math.random() * 90000);
+        setTargetCoupleCount(randomCount);
     }, []);
+
+    // Animate couple count from 0 to target
+    useEffect(() => {
+        if (targetCoupleCount === 0) return;
+
+        const duration = 2000; // 2 seconds
+        const startTime = Date.now();
+        const startValue = 0;
+
+        const animate = () => {
+            const elapsed = Date.now() - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            // Ease out cubic for smooth deceleration
+            const easeProgress = 1 - Math.pow(1 - progress, 3);
+            const currentValue = Math.floor(startValue + (targetCoupleCount - startValue) * easeProgress);
+            setCoupleCount(currentValue);
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            }
+        };
+
+        requestAnimationFrame(animate);
+    }, [targetCoupleCount]);
 
     const handleUpgrade = async (tier: 'hero' | 'legend') => {
         if (!user?.id) {
@@ -336,7 +366,7 @@ export default function PricingPage() {
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-error opacity-75"></span>
                             <span className="relative inline-flex rounded-full h-2 w-2 bg-error"></span>
                         </span>
-                        15,402 couples sent the same message today
+                        <span className="tabular-nums font-semibold">{coupleCount.toLocaleString()}</span> couples receive the same message
                     </motion.div>
 
                     <motion.h2
@@ -522,7 +552,7 @@ export default function PricingPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.5 }}
-                        className="card legend-upgrade-card border-2 border-warning/40 relative overflow-hidden shadow-xl shadow-warning/10"
+                        className="card legend-upgrade-card border-2 border-warning/40 relative shadow-xl shadow-warning/10"
                     >
                         <div className="absolute top-0 right-0 w-40 h-40 bg-warning/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
 
@@ -644,11 +674,17 @@ export default function PricingPage() {
                     <div className="card-body">
                         <div className="flex items-center gap-2 mb-6">
                             <Crown className="w-6 h-6 text-warning" />
-                            <h3 className="text-xl font-bold">Legend Exclusive: Coming Soon</h3>
-                            <span className="badge badge-warning badge-sm ml-auto">Early Access</span>
+                            <h3 className="text-xl font-bold">Legend Exclusive Features</h3>
+                            <span className="ml-auto inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-yellow-400 to-amber-500 text-amber-900 shadow-sm">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                </span>
+                                Available Now
+                            </span>
                         </div>
                         <p className="text-sm text-base-content/60 mb-6">
-                            Legend members get early access to all upcoming features. Here's what's in development:
+                            Legend members get access to these exclusive premium features:
                         </p>
                         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {legendUpcoming.map((feature, idx) => (
