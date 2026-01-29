@@ -3,8 +3,10 @@
 import { useState, useEffect, Fragment } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
+import { usePricing } from '@/hooks/usePricing';
 import { TIER, TIER_NAMES } from '@/lib/types';
 import { createCheckoutSession } from '@/actions/payments';
+import { calculateDiscount } from '@/lib/pricing';
 import {
     Check,
     X,
@@ -29,20 +31,6 @@ import {
     Download,
 } from 'lucide-react';
 import Link from 'next/link';
-
-// Pricing configuration - One-time payments
-const PRICING = {
-    hero: {
-        price: 4.99,
-        originalPrice: 9.99,
-        perDay: '< 2¢',
-    },
-    legend: {
-        price: 19.99,
-        originalPrice: 39.99,
-        perDay: '< 6¢',
-    }
-};
 
 // Feature item type
 type FeatureItem = {
@@ -266,10 +254,15 @@ const legendUpcoming = [
 
 export default function PricingPage() {
     const { user } = useAuth();
+    const { pricing } = usePricing();
     const [isLoading, setIsLoading] = useState<'hero' | 'legend' | null>(null);
     const [socialProof, setSocialProof] = useState({ today: 0, total: 0 });
 
     const userTier = user?.tier ?? TIER.FREE;
+
+    // Calculate discounts dynamically
+    const heroDiscount = calculateDiscount(pricing.hero.originalPrice, pricing.hero.price);
+    const legendDiscount = calculateDiscount(pricing.legend.originalPrice, pricing.legend.price);
 
     // Social proof numbers
     useEffect(() => {
@@ -465,12 +458,12 @@ export default function PricingPage() {
 
                             <div className="my-4">
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-5xl font-bold">${PRICING.hero.price}</span>
-                                    <span className="text-lg line-through text-base-content/40">${PRICING.hero.originalPrice}</span>
+                                    <span className="text-5xl font-bold">${pricing.hero.price.toFixed(2)}</span>
+                                    <span className="text-lg line-through text-base-content/40">${pricing.hero.originalPrice.toFixed(2)}</span>
                                 </div>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-xs bg-success/20 text-success px-2 py-0.5 rounded-full font-semibold">50% OFF</span>
-                                    <span className="text-xs text-base-content/50">One-time • {PRICING.hero.perDay}/day forever</span>
+                                    <span className="text-xs bg-success/20 text-success px-2 py-0.5 rounded-full font-semibold">{heroDiscount}% OFF</span>
+                                    <span className="text-xs text-base-content/50">One-time • {pricing.hero.perDay}/day forever</span>
                                 </div>
                             </div>
 
@@ -493,7 +486,7 @@ export default function PricingPage() {
                                     ) : (
                                         <Zap className="w-5 h-5" />
                                     )}
-                                    {isLoading === 'hero' ? 'Processing...' : 'Unlock Hero — $4.99'}
+                                    {isLoading === 'hero' ? 'Processing...' : `Unlock Hero — $${pricing.hero.price.toFixed(2)}`}
                                 </button>
                             )}
 
@@ -552,12 +545,12 @@ export default function PricingPage() {
 
                             <div className="my-4">
                                 <div className="flex items-baseline gap-2">
-                                    <span className="text-5xl font-bold">${PRICING.legend.price}</span>
-                                    <span className="text-lg line-through text-base-content/40">${PRICING.legend.originalPrice}</span>
+                                    <span className="text-5xl font-bold">${pricing.legend.price.toFixed(2)}</span>
+                                    <span className="text-lg line-through text-base-content/40">${pricing.legend.originalPrice.toFixed(2)}</span>
                                 </div>
                                 <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-xs bg-warning/20 text-warning px-2 py-0.5 rounded-full font-semibold">50% OFF</span>
-                                    <span className="text-xs text-base-content/50">One-time • {PRICING.legend.perDay}/day forever</span>
+                                    <span className="text-xs bg-warning/20 text-warning px-2 py-0.5 rounded-full font-semibold">{legendDiscount}% OFF</span>
+                                    <span className="text-xs text-base-content/50">One-time • {pricing.legend.perDay}/day forever</span>
                                 </div>
                             </div>
 
@@ -580,7 +573,7 @@ export default function PricingPage() {
                                     ) : (
                                         <Crown className="w-5 h-5" />
                                     )}
-                                    {isLoading === 'legend' ? 'Processing...' : 'Become a Legend — $19.99'}
+                                    {isLoading === 'legend' ? 'Processing...' : `Become a Legend — $${pricing.legend.price.toFixed(2)}`}
                                 </button>
                             )}
 
@@ -698,14 +691,14 @@ export default function PricingPage() {
                                             <div className="flex flex-col items-center">
                                                 <Sparkles className="w-4 h-4 mb-1 text-primary" />
                                                 <span className="text-primary">Hero</span>
-                                                <span className="text-xs text-base-content/50 font-normal">$4.99</span>
+                                                <span className="text-xs text-base-content/50 font-normal">${pricing.hero.price.toFixed(2)}</span>
                                             </div>
                                         </th>
                                         <th className="text-center">
                                             <div className="flex flex-col items-center">
                                                 <Crown className="w-4 h-4 mb-1 text-warning" />
                                                 <span className="text-warning">Legend</span>
-                                                <span className="text-xs text-base-content/50 font-normal">$19.99</span>
+                                                <span className="text-xs text-base-content/50 font-normal">${pricing.legend.price.toFixed(2)}</span>
                                             </div>
                                         </th>
                                     </tr>
@@ -865,7 +858,7 @@ export default function PricingPage() {
                                 ) : (
                                     <Sparkles className="w-5 h-5" />
                                 )}
-                                Start with Hero — $4.99
+                                Start with Hero — ${pricing.hero.price.toFixed(2)}
                             </button>
                             <button
                                 onClick={() => handleUpgrade('legend')}
@@ -877,7 +870,7 @@ export default function PricingPage() {
                                 ) : (
                                     <Crown className="w-5 h-5" />
                                 )}
-                                Go Legend — $19.99
+                                Go Legend — ${pricing.legend.price.toFixed(2)}
                             </button>
                         </div>
                     )}

@@ -142,61 +142,61 @@
     - [x] Legend: Use `Hash(UserUUID + Date)` for truly unique 1-of-1 spark.
 
 
-## Phase 8: Legend Tier Enhancements (Premium Experience)
+## Phase 8: Legend Tier Enhancements (Premium Experience) ✅
 *Goal: Making Legend tier irresistibly valuable with exclusive features that deepen emotional connection.*
 
-- [ ] **Task 8.1: Love Language Mode**
-    - [ ] Add `love_language` field to user schema (Words of Affirmation, Acts of Service, Quality Time, Physical Touch, Receiving Gifts).
-    - [ ] Create love language quiz/selector in onboarding or dashboard.
-    - [ ] Build message templates tailored to each love language.
-    - [ ] Modify `getPremiumSpark` to incorporate love language into message selection.
-- [ ] **Task 8.2: Anniversary Intelligence**
-    - [ ] Add `anniversary_date`, `partner_birthday` fields to user schema.
-    - [ ] Create date input UI in dashboard relationship profile.
-    - [ ] Build special anniversary/birthday message pool (50+ messages each).
-    - [ ] Implement automatic detection and delivery of special messages on dates.
-    - [ ] Add countdown widget: "23 days until your anniversary!"
-- [ ] **Task 8.3: Partner Link (Two-Way Mode)**
-    - [ ] Design partner invitation system with unique link generation.
-    - [ ] Create `partner_links` collection in PocketBase.
-    - [ ] Build partner acceptance flow and account linking.
-    - [ ] Implement "Love Ping" - instant mutual notification feature.
-    - [ ] Create shared streak counter visible to both partners.
-- [ ] **Task 8.4: Premium Poet Pool (Exclusive Content)**
-    - [ ] Curate 200+ Legend-exclusive poetic messages.
-    - [ ] Implement tiered message pools (Free < Hero < Legend).
-    - [ ] Create content rotation system to prevent repetition.
-    - [ ] Add "Message Rarity" indicator (Common, Rare, Epic, Legendary).
-- [ ] **Task 8.5: Unlimited Spark Archive**
-    - [ ] Build full history view for Legend users (no date limit).
-    - [ ] Add search/filter functionality for past sparks.
-    - [ ] Implement "Favorites" system to bookmark special messages.
-    - [ ] Create export feature (PDF/printable format).
-- [ ] **Task 8.6: Photo Memory Cards**
-    - [ ] Add photo upload to user profile/dashboard.
-    - [ ] Integrate uploaded photos into shareable streak cards.
-    - [ ] Build multiple photo card templates with different layouts.
-    - [ ] Implement photo storage in PocketBase files collection.
-- [ ] **Task 8.7: Emotional Tone Selection**
-    - [ ] Add tone preference setting (Playful, Romantic, Passionate, Sweet, Poetic).
-    - [ ] Tag messages in pool with tone categories.
-    - [ ] Update algorithm to weight messages by selected tone.
-    - [ ] Create tone preview in settings UI.
-- [ ] **Task 8.8: Auto-Reply Suggestions**
-    - [ ] Build "Suggested Response" feature for received sparks.
-    - [ ] Create response message pool (100+ quick replies).
-    - [ ] Implement one-tap copy for suggested responses.
-    - [ ] Add personalization with partner name in responses.
-- [ ] **Task 8.9: Premium Streak Card Templates**
-    - [ ] Design 10+ exclusive streak card templates for Legend.
-    - [ ] Add animated card options (subtle effects).
-    - [ ] Create seasonal/holiday themed templates.
-    - [ ] Implement template preview and selection UI.
-- [ ] **Task 8.10: Advanced Integrations (Power Users)**
-    - [ ] Build API key generation for Legend users.
-    - [ ] Create webhook support for external integrations.
-    - [ ] Document API endpoints for developers.
-    - [ ] Add Zapier/Make integration templates.
+- [x] **Task 8.1: Love Language Mode**
+    - [x] Add `love_language` field to user schema (Words of Affirmation, Acts of Service, Quality Time, Physical Touch, Receiving Gifts).
+    - [x] Create love language quiz/selector in onboarding or dashboard.
+    - [x] Build message templates tailored to each love language.
+    - [x] Modify `getPremiumSpark` to incorporate love language into message selection.
+- [x] **Task 8.2: Anniversary Intelligence**
+    - [x] Add `anniversary_date`, `partner_birthday` fields to user schema.
+    - [x] Create date input UI in dashboard relationship profile.
+    - [x] Build special anniversary/birthday message pool (50+ messages each).
+    - [x] Implement automatic detection and delivery of special messages on dates.
+    - [x] Add countdown widget: "23 days until your anniversary!"
+- [x] **Task 8.3: Partner Link (Two-Way Mode)**
+    - [x] Design partner invitation system with unique link generation.
+    - [x] Create `partner_links` collection in PocketBase.
+    - [x] Build partner acceptance flow and account linking.
+    - [x] Implement "Love Ping" - instant mutual notification feature.
+    - [x] Create shared streak counter visible to both partners.
+- [x] **Task 8.4: Premium Poet Pool (Exclusive Content)**
+    - [x] Curate 200+ Legend-exclusive poetic messages.
+    - [x] Implement tiered message pools (Free < Hero < Legend).
+    - [x] Create content rotation system to prevent repetition.
+    - [x] Add "Message Rarity" indicator (Common, Rare, Epic, Legendary).
+- [x] **Task 8.5: Unlimited Spark Archive**
+    - [x] Build full history view for Legend users (90 days vs 30 for Hero).
+    - [x] Add search/filter functionality for past sparks.
+    - [x] Implement "Favorites" system to bookmark special messages.
+    - [x] Create export feature (JSON/TXT format).
+- [x] **Task 8.6: Photo Memory Cards**
+    - [x] Add photo upload to user profile/dashboard.
+    - [x] Integrate uploaded photos into shareable streak cards.
+    - [x] Build multiple photo card templates with different layouts.
+    - [x] Implement photo storage in PocketBase files collection.
+- [x] **Task 8.7: Emotional Tone Selection**
+    - [x] Add tone preference setting (Poetic, Playful, Romantic, Passionate, Sweet, Supportive).
+    - [x] Tag messages in pool with tone categories.
+    - [x] Update algorithm to weight messages by selected tone.
+    - [x] Create tone preview in settings UI.
+- [x] **Task 8.8: Auto-Reply Suggestions**
+    - [x] Build "Suggested Response" feature for received sparks.
+    - [x] Create response message pool (100+ quick replies).
+    - [x] Implement one-tap copy for suggested responses.
+    - [x] Add personalization with partner name in responses.
+- [x] **Task 8.9: Premium Streak Card Templates**
+    - [x] Design 10+ exclusive streak card templates for Legend.
+    - [x] Add animated card options (subtle effects).
+    - [x] Create seasonal/holiday themed templates.
+    - [x] Implement template preview and selection UI.
+- [x] **Task 8.10: Advanced Integrations (Power Users)**
+    - [x] Build API key generation for Legend users.
+    - [x] Create webhook support for external integrations.
+    - [x] Document API endpoints for developers.
+    - [x] Add Zapier/Make integration templates.
 
 ## Phase 9: Reliability & Scaling (Production-Grade)
 *Goal: Hardening the system against abuse and ensuring revenue recovery.*

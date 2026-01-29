@@ -20,7 +20,11 @@
                 "required": false,
                 "options": {
                     "maxSelect": 1,
-                    "values": ["masculine", "feminine", "neutral"]
+                    "values": [
+                        "masculine",
+                        "feminine",
+                        "neutral"
+                    ]
                 }
             },
             {
@@ -59,7 +63,10 @@
                 "required": false,
                 "options": {
                     "maxSelect": 1,
-                    "values": ["whatsapp", "telegram"]
+                    "values": [
+                        "whatsapp",
+                        "telegram"
+                    ]
                 }
             },
             {
@@ -98,7 +105,13 @@
                 "required": false,
                 "options": {
                     "maxSelect": 1,
-                    "values": ["words_of_affirmation", "acts_of_service", "receiving_gifts", "quality_time", "physical_touch"]
+                    "values": [
+                        "words_of_affirmation",
+                        "acts_of_service",
+                        "receiving_gifts",
+                        "quality_time",
+                        "physical_touch"
+                    ]
                 }
             },
             {
@@ -107,7 +120,14 @@
                 "required": false,
                 "options": {
                     "maxSelect": 1,
-                    "values": ["poetic", "playful", "romantic", "passionate", "sweet", "supportive"]
+                    "values": [
+                        "poetic",
+                        "playful",
+                        "romantic",
+                        "passionate",
+                        "sweet",
+                        "supportive"
+                    ]
                 }
             },
             {
@@ -232,7 +252,9 @@
                     "cascadeDelete": true,
                     "minSelect": null,
                     "maxSelect": 1,
-                    "displayFields": ["email"]
+                    "displayFields": [
+                        "email"
+                    ]
                 }
             },
             {
@@ -257,7 +279,13 @@
                 "required": false,
                 "options": {
                     "maxSelect": 1,
-                    "values": ["words_of_affirmation", "acts_of_service", "receiving_gifts", "quality_time", "physical_touch"]
+                    "values": [
+                        "words_of_affirmation",
+                        "acts_of_service",
+                        "receiving_gifts",
+                        "quality_time",
+                        "physical_touch"
+                    ]
                 }
             },
             {
@@ -266,7 +294,14 @@
                 "required": false,
                 "options": {
                     "maxSelect": 1,
-                    "values": ["poetic", "playful", "romantic", "passionate", "sweet", "supportive"]
+                    "values": [
+                        "poetic",
+                        "playful",
+                        "romantic",
+                        "passionate",
+                        "sweet",
+                        "supportive"
+                    ]
                 }
             },
             {
@@ -275,7 +310,12 @@
                 "required": false,
                 "options": {
                     "maxSelect": 1,
-                    "values": ["common", "rare", "epic", "legendary"]
+                    "values": [
+                        "common",
+                        "rare",
+                        "epic",
+                        "legendary"
+                    ]
                 }
             },
             {
@@ -306,7 +346,9 @@
                     "cascadeDelete": true,
                     "minSelect": null,
                     "maxSelect": 1,
-                    "displayFields": ["email"]
+                    "displayFields": [
+                        "email"
+                    ]
                 }
             },
             {
@@ -318,7 +360,9 @@
                     "cascadeDelete": false,
                     "minSelect": null,
                     "maxSelect": 1,
-                    "displayFields": ["email"]
+                    "displayFields": [
+                        "email"
+                    ]
                 }
             },
             {
@@ -337,7 +381,12 @@
                 "required": true,
                 "options": {
                     "maxSelect": 1,
-                    "values": ["pending", "accepted", "expired", "revoked"]
+                    "values": [
+                        "pending",
+                        "accepted",
+                        "expired",
+                        "revoked"
+                    ]
                 }
             },
             {
