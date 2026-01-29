@@ -812,8 +812,8 @@ function AdminContent() {
 
                 {/* Message Content - Full Width */}
                 <div className="form-control mb-4">
-                  <label className="label">
-                    <span className="label-text">Message Content</span>
+                  <label className="label pb-2">
+                    <span className="label-text font-medium">Message Content</span>
                   </label>
                   <textarea
                     className="textarea textarea-bordered h-24 w-full"
@@ -823,10 +823,10 @@ function AdminContent() {
                   />
                 </div>
 
-                {/* Options Row */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                {/* Options Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
                   <div className="form-control">
-                    <label className="label">
+                    <label className="label py-1">
                       <span className="label-text text-xs">Target</span>
                     </label>
                     <select
@@ -841,7 +841,7 @@ function AdminContent() {
                   </div>
 
                   <div className="form-control">
-                    <label className="label">
+                    <label className="label py-1">
                       <span className="label-text text-xs">Tone</span>
                     </label>
                     <select
@@ -856,7 +856,7 @@ function AdminContent() {
                   </div>
 
                   <div className="form-control">
-                    <label className="label">
+                    <label className="label py-1">
                       <span className="label-text text-xs">Time</span>
                     </label>
                     <select
@@ -871,7 +871,7 @@ function AdminContent() {
                   </div>
 
                   <div className="form-control">
-                    <label className="label">
+                    <label className="label py-1">
                       <span className="label-text text-xs">Rarity</span>
                     </label>
                     <select
@@ -887,7 +887,7 @@ function AdminContent() {
                   </div>
 
                   <div className="form-control">
-                    <label className="label">
+                    <label className="label py-1">
                       <span className="label-text text-xs">Love Language</span>
                     </label>
                     <select
@@ -903,8 +903,8 @@ function AdminContent() {
                   </div>
 
                   <div className="form-control">
-                    <label className="label">
-                      <span className="label-text text-xs opacity-0">Action</span>
+                    <label className="label py-1">
+                      <span className="label-text text-xs">&nbsp;</span>
                     </label>
                     <button
                       onClick={handleCreateMessage}
