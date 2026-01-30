@@ -74,7 +74,7 @@ export default function SparksIndexPage() {
     '@type': 'CollectionPage',
     name: 'Love Message Categories',
     description: 'Browse romantic messages for every occasion',
-    url: 'https://luvora.app/sparks',
+    url: 'https://luvora.love/sparks',
     publisher: {
       '@type': 'Organization',
       name: 'Luvora',
@@ -85,7 +85,7 @@ export default function SparksIndexPage() {
         '@type': 'ListItem',
         position: index + 1,
         name: cat.h1,
-        url: `https://luvora.app/sparks/${cat.slug}`,
+        url: `https://luvora.love/sparks/${cat.slug}`,
       })),
     },
   };

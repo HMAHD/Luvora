@@ -41,21 +41,19 @@ export function AdBanner({
   const userTier = user?.tier ?? TIER.FREE;
   const isPaidUser = userTier >= TIER.HERO;
 
-  // Don't show ads to paid users
-  if (isPaidUser) {
-    return null;
-  }
-
-  // Don't show if dismissed this session
-  if (isDismissed) {
-    return null;
-  }
-
-  // Check for ad consent
+  // Check for ad consent - must be called before hooks but value used after
   const hasConsent = hasAdConsent();
 
+  // All hooks must be called before any conditional returns
+  // Keep dependency array stable - use refs for values that change but shouldn't re-trigger
+  const isPaidUserRef = useRef(isPaidUser);
+  const isDismissedRef = useRef(isDismissed);
+  isPaidUserRef.current = isPaidUser;
+  isDismissedRef.current = isDismissed;
+
   useEffect(() => {
-    if (!hasConsent || !ADSENSE_CLIENT || !adSlot) {
+    // Skip if user is paid, dismissed, or no consent
+    if (isPaidUserRef.current || isDismissedRef.current || !hasConsent || !ADSENSE_CLIENT || !adSlot) {
       return;
     }
 
@@ -88,6 +86,17 @@ export function AdBanner({
 
     return () => clearTimeout(timer);
   }, [hasConsent, adSlot, trackAd]);
+
+  // Conditional returns AFTER all hooks
+  // Don't show ads to paid users
+  if (isPaidUser) {
+    return null;
+  }
+
+  // Don't show if dismissed this session
+  if (isDismissed) {
+    return null;
+  }
 
   // Handle click tracking
   const handleAdClick = () => {

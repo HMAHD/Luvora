@@ -34,7 +34,6 @@ import {
   BarChart3,
 } from 'lucide-react';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
-import { AnalyticsSettings } from '@/components/admin/AnalyticsSettings';
 import Link from 'next/link';
 import {
   TIER,
@@ -1446,9 +1445,6 @@ function AdminContent() {
                 )}
               </div>
             </div>
-
-            {/* Analytics & Monetization Settings */}
-            <AnalyticsSettings />
 
           </motion.div>
         )}

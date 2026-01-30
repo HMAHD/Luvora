@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://luvora.app'),
+  metadataBase: new URL('https://luvora.love'),
   title: "Luvora | Daily Spark for Your Partner",
   description: "Send a daily spark of love to your partner. Free romantic messages delivered fresh every day. No signup required.",
   keywords: ["romantic messages", "love notes", "daily spark", "relationship", "couple messages", "love quotes"],

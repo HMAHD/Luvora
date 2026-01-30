@@ -63,11 +63,11 @@ function generateJsonLd(slug: string) {
     '@type': 'CollectionPage',
     name: category.h1,
     description: category.description,
-    url: `https://luvora.app/sparks/${category.slug}`,
+    url: `https://luvora.love/sparks/${category.slug}`,
     publisher: {
       '@type': 'Organization',
       name: 'Luvora',
-      url: 'https://luvora.app',
+      url: 'https://luvora.love',
     },
     mainEntity: {
       '@type': 'ItemList',
@@ -89,19 +89,19 @@ function generateJsonLd(slug: string) {
           '@type': 'ListItem',
           position: 1,
           name: 'Home',
-          item: 'https://luvora.app',
+          item: 'https://luvora.love',
         },
         {
           '@type': 'ListItem',
           position: 2,
           name: 'Sparks',
-          item: 'https://luvora.app/sparks',
+          item: 'https://luvora.love/sparks',
         },
         {
           '@type': 'ListItem',
           position: 3,
           name: category.h1,
-          item: `https://luvora.app/sparks/${category.slug}`,
+          item: `https://luvora.love/sparks/${category.slug}`,
         },
       ],
     },
@@ -164,7 +164,7 @@ describe('SEO Page: JSON-LD Schema Generation', () => {
     expect(jsonLd?.publisher).toEqual({
       '@type': 'Organization',
       name: 'Luvora',
-      url: 'https://luvora.app',
+      url: 'https://luvora.love',
     });
   });
 
