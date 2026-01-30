@@ -14,11 +14,9 @@ import {
     ChevronUp,
 } from 'lucide-react';
 import { TIER, TIER_NAMES, type TierLevel } from '@/lib/types';
-import { changeUserTier, getUserTierHistory, type TierChangeReason, type TierAuditLog } from '@/actions/tier';
-import PocketBase from 'pocketbase';
+import { changeUserTier, getUserTierHistory, searchUserByEmail, type TierChangeReason, type TierAuditLog } from '@/actions/tier';
 
 interface TierAdjustmentToolProps {
-    pb: PocketBase;
     adminId: string;
 }
 
@@ -34,7 +32,7 @@ const REASON_LABELS: Record<TierChangeReason, string> = {
     system: 'System',
 };
 
-export function TierAdjustmentTool({ pb, adminId }: TierAdjustmentToolProps) {
+export function TierAdjustmentTool({ adminId }: TierAdjustmentToolProps) {
     const [searchEmail, setSearchEmail] = useState('');
     const [foundUser, setFoundUser] = useState<{
         id: string;
@@ -60,18 +58,18 @@ export function TierAdjustmentTool({ pb, adminId }: TierAdjustmentToolProps) {
         setError(null);
         setFoundUser(null);
         setTierHistory([]);
+        setShowHistory(false);
 
         try {
-            const user = await pb.collection('users').getFirstListItem(`email="${searchEmail.trim()}"`);
-            setFoundUser({
-                id: user.id,
-                email: user.email,
-                name: user.partner_name || user.name || 'Unknown',
-                tier: (user.tier ?? TIER.FREE) as TierLevel,
-            });
-            setSelectedTier((user.tier ?? TIER.FREE) as TierLevel);
+            const user = await searchUserByEmail(searchEmail.trim());
+            if (user) {
+                setFoundUser(user);
+                setSelectedTier(user.tier);
+            } else {
+                setError('User not found with that email');
+            }
         } catch {
-            setError('User not found with that email');
+            setError('Failed to search for user');
         } finally {
             setSearching(false);
         }

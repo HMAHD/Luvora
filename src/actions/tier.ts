@@ -5,6 +5,37 @@ import { TIER, TIER_NAMES, type TierLevel } from '@/lib/types';
 
 const PB_URL = process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090';
 
+export interface UserSearchResult {
+    id: string;
+    email: string;
+    name: string;
+    tier: TierLevel;
+}
+
+/**
+ * Search for a user by email (admin only).
+ */
+export async function searchUserByEmail(email: string): Promise<UserSearchResult | null> {
+    try {
+        const adminPb = new PocketBase(PB_URL);
+        await adminPb.admins.authWithPassword(
+            process.env.POCKETBASE_ADMIN_EMAIL || '',
+            process.env.POCKETBASE_ADMIN_PASSWORD || ''
+        );
+
+        const user = await adminPb.collection('users').getFirstListItem(`email="${email.trim()}"`);
+
+        return {
+            id: user.id,
+            email: user.email,
+            name: user.partner_name || user.name || 'Unknown',
+            tier: (user.tier ?? TIER.FREE) as TierLevel,
+        };
+    } catch {
+        return null;
+    }
+}
+
 export type TierChangeReason =
     | 'purchase'
     | 'refund'
