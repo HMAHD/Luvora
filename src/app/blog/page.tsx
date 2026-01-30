@@ -61,28 +61,36 @@ function ArticleCard({ article, featured = false }: { article: BlogArticle; feat
         return (
             <motion.div variants={itemVariants}>
                 <Link href={`/blog/${article.slug}`} className="group block">
-                    <article className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 border border-base-content/5 p-8 md:p-12 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1">
-                        {/* Decorative elements */}
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary/10 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                        <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-secondary/10 to-transparent rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+                    <article className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 border border-base-content/5 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1">
+                        {/* Featured Image */}
+                        <div className="relative h-64 md:h-80 overflow-hidden">
+                            <img
+                                src={article.image}
+                                alt={article.title}
+                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-base-100 via-base-100/50 to-transparent" />
 
-                        <div className="relative">
-                            <div className="flex items-center gap-3 mb-6">
-                                <span className="badge badge-primary badge-lg gap-2">
+                            {/* Badges on image */}
+                            <div className="absolute top-4 left-4 flex items-center gap-2">
+                                <span className="badge badge-primary badge-lg gap-2 shadow-lg">
                                     <Sparkles className="w-3.5 h-3.5" />
                                     Featured
                                 </span>
-                                <span className={`badge ${config.color} border gap-1.5`}>
+                                <span className={`badge ${config.color} border gap-1.5 shadow-lg bg-base-100/90 backdrop-blur-sm`}>
                                     <Icon className="w-3 h-3" />
                                     {config.label}
                                 </span>
                             </div>
+                        </div>
 
-                            <h2 className="text-2xl md:text-4xl font-bold text-base-content mb-4 leading-tight group-hover:text-primary transition-colors duration-300 font-romantic">
+                        {/* Content */}
+                        <div className="relative p-8 md:p-10 -mt-16">
+                            <h2 className="text-2xl md:text-3xl font-bold text-base-content mb-4 leading-tight group-hover:text-primary transition-colors duration-300 font-romantic">
                                 {article.title}
                             </h2>
 
-                            <p className="text-base-content/70 text-lg leading-relaxed mb-6 max-w-2xl">
+                            <p className="text-base-content/70 text-base leading-relaxed mb-6 max-w-2xl">
                                 {article.description}
                             </p>
 
@@ -117,33 +125,47 @@ function ArticleCard({ article, featured = false }: { article: BlogArticle; feat
     return (
         <motion.div variants={itemVariants}>
             <Link href={`/blog/${article.slug}`} className="group block h-full">
-                <article className="h-full bg-base-100 rounded-2xl border border-base-content/5 p-6 transition-all duration-300 hover:shadow-xl hover:shadow-base-content/5 hover:-translate-y-1 hover:border-primary/20">
-                    <div className="flex items-center gap-2 mb-4">
-                        <span className={`badge ${config.color} border badge-sm gap-1`}>
-                            <Icon className="w-3 h-3" />
-                            {config.label}
-                        </span>
-                    </div>
+                <article className="h-full bg-base-100 rounded-2xl border border-base-content/5 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-base-content/5 hover:-translate-y-1 hover:border-primary/20">
+                    {/* Article Image */}
+                    <div className="relative h-44 overflow-hidden">
+                        <img
+                            src={article.image}
+                            alt={article.title}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-base-100/80 to-transparent" />
 
-                    <h3 className="text-lg font-bold text-base-content mb-3 leading-snug group-hover:text-primary transition-colors duration-200 line-clamp-2">
-                        {article.title}
-                    </h3>
-
-                    <p className="text-base-content/60 text-sm leading-relaxed mb-4 line-clamp-2">
-                        {article.description}
-                    </p>
-
-                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-base-content/5">
-                        <div className="flex items-center gap-3 text-xs text-base-content/40">
-                            <span className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                {article.readingTime} min
+                        {/* Category Badge */}
+                        <div className="absolute top-3 left-3">
+                            <span className={`badge ${config.color} border badge-sm gap-1 shadow-md bg-base-100/90 backdrop-blur-sm`}>
+                                <Icon className="w-3 h-3" />
+                                {config.label}
                             </span>
                         </div>
+                    </div>
 
-                        <span className="text-primary text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1">
-                            Read <ArrowRight className="w-3 h-3" />
-                        </span>
+                    {/* Content */}
+                    <div className="p-5">
+                        <h3 className="text-lg font-bold text-base-content mb-2 leading-snug group-hover:text-primary transition-colors duration-200 line-clamp-2">
+                            {article.title}
+                        </h3>
+
+                        <p className="text-base-content/60 text-sm leading-relaxed mb-4 line-clamp-2">
+                            {article.description}
+                        </p>
+
+                        <div className="flex items-center justify-between pt-3 border-t border-base-content/5">
+                            <div className="flex items-center gap-3 text-xs text-base-content/40">
+                                <span className="flex items-center gap-1">
+                                    <Clock className="w-3 h-3" />
+                                    {article.readingTime} min
+                                </span>
+                            </div>
+
+                            <span className="text-primary text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1">
+                                Read <ArrowRight className="w-3 h-3" />
+                            </span>
+                        </div>
                     </div>
                 </article>
             </Link>

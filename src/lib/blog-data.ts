@@ -13,6 +13,7 @@ export interface BlogArticle {
     readingTime: number;
     publishedAt: string;
     updatedAt: string;
+    image: string; // Unsplash image URL
 }
 
 export const BLOG_ARTICLES: BlogArticle[] = [
@@ -25,6 +26,7 @@ export const BLOG_ARTICLES: BlogArticle[] = [
         readingTime: 8,
         publishedAt: '2024-01-15',
         updatedAt: '2024-01-15',
+        image: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=800&h=450&fit=crop',
         content: `
 ## Why Romance Fades (And How to Prevent It)
 
@@ -72,6 +74,7 @@ Romance isn't something that just happens - it's something you create together. 
         readingTime: 10,
         publishedAt: '2024-01-20',
         updatedAt: '2024-01-20',
+        image: 'https://images.unsplash.com/photo-1474552226712-ac0f0961a954?w=800&h=450&fit=crop',
         content: `
 ## Why Morning Texts Matter More Than You Think
 
@@ -144,6 +147,7 @@ A simple good morning text takes 30 seconds but creates lasting emotional impact
         readingTime: 12,
         publishedAt: '2024-02-01',
         updatedAt: '2024-02-01',
+        image: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=800&h=450&fit=crop',
         content: `
 ## What Are Love Languages?
 
@@ -250,6 +254,7 @@ Understanding love languages is like having a roadmap to your partner's heart. I
         readingTime: 9,
         publishedAt: '2024-02-10',
         updatedAt: '2024-02-10',
+        image: 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=800&h=450&fit=crop',
         content: `
 ## Making Long Distance Work
 
@@ -333,6 +338,7 @@ Distance tests your commitment but also strengthens it. Every day you choose eac
         readingTime: 7,
         publishedAt: '2024-02-15',
         updatedAt: '2024-02-15',
+        image: 'https://images.unsplash.com/photo-1494774157365-9e04c6720e47?w=800&h=450&fit=crop',
         content: `
 ## Love Doesn't Need a Price Tag
 
@@ -408,6 +414,7 @@ The currency of love isn't money - it's attention. These free gestures prove tha
         readingTime: 8,
         publishedAt: '2024-02-20',
         updatedAt: '2024-02-20',
+        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=450&fit=crop',
         content: `
 ## The Magic of Goodnight Messages
 
@@ -480,6 +487,7 @@ A goodnight message is a small gift that creates big feelings. Start tonight and
         readingTime: 11,
         publishedAt: '2024-02-25',
         updatedAt: '2024-02-25',
+        image: 'https://images.unsplash.com/photo-1499678329028-101435549a4e?w=800&h=450&fit=crop',
         content: `
 ## Understanding Words of Affirmation
 
@@ -572,6 +580,7 @@ If your partner's love language is words of affirmation, your voice is one of th
         readingTime: 10,
         publishedAt: '2024-03-01',
         updatedAt: '2024-03-01',
+        image: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?w=800&h=450&fit=crop',
         content: `
 ## What Makes a Relationship Healthy?
 
@@ -663,6 +672,7 @@ Healthy relationships require ongoing effort from both partners. If you recogniz
         readingTime: 12,
         publishedAt: '2024-03-05',
         updatedAt: '2024-03-05',
+        image: 'https://images.unsplash.com/photo-1543807535-eceef0bc6599?w=800&h=450&fit=crop',
         content: `
 ## Why Communication Makes or Breaks Relationships
 
@@ -759,6 +769,7 @@ Great communication isn't about agreeing on everything—it's about creating a s
         readingTime: 9,
         publishedAt: '2024-03-10',
         updatedAt: '2024-03-10',
+        image: 'https://images.unsplash.com/photo-1529543544277-dc578753ec83?w=800&h=450&fit=crop',
         content: `
 ## Why At-Home Dates Are Underrated
 
@@ -841,6 +852,7 @@ The best dates aren't about what you do—they're about being present with each 
         readingTime: 8,
         publishedAt: '2024-03-15',
         updatedAt: '2024-03-15',
+        image: 'https://images.unsplash.com/photo-1516589091380-5d8e87df6999?w=800&h=450&fit=crop',
         content: `
 ## Why Apologies Matter
 
@@ -922,6 +934,7 @@ A good apology is a gift to your relationship. It shows maturity, empathy, and c
         readingTime: 11,
         publishedAt: '2024-03-20',
         updatedAt: '2024-03-20',
+        image: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&h=450&fit=crop',
         content: `
 ## The Foundation of Every Relationship
 
@@ -1016,6 +1029,7 @@ Trust is built in drops and lost in buckets. Every day offers opportunities to s
         readingTime: 9,
         publishedAt: '2024-03-25',
         updatedAt: '2024-03-25',
+        image: 'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=800&h=450&fit=crop',
         content: `
 ## Celebrating Your Journey Together
 
@@ -1105,6 +1119,7 @@ The perfect anniversary isn't about spending money—it's about celebrating your
         readingTime: 10,
         publishedAt: '2024-03-30',
         updatedAt: '2024-03-30',
+        image: 'https://images.unsplash.com/photo-1579762593175-20226054cad0?w=800&h=450&fit=crop',
         content: `
 ## The Lost Art of Love Letters
 
@@ -1202,6 +1217,7 @@ A love letter is a gift that keeps giving. Years from now, they'll still be able
         readingTime: 8,
         publishedAt: '2024-04-05',
         updatedAt: '2024-04-05',
+        image: 'https://images.unsplash.com/photo-1501901609772-df0848060b33?w=800&h=450&fit=crop',
         content: `
 ## Quality Time That Actually Connects
 
@@ -1288,6 +1304,7 @@ Shared activities aren't just fun—they're relationship maintenance. Each exper
         readingTime: 9,
         publishedAt: '2024-04-10',
         updatedAt: '2024-04-10',
+        image: 'https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?w=800&h=450&fit=crop',
         content: `
 ## Romance Isn't a Talent—It's a Practice
 
@@ -1376,6 +1393,7 @@ Romance is about making your partner feel seen, valued, and loved—consistently
         readingTime: 10,
         publishedAt: '2024-04-15',
         updatedAt: '2024-04-15',
+        image: 'https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?w=800&h=450&fit=crop',
         content: `
 ## Beyond #RelationshipGoals
 
