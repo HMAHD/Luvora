@@ -189,7 +189,7 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
                                     <Moon className="w-5 h-5 text-info" />
-                                    <span className="font-medium">Evening Spark</span>
+                                    <span className="font-medium">Night Spark</span>
                                 </div>
                                 <input
                                     type="checkbox"

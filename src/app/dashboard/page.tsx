@@ -28,11 +28,353 @@ import {
   Cake,
   Gift,
   MessageCircleHeart,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { getDailySpark } from '@/lib/algo';
 
 type Role = 'neutral' | 'masculine' | 'feminine';
+
+// Inline Automation Tab Component
+function AutomationTabContent({
+  user,
+  userTier,
+  pb
+}: {
+  user: ReturnType<typeof useAuth>['user'];
+  userTier: number;
+  pb: ReturnType<typeof useAuth>['pb'];
+}) {
+  const [morningEnabled, setMorningEnabled] = useState(user?.morning_enabled ?? false);
+  const [morningTime, setMorningTime] = useState(user?.morning_time || '08:00');
+  const [eveningEnabled, setEveningEnabled] = useState(user?.evening_enabled ?? false);
+  const [eveningTime, setEveningTime] = useState(user?.evening_time || '20:00');
+  const [platform, setPlatform] = useState<'whatsapp' | 'telegram'>(user?.messaging_platform || 'telegram');
+  const [msgId, setMsgId] = useState(user?.messaging_id || '');
+  const [loveLanguage, setLoveLanguage] = useState(user?.love_language || '');
+  const [preferredTone, setPreferredTone] = useState(user?.preferred_tone || '');
+  const [specialOccasionsEnabled, setSpecialOccasionsEnabled] = useState(user?.special_occasions_enabled ?? true);
+  const [anniversaryDate, setAnniversaryDate] = useState(user?.anniversary_date || '');
+  const [partnerBirthday, setPartnerBirthday] = useState(user?.partner_birthday || '');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const isLegend = userTier >= TIER.LEGEND;
+
+  const handleSave = async () => {
+    if (!user?.id) return;
+    setSaving(true);
+    try {
+      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const updateData: Record<string, unknown> = {
+        messaging_platform: platform,
+        messaging_id: msgId,
+        timezone,
+        morning_enabled: morningEnabled,
+        morning_time: morningTime,
+        evening_enabled: eveningEnabled,
+        evening_time: eveningTime,
+      };
+
+      if (isLegend) {
+        updateData.love_language = loveLanguage || null;
+        updateData.preferred_tone = preferredTone || null;
+        updateData.special_occasions_enabled = specialOccasionsEnabled;
+        updateData.anniversary_date = anniversaryDate || null;
+        updateData.partner_birthday = partnerBirthday || null;
+      }
+
+      await pb.collection('users').update(user.id, updateData);
+      await pb.collection('users').authRefresh();
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    } catch (err) {
+      console.error('Failed to save automation:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Delivery Channel Card */}
+      <div className="card bg-base-100 shadow-sm border border-base-content/5">
+        <div className="card-body">
+          <h2 className="card-title text-lg flex items-center gap-2">
+            <MessageCircle className="w-5 h-5 text-primary" />
+            Delivery Channel
+          </h2>
+          <p className="text-sm text-base-content/60 mb-4">
+            Choose how you want to receive your daily sparks
+          </p>
+
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPlatform('telegram')}
+                className={`btn flex-1 gap-2 ${platform === 'telegram' ? 'btn-primary' : 'btn-outline'}`}
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                </svg>
+                Telegram
+              </button>
+              <button
+                onClick={() => setPlatform('whatsapp')}
+                className={`btn flex-1 gap-2 ${platform === 'whatsapp' ? 'btn-primary' : 'btn-outline'}`}
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                WhatsApp
+              </button>
+            </div>
+
+            <div className="form-control">
+              <label className="label">
+                <span className="label-text">
+                  {platform === 'whatsapp' ? 'Phone Number (with country code)' : 'Telegram Chat ID'}
+                </span>
+              </label>
+              <input
+                type="text"
+                placeholder={platform === 'whatsapp' ? '+1234567890' : '12345678'}
+                className="input input-bordered w-full font-mono"
+                value={msgId}
+                onChange={(e) => setMsgId(e.target.value)}
+              />
+              {platform === 'telegram' && (
+                <label className="label">
+                  <a href="https://t.me/userinfobot" target="_blank" className="label-text-alt link link-primary">
+                    Get your Chat ID from @userinfobot →
+                  </a>
+                </label>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Delivery Schedule Card */}
+      <div className="card bg-base-100 shadow-sm border border-base-content/5">
+        <div className="card-body">
+          <h2 className="card-title text-lg flex items-center gap-2">
+            <Clock className="w-5 h-5 text-primary" />
+            Delivery Schedule
+          </h2>
+          <p className="text-sm text-base-content/60 mb-4">
+            Choose when to receive your sparks • Timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            {/* Morning Spark */}
+            <div className={`card p-4 transition-all ${morningEnabled ? 'bg-warning/10 border-2 border-warning/40' : 'bg-base-200/50 border border-base-content/10'}`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Sun className={`w-5 h-5 ${morningEnabled ? 'text-warning' : 'text-base-content/40'}`} />
+                  <span className="font-medium">Morning Spark</span>
+                </div>
+                <input
+                  type="checkbox"
+                  className="toggle toggle-warning"
+                  checked={morningEnabled}
+                  onChange={(e) => setMorningEnabled(e.target.checked)}
+                />
+              </div>
+              {morningEnabled && (
+                <input
+                  type="time"
+                  className="input input-bordered input-sm w-full"
+                  value={morningTime}
+                  onChange={(e) => setMorningTime(e.target.value)}
+                />
+              )}
+              <p className="text-xs text-base-content/50 mt-2">
+                {morningEnabled ? 'Start your day with love' : 'Enable to receive morning sparks'}
+              </p>
+            </div>
+
+            {/* Evening Spark */}
+            <div className={`card p-4 transition-all ${eveningEnabled ? 'bg-info/10 border-2 border-info/40' : 'bg-base-200/50 border border-base-content/10'}`}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <Moon className={`w-5 h-5 ${eveningEnabled ? 'text-info' : 'text-base-content/40'}`} />
+                  <span className="font-medium">Night Spark</span>
+                </div>
+                <input
+                  type="checkbox"
+                  className="toggle toggle-info"
+                  checked={eveningEnabled}
+                  onChange={(e) => setEveningEnabled(e.target.checked)}
+                />
+              </div>
+              {eveningEnabled && (
+                <input
+                  type="time"
+                  className="input input-bordered input-sm w-full"
+                  value={eveningTime}
+                  onChange={(e) => setEveningTime(e.target.value)}
+                />
+              )}
+              <p className="text-xs text-base-content/50 mt-2">
+                {eveningEnabled ? 'End your day with warmth' : 'Enable to receive evening sparks'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Legend Features Card */}
+      {isLegend ? (
+        <div className="card bg-gradient-to-br from-warning/5 to-warning/10 border border-warning/20 shadow-sm">
+          <div className="card-body">
+            <div className="flex items-center gap-2 mb-4">
+              <Crown className="w-5 h-5 text-warning" />
+              <h2 className="card-title text-lg">Legend Features</h2>
+            </div>
+
+            <div className="space-y-5">
+              {/* Love Language */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text flex items-center gap-2">
+                    <Heart className="w-4 h-4 text-pink-400" /> Love Language
+                  </span>
+                </label>
+                <select
+                  className="select select-bordered w-full"
+                  value={loveLanguage}
+                  onChange={(e) => setLoveLanguage(e.target.value)}
+                >
+                  <option value="">Auto (Varied messages)</option>
+                  {Object.entries(LOVE_LANGUAGE_NAMES).map(([key, name]) => (
+                    <option key={key} value={key}>{name}</option>
+                  ))}
+                </select>
+                <label className="label py-1">
+                  <span className="label-text-alt text-base-content/50">Messages tailored to how your partner feels love</span>
+                </label>
+              </div>
+
+              {/* Emotional Tone */}
+              <div className="form-control">
+                <label className="label">
+                  <span className="label-text flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-secondary" /> Emotional Tone
+                  </span>
+                </label>
+                <select
+                  className="select select-bordered w-full"
+                  value={preferredTone}
+                  onChange={(e) => setPreferredTone(e.target.value)}
+                >
+                  <option value="">Auto (Varied tones)</option>
+                  <option value="poetic">Poetic</option>
+                  <option value="playful">Playful</option>
+                  <option value="romantic">Romantic</option>
+                  <option value="passionate">Passionate</option>
+                  <option value="sweet">Sweet</option>
+                  <option value="supportive">Supportive</option>
+                </select>
+              </div>
+
+              {/* Special Occasions */}
+              <div className={`card p-4 transition-all ${specialOccasionsEnabled ? 'bg-base-100 border border-warning/30' : 'bg-base-200/30 border border-base-content/10'}`}>
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Gift className="w-5 h-5 text-warning" />
+                    <span className="font-medium">Special Occasion Sparks</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    className="toggle toggle-warning"
+                    checked={specialOccasionsEnabled}
+                    onChange={(e) => setSpecialOccasionsEnabled(e.target.checked)}
+                  />
+                </div>
+
+                {specialOccasionsEnabled && (
+                  <div className="grid grid-cols-2 gap-3 mt-3">
+                    <div className="form-control">
+                      <label className="label py-1">
+                        <span className="label-text text-xs flex items-center gap-1">
+                          <Heart className="w-3 h-3 text-pink-400" /> Anniversary
+                        </span>
+                      </label>
+                      <input
+                        type="date"
+                        className="input input-bordered input-sm w-full"
+                        value={anniversaryDate}
+                        onChange={(e) => setAnniversaryDate(e.target.value)}
+                      />
+                    </div>
+                    <div className="form-control">
+                      <label className="label py-1">
+                        <span className="label-text text-xs flex items-center gap-1">
+                          <Cake className="w-3 h-3 text-amber-400" /> Partner Birthday
+                        </span>
+                      </label>
+                      <input
+                        type="date"
+                        className="input input-bordered input-sm w-full"
+                        value={partnerBirthday}
+                        onChange={(e) => setPartnerBirthday(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                )}
+                <p className="text-xs text-base-content/50 mt-2">
+                  Get extra special messages on important dates
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="card bg-warning/5 border border-warning/20">
+          <div className="card-body">
+            <div className="flex items-center gap-3">
+              <Crown className="w-8 h-8 text-warning" />
+              <div className="flex-1">
+                <h3 className="font-bold text-warning">Unlock Legend Features</h3>
+                <p className="text-sm text-base-content/60">
+                  Love Language, Emotional Tones, Anniversary Intelligence & more
+                </p>
+              </div>
+              <Link href="/pricing" className="btn btn-warning btn-sm">
+                Upgrade
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Save Button */}
+      <button
+        onClick={handleSave}
+        disabled={saving || saved || !msgId}
+        className={`btn btn-block btn-lg ${saved ? 'btn-success' : 'btn-primary'}`}
+      >
+        {saving ? (
+          <span className="loading loading-spinner" />
+        ) : saved ? (
+          <>
+            <Check className="w-5 h-5" /> Saved!
+          </>
+        ) : (
+          'Save Automation Settings'
+        )}
+      </button>
+
+      {!msgId && (
+        <p className="text-sm text-center text-warning">
+          Please enter your {platform === 'telegram' ? 'Telegram Chat ID' : 'WhatsApp number'} to enable automation
+        </p>
+      )}
+    </div>
+  );
+}
 
 function DashboardContent() {
   const { user, pb } = useAuth();
@@ -41,9 +383,6 @@ function DashboardContent() {
   // Form states - Initialize from user object (PocketBase), NOT localStorage
   const [formPartnerName, setFormPartnerName] = useState('');
   const [formRole, setFormRole] = useState<Role>('neutral');
-  const [morningTime, setMorningTime] = useState('08:00');
-  const [platform, setPlatform] = useState<'whatsapp' | 'telegram'>('telegram');
-  const [msgId, setMsgId] = useState('');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -61,9 +400,6 @@ function DashboardContent() {
     if (user) {
       setFormPartnerName(user.partner_name || '');
       setFormRole(user.recipient_role || 'neutral');
-      setMorningTime(user.morning_time || '08:00');
-      setPlatform(user.messaging_platform || 'telegram');
-      setMsgId(user.messaging_id || '');
       // Phase 8 fields
       setAnniversaryDate(user.anniversary_date || '');
       setPartnerBirthday(user.partner_birthday || '');
@@ -99,26 +435,6 @@ function DashboardContent() {
       setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       console.error('Failed to save profile:', err);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleSaveAutomation = async () => {
-    if (!user?.id) return;
-    setSaving(true);
-    try {
-      const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      await pb.collection('users').update(user.id, {
-        morning_time: morningTime,
-        messaging_platform: platform,
-        messaging_id: msgId,
-        timezone,
-      });
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    } catch (err) {
-      console.error('Failed to save automation:', err);
     } finally {
       setSaving(false);
     }
@@ -519,104 +835,14 @@ function DashboardContent() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
           >
             <HeroGate blur>
-              <div className="card bg-base-100 shadow-sm border border-base-content/5">
-                <div className="card-body">
-                  <h2 className="card-title text-lg flex items-center gap-2">
-                    <Settings className="w-5 h-5 text-primary" />
-                    Automation Hub
-                  </h2>
-                  <p className="text-sm text-base-content/60 mb-4">
-                    Set up automatic spark delivery to your partner
-                  </p>
-
-                  <div className="space-y-4">
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text flex items-center gap-2">
-                          <Clock className="w-4 h-4" /> Delivery Time
-                        </span>
-                      </label>
-                      <input
-                        type="time"
-                        className="input input-bordered w-full"
-                        value={morningTime}
-                        onChange={(e) => setMorningTime(e.target.value)}
-                      />
-                      <label className="label">
-                        <span className="label-text-alt text-base-content/50">
-                          Timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}
-                        </span>
-                      </label>
-                    </div>
-
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text flex items-center gap-2">
-                          <MessageCircle className="w-4 h-4" /> Messaging Platform
-                        </span>
-                      </label>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setPlatform('telegram')}
-                          className={`btn flex-1 ${platform === 'telegram' ? 'btn-primary' : 'btn-outline'}`}
-                        >
-                          Telegram
-                        </button>
-                        <button
-                          onClick={() => setPlatform('whatsapp')}
-                          className={`btn flex-1 ${platform === 'whatsapp' ? 'btn-primary' : 'btn-outline'}`}
-                        >
-                          WhatsApp
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="form-control">
-                      <label className="label">
-                        <span className="label-text">
-                          {platform === 'whatsapp' ? 'Phone Number (Intl Format)' : 'Telegram Chat ID'}
-                        </span>
-                      </label>
-                      <input
-                        type="text"
-                        placeholder={platform === 'whatsapp' ? '+1234567890' : '12345678'}
-                        className="input input-bordered w-full font-mono"
-                        value={msgId}
-                        onChange={(e) => setMsgId(e.target.value)}
-                      />
-                      {platform === 'telegram' && (
-                        <label className="label">
-                          <a
-                            href="https://t.me/userinfobot"
-                            target="_blank"
-                            className="label-text-alt link link-hover text-primary"
-                          >
-                            Find your Chat ID via @userinfobot
-                          </a>
-                        </label>
-                      )}
-                    </div>
-
-                    <button
-                      onClick={handleSaveAutomation}
-                      disabled={saving}
-                      className={`btn w-full ${saved ? 'btn-success' : 'btn-primary'}`}
-                    >
-                      {saving ? (
-                        <span className="loading loading-spinner" />
-                      ) : saved ? (
-                        <>
-                          <Check className="w-4 h-4" /> Saved!
-                        </>
-                      ) : (
-                        'Save Automation Settings'
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
+              <AutomationTabContent
+                user={user}
+                userTier={userTier}
+                pb={pb}
+              />
             </HeroGate>
           </motion.div>
         )}

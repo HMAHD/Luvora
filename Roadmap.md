@@ -198,29 +198,292 @@
     - [x] Document API endpoints for developers.
     - [x] Add Zapier/Make integration templates.
 
-## Phase 9: Reliability & Scaling (Production-Grade)
+## Phase 9: Security & Production Hardening ✅
 *Goal: Hardening the system against abuse and ensuring revenue recovery.*
 
-- [ ] **Task 9.1: Anti-Spam & Security**
-    - [ ] Implement `lru-cache` rate-limiting on OTP requests (3 requests / 15 mins).
-    - [ ] Set up Webhook signature verification for Lemon Squeezy to prevent spoofing.
-- [ ] **Task 9.2: Data Recovery & Sync**
-    - [ ] Create `src/scripts/sync-subs.ts`: A manual recovery script to sync LS subscriptions to PB.
-    - [ ] Implement Webhook Idempotency: Verify `is_premium` status before redundant DB writes.
-- [ ] **Task 9.3: Automated Quality Assurance**
-    - [ ] **Unit Tests:** Vitest for `algo.ts` (determinism) and `rateLimit.ts`.
-    - [ ] **E2E Tests:** Playwright for the "Copy Spark" -> "Toast" -> "Counter Increment" flow.
-    - [ ] **API Tests:** Mock webhook payloads to verify premium unlocking logic.
+- [x] **Task 9.1: Payment Security**
+    - [x] Implement HMAC SHA-256 webhook signature verification for Lemon Squeezy.
+    - [x] Add timing-safe comparison to prevent timing attacks.
+    - [x] Implement webhook idempotency: Check tier before redundant upgrades.
+- [x] **Task 9.2: Scalable Delivery Architecture**
+    - [x] Build batch processing system (25 users/batch, 1.5s delay).
+    - [x] Implement concurrent sends with rate limiting (5 concurrent, Telegram-safe).
+    - [x] Add cron endpoint authorization with `CRON_SECRET`.
+    - [x] Support for 10,000+ users without system overload.
+- [ ] **Task 9.3: Anti-Spam & Rate Limiting**
+    - [ ] Implement rate-limiting on OTP requests (3 requests / 15 mins per IP).
+    - [ ] Add rate limiting on API endpoints using `lru-cache` or upstash/ratelimit.
+    - [ ] Implement CAPTCHA for suspicious login attempts.
+- [ ] **Task 9.4: Data Recovery & Admin Tools**
+    - [ ] Create `src/scripts/sync-subs.ts`: Manual recovery script to sync Lemon Squeezy subscriptions to PocketBase.
+    - [ ] Build admin tool to manually adjust user tiers (refunds, disputes).
+    - [ ] Add audit logging for tier changes.
+- [ ] **Task 9.5: Automated Quality Assurance**
+    - [ ] **Unit Tests:** Vitest for `algo.ts` (determinism), `messaging.ts`.
+    - [ ] **E2E Tests:** Playwright for critical flows (copy spark, upgrade, automation setup).
+    - [ ] **API Tests:** Mock webhook payloads to verify tier upgrade logic.
 
-## Phase 10: Deployment & Handover
-*Goal: Orchestrating the "Sovereign" VPS environment.*
+## Phase 9.5: Content Pool Expansion (Critical) 🔥
+*Goal: Building a rich, diverse message library that keeps users engaged long-term.*
 
-- [ ] **Task 10.1: Process Management**
-    - [ ] Configure `PM2` for dual-process management: `luvora-web` and `luvora-broadcast`.
-- [ ] **Task 10.2: CI/CD "Sovereign Script"**
-    - [ ] Build `deploy.sh`: One-click SSH, `git pull`, `bun build`, and PM2 restart.
-- [ ] **Task 10.3: Messaging Compliance**
-    - [ ] Register WhatsApp "Luvora Spark" Templates in the Meta Developer Portal.
+- [ ] **Task 9.5.1: Core Message Pool Expansion**
+    - [ ] Expand daily sparks to 500+ messages (currently ~300).
+    - [ ] Add variety in message lengths (short punchy, medium, long poetic).
+    - [ ] Create messages for different relationship stages (new love, long-term, married).
+    - [ ] Add culturally diverse romantic expressions.
+- [ ] **Task 9.5.2: Tiered Content Strategy**
+    - [ ] **Free Tier Pool:** 200+ general romantic messages.
+    - [ ] **Hero Tier Pool:** 300+ unique messages (not in Free pool).
+    - [ ] **Legend Tier Pool:** 200+ exclusive premium poetic/deep messages.
+    - [ ] Ensure clear quality difference between tiers.
+- [ ] **Task 9.5.3: Special Occasion Messages**
+    - [ ] Anniversary messages: 100+ (year milestones, monthly anniversaries).
+    - [ ] Birthday messages for partner: 100+ (romantic birthday wishes).
+    - [ ] Valentine's Day special: 50+ messages.
+    - [ ] Holiday messages: Christmas, New Year, Diwali, etc. (50+ each).
+- [ ] **Task 9.5.4: Love Language Specific Content**
+    - [ ] Words of Affirmation: 100+ affirming messages.
+    - [ ] Quality Time: 100+ messages suggesting activities/moments together.
+    - [ ] Acts of Service: 100+ messages expressing care through actions.
+    - [ ] Physical Touch: 100+ messages about closeness and affection.
+    - [ ] Receiving Gifts: 100+ messages about thoughtfulness and surprises.
+- [ ] **Task 9.5.5: Emotional Tone Variations**
+    - [ ] Poetic/Literary: 100+ elegant, metaphor-rich messages.
+    - [ ] Playful/Flirty: 100+ fun, light-hearted messages.
+    - [ ] Romantic/Classic: 100+ traditional romance messages.
+    - [ ] Passionate/Intense: 100+ deep emotional messages.
+    - [ ] Sweet/Gentle: 100+ soft, tender messages.
+    - [ ] Supportive/Encouraging: 100+ uplifting messages.
+- [ ] **Task 9.5.6: Time-Based Messages**
+    - [ ] Morning sparks: 150+ "good morning" themed messages.
+    - [ ] Night sparks: 150+ "goodnight" themed messages.
+    - [ ] Midday pick-me-ups: 100+ afternoon encouragement messages.
+    - [ ] Weekend specials: 50+ lazy weekend romance messages.
+- [ ] **Task 9.5.7: Recipient Role Variations**
+    - [ ] Messages for Her (feminine): Ensure 500+ with proper pronouns/tone.
+    - [ ] Messages for Him (masculine): Ensure 500+ with proper pronouns/tone.
+    - [ ] Messages for They (neutral): Ensure 300+ gender-neutral options.
+- [ ] **Task 9.5.8: Auto-Reply & Response Pool**
+    - [ ] Quick replies: 200+ short response messages.
+    - [ ] Flirty comebacks: 100+ playful responses.
+    - [ ] Grateful responses: 100+ thank you/appreciation replies.
+    - [ ] Continuation messages: 100+ "keep the spark going" follow-ups.
+- [ ] **Task 9.5.9: Content Quality & Management**
+    - [ ] Review all existing messages for grammar and tone consistency.
+    - [ ] Remove duplicate or too-similar messages.
+    - [ ] Tag all messages with metadata (tier, tone, love_language, occasion, time_of_day).
+    - [ ] Build admin tool for bulk message import (CSV/JSON).
+    - [ ] Create content guidelines document for future additions.
+- [ ] **Task 9.5.10: AI-Assisted Content Generation**
+    - [ ] Use Claude/GPT to generate initial message drafts.
+    - [ ] Human review and curation of AI-generated content.
+    - [ ] Create prompt templates for consistent message style.
+    - [ ] Build internal tool for AI message generation with approval workflow.
 
+## Phase 10: Analytics & Monetization Infrastructure
+*Goal: Data-driven insights and revenue diversification.*
 
+- [ ] **Task 10.1: Google Analytics 4 Integration**
+    - [ ] Install `@next/third-parties` or manual gtag.js setup.
+    - [ ] Configure GA4 property and data streams.
+    - [ ] Implement event tracking:
+        - `spark_copied` - User copies a spark message.
+        - `spark_shared` - User shares streak card.
+        - `upgrade_started` - User clicks upgrade button.
+        - `upgrade_completed` - Payment webhook success.
+        - `automation_enabled` - User enables Telegram/WhatsApp.
+    - [ ] Set up conversion goals (Free → Hero, Hero → Legend).
+    - [ ] Create custom dashboard for key metrics.
+- [ ] **Task 10.2: Google AdSense (Free Tier Monetization)**
+    - [ ] Apply for Google AdSense account approval.
+    - [ ] Design non-intrusive ad placements for free users:
+        - Banner below spark card on homepage.
+        - Interstitial on spark history page (max 1 per session).
+    - [ ] Create `AdBanner.tsx` component with tier-gating (hide for Hero+).
+    - [ ] Implement ad refresh on page navigation.
+    - [ ] Add privacy consent banner for GDPR compliance.
+- [ ] **Task 10.3: Admin Analytics Dashboard**
+    - [ ] Build `/admin/analytics` page with key metrics:
+        - Daily/Weekly/Monthly Active Users (DAU/WAU/MAU).
+        - Conversion rates by tier (Free→Hero, Hero→Legend).
+        - Revenue metrics from Lemon Squeezy API.
+        - Automation engagement (messages sent/day).
+        - Churn rate and retention curves.
+    - [ ] Add charts using `recharts` or `chart.js`.
+    - [ ] Implement date range filtering and comparison.
+- [ ] **Task 10.4: User Engagement Metrics**
+    - [ ] Track spark copy frequency per user.
+    - [ ] Track streak consistency (days without missing).
+    - [ ] Implement "at-risk" user identification (no activity 7+ days).
+    - [ ] Build re-engagement email triggers for at-risk users.
 
+## Phase 11: SEO Deep Optimization
+*Goal: Maximizing organic traffic through technical SEO excellence.*
+
+- [ ] **Task 11.1: Technical SEO Foundation**
+    - [ ] Generate dynamic `sitemap.xml` with all SEO pages and categories.
+    - [ ] Create optimized `robots.txt` with proper crawl directives.
+    - [ ] Implement canonical URLs to prevent duplicate content.
+    - [ ] Add `hreflang` tags if multi-language support planned.
+- [ ] **Task 11.2: Core Web Vitals Optimization**
+    - [ ] Achieve LCP (Largest Contentful Paint) < 2.5s.
+    - [ ] Achieve FID (First Input Delay) < 100ms.
+    - [ ] Achieve CLS (Cumulative Layout Shift) < 0.1.
+    - [ ] Implement image optimization with `next/image` and WebP.
+    - [ ] Add font-display: swap for web fonts.
+    - [ ] Enable Brotli/Gzip compression.
+- [ ] **Task 11.3: Structured Data Enhancement**
+    - [ ] Add `Organization` schema for brand presence.
+    - [ ] Add `WebApplication` schema for app-like features.
+    - [ ] Expand `CreativeWork` schema on message pages.
+    - [ ] Add `FAQPage` schema on pricing/help pages.
+    - [ ] Implement `BreadcrumbList` for navigation.
+- [ ] **Task 11.4: Content SEO Strategy**
+    - [ ] Create `/blog` section for romantic advice content.
+    - [ ] Build 20+ long-form articles targeting relationship keywords.
+    - [ ] Implement internal linking strategy between sparks and blog.
+    - [ ] Add "Related Messages" sections for better page depth.
+- [ ] **Task 11.5: Local & Social SEO**
+    - [ ] Create and verify Google Business Profile (if applicable).
+    - [ ] Optimize OpenGraph images for social sharing.
+    - [ ] Add Twitter Cards with large image summaries.
+    - [ ] Implement Pinterest Rich Pins for streak cards.
+
+## Phase 12: Deployment & DevOps
+*Goal: Production-ready infrastructure with CI/CD automation.*
+
+- [ ] **Task 12.1: Hosting Setup**
+    - [ ] **Option A (Vercel):** Deploy Next.js with edge functions.
+        - Configure environment variables in Vercel dashboard.
+        - Set up Vercel Cron for `/api/cron/deliver` (every minute).
+        - Enable Vercel Analytics and Speed Insights.
+    - [ ] **Option B (VPS):** Self-hosted on DigitalOcean/Hetzner.
+        - Configure Nginx reverse proxy with SSL (Let's Encrypt).
+        - Set up PM2 for process management.
+        - Configure system cron for delivery endpoint.
+- [ ] **Task 12.2: PocketBase Production**
+    - [ ] Deploy PocketBase on VPS or PocketHost.
+    - [ ] Configure automated daily backups to S3/Cloudflare R2.
+    - [ ] Set up PocketBase admin password rotation.
+    - [ ] Enable PocketBase logs for debugging.
+- [ ] **Task 12.3: CI/CD Pipeline**
+    - [ ] Create GitHub Actions workflow:
+        - Run linting and type checking on PR.
+        - Run tests before merge.
+        - Auto-deploy to staging on `develop` branch.
+        - Auto-deploy to production on `main` branch.
+    - [ ] Add Slack/Discord notifications for deploy status.
+- [ ] **Task 12.4: Monitoring & Alerting**
+    - [ ] Set up uptime monitoring (UptimeRobot, Better Stack).
+    - [ ] Configure error tracking (Sentry integration).
+    - [ ] Add health check endpoint `/api/health`.
+    - [ ] Set up alerts for: downtime, high error rates, payment failures.
+- [ ] **Task 12.5: Messaging Compliance**
+    - [ ] Register WhatsApp Business API templates in Meta Developer Portal.
+    - [ ] Create approved message templates for different spark types.
+    - [ ] Implement WhatsApp template selection in delivery system.
+    - [ ] Set up Telegram bot webhook mode (vs polling) for production.
+
+## Phase 13: Growth & Marketing Automation
+*Goal: Building viral loops and automated user acquisition.*
+
+- [ ] **Task 13.1: Email Marketing System**
+    - [ ] Integrate email service (Resend, SendGrid, or Postmark).
+    - [ ] Build email templates:
+        - Welcome series (Day 1, 3, 7 after signup).
+        - Upgrade nudges for engaged free users.
+        - Win-back emails for churned subscribers.
+        - Weekly "Love Tips" newsletter for engagement.
+    - [ ] Implement email preference center in dashboard.
+- [ ] **Task 13.2: Referral Program**
+    - [ ] Add `referral_code` field to users.
+    - [ ] Build `/invite/[code]` landing page.
+    - [ ] Implement referral tracking and rewards:
+        - Referrer gets 1 week free Hero extension.
+        - Referee gets 10% off first purchase.
+    - [ ] Create referral dashboard showing invites and rewards.
+- [ ] **Task 13.3: Social Proof & Testimonials**
+    - [ ] Build testimonial collection system (email request after 30 days).
+    - [ ] Create testimonial display components for homepage/pricing.
+    - [ ] Implement live "Recent Sparks Sent" counter with WebSocket.
+    - [ ] Add "X couples strengthened today" social proof.
+- [ ] **Task 13.4: Push Notifications**
+    - [ ] Implement Web Push notifications using Service Workers.
+    - [ ] Add notification permission request flow.
+    - [ ] Send daily spark reminders for users who haven't copied.
+    - [ ] Special occasion reminders (anniversary coming up).
+- [ ] **Task 13.5: Content Marketing**
+    - [ ] Set up social media auto-posting (Buffer/Hootsuite integration).
+    - [ ] Create shareable "Spark of the Day" posts.
+    - [ ] Build Instagram-optimized streak card templates.
+    - [ ] Implement UTM tracking for all marketing links.
+
+## Phase 14: Internationalization & Expansion
+*Goal: Reaching global audiences with localized experiences.*
+
+- [ ] **Task 14.1: Multi-Language Support**
+    - [ ] Set up `next-intl` or `next-i18next` for translations.
+    - [ ] Translate UI strings (English, Spanish, French, Hindi as priorities).
+    - [ ] Create language-specific message pools.
+    - [ ] Implement language preference in user settings.
+- [ ] **Task 14.2: Regional Customization**
+    - [ ] Add cultural date formats (DD/MM vs MM/DD).
+    - [ ] Implement regional holiday celebrations (Valentine's Day, Karwa Chauth, etc.).
+    - [ ] Support multiple currencies in pricing display.
+- [ ] **Task 14.3: Performance Optimization for Global Users**
+    - [ ] Implement CDN for static assets.
+    - [ ] Add regional edge caching for API responses.
+    - [ ] Optimize for slow connections (progressive loading).
+
+## Phase 15: Advanced Features & Future Vision
+*Goal: Long-term innovation and competitive moat.*
+
+- [ ] **Task 15.1: AI-Powered Personalization**
+    - [ ] Integrate AI for message tone adaptation.
+    - [ ] Build "Learn My Style" feature analyzing user's past sparks.
+    - [ ] Implement smart scheduling based on partner's response patterns.
+- [ ] **Task 15.2: Mobile App (PWA Enhancement)**
+    - [ ] Optimize PWA manifest for "Add to Home Screen".
+    - [ ] Implement offline spark viewing.
+    - [ ] Add native share integration.
+    - [ ] Consider React Native app for app store presence.
+- [ ] **Task 15.3: Voice Messages (Legend+ Feature)**
+    - [ ] Integrate text-to-speech API for audio sparks.
+    - [ ] Allow recording custom voice messages.
+    - [ ] Build audio player component for Telegram delivery.
+- [ ] **Task 15.4: Relationship Insights Dashboard**
+    - [ ] Track relationship health metrics (streak consistency, response times).
+    - [ ] Provide weekly relationship insights reports.
+    - [ ] Build visualization of love language compatibility.
+
+---
+
+## Quick Priority Matrix
+
+| Priority | Phase | Effort | Impact |
+|----------|-------|--------|--------|
+| 🔴 **Critical** | Phase 9.5 (Content Pool) | High | Core Product Value |
+| 🔴 High | Phase 10.1-10.3 (Analytics/Ads) | Medium | High Revenue |
+| 🔴 High | Phase 12 (Deployment) | High | Launch Critical |
+| 🟡 Medium | Phase 11 (SEO) | Medium | Organic Growth |
+| 🟡 Medium | Phase 13 (Marketing) | Medium | User Acquisition |
+| 🟢 Low | Phase 9.3-9.4 (Rate Limit/Tools) | Medium | Quality |
+| 🟢 Low | Phase 14-15 (i18n/AI) | High | Future Growth |
+
+---
+
+## Content Pool Target Summary
+
+| Category | Target Count | Current | Status |
+|----------|-------------|---------|--------|
+| Daily Sparks (Total) | 1,500+ | ~300 | 🔴 Need 1,200+ |
+| Free Tier Messages | 200+ | ? | 🟡 Review |
+| Hero Tier Exclusive | 300+ | ? | 🟡 Review |
+| Legend Tier Exclusive | 200+ | ? | 🟡 Review |
+| Anniversary Messages | 100+ | ? | 🔴 Need |
+| Birthday Messages | 100+ | ? | 🔴 Need |
+| Morning Sparks | 150+ | ? | 🟡 Review |
+| Night Sparks | 150+ | ? | 🟡 Review |
+| Love Language (each) | 100+ | ? | 🔴 Need |
+| Tone Variations (each) | 100+ | ? | 🔴 Need |
+| Quick Replies | 200+ | ? | 🟡 Review |

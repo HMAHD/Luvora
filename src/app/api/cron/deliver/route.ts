@@ -2,17 +2,52 @@ import { NextResponse } from 'next/server';
 import PocketBase from 'pocketbase';
 import { sendMessage } from '@/lib/messaging';
 
-// Vercel Cron or manual trigger endpoint
-// Set up a cron job to hit this endpoint every minute
+/**
+ * Scalable Cron Delivery System
+ * Handles 10,000+ users with batching and rate limiting
+ *
+ * Set up a cron job to hit this endpoint every minute:
+ * - Vercel Cron: vercel.json -> { "crons": [{ "path": "/api/cron/deliver", "schedule": "* * * * *" }] }
+ * - External: cron-job.org or similar
+ */
+
+// Rate limiting configuration
+const BATCH_SIZE = 25; // Users per batch
+const BATCH_DELAY_MS = 1500; // Delay between batches (Telegram allows ~30 msg/sec)
+const CONCURRENT_SENDS = 5; // Concurrent sends within a batch
+
+// Type definitions
+interface UserRecord {
+    id: string;
+    email: string;
+    tier: number;
+    timezone?: string;
+    morning_enabled?: boolean;
+    morning_time?: string;
+    evening_enabled?: boolean;
+    evening_time?: string;
+    messaging_platform?: string;
+    messaging_id?: string;
+    partner_name?: string;
+    love_language?: string;
+    preferred_tone?: string;
+    special_occasions_enabled?: boolean;
+    anniversary_date?: string;
+    partner_birthday?: string;
+}
+
+type MessageType = 'morning' | 'evening' | 'anniversary' | 'birthday';
 
 export async function GET(request: Request) {
-    // Optional: Verify cron secret for security
+    // Verify cron secret for security
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
 
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const startTime = Date.now();
 
     try {
         const pb = new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090');
@@ -23,134 +58,227 @@ export async function GET(request: Request) {
             process.env.POCKETBASE_ADMIN_PASSWORD || ''
         );
 
-        // Find users who need delivery (Hero+ with messaging configured)
-        const users = await pb.collection('users').getFullList({
+        // Find all eligible users (Hero+ with messaging configured)
+        const users = await pb.collection('users').getFullList<UserRecord>({
             filter: `tier >= 1 && messaging_id != ""`
         });
 
-        let sent = 0;
-        let errors = 0;
-        const results: string[] = [];
+        // Filter users who need messages NOW based on their timezone
+        const usersToSend: Array<{ user: UserRecord; messageType: MessageType }> = [];
 
         for (const user of users) {
-            try {
-                // Calculate user's local time based on their timezone
-                const userTimezone = user.timezone || 'UTC';
-                const userTime = new Date().toLocaleTimeString('en-US', {
-                    timeZone: userTimezone,
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                });
-
-                // Get today's date in user's timezone for special occasions
-                const userDate = new Date().toLocaleDateString('en-CA', {
-                    timeZone: userTimezone
-                }); // YYYY-MM-DD format
-
-                let shouldSend = false;
-                let messageType: 'morning' | 'evening' | 'anniversary' | 'birthday' = 'morning';
-
-                // Check morning delivery
-                if (user.morning_enabled && user.morning_time && userTime === user.morning_time) {
-                    shouldSend = true;
-                    messageType = 'morning';
-                }
-
-                // Check evening delivery
-                if (user.evening_enabled && user.evening_time && userTime === user.evening_time) {
-                    shouldSend = true;
-                    messageType = 'evening';
-                }
-
-                // Check special occasions (Legend tier only)
-                if (user.tier >= 2 && user.special_occasions_enabled) {
-                    const todayMonthDay = userDate.slice(5); // MM-DD
-
-                    // Anniversary check (send at morning time or 09:00 default)
-                    if (user.anniversary_date) {
-                        const anniversaryMonthDay = user.anniversary_date.slice(5);
-                        if (todayMonthDay === anniversaryMonthDay) {
-                            const targetTime = user.morning_time || '09:00';
-                            if (userTime === targetTime) {
-                                shouldSend = true;
-                                messageType = 'anniversary';
-                            }
-                        }
-                    }
-
-                    // Birthday check
-                    if (user.partner_birthday) {
-                        const birthdayMonthDay = user.partner_birthday.slice(5);
-                        if (todayMonthDay === birthdayMonthDay) {
-                            const targetTime = user.morning_time || '09:00';
-                            if (userTime === targetTime) {
-                                shouldSend = true;
-                                messageType = 'birthday';
-                            }
-                        }
-                    }
-                }
-
-                if (shouldSend) {
-                    // Get appropriate spark message
-                    const spark = await getDailySparkForUser(pb, user, messageType);
-
-                    if (spark) {
-                        const success = await sendMessage({
-                            to: user.messaging_id,
-                            platform: user.messaging_platform || 'telegram',
-                            body: formatSparkMessage(spark, user.partner_name, messageType)
-                        });
-
-                        if (success) {
-                            sent++;
-                            results.push(`✓ ${user.email} (${messageType})`);
-                            console.log(`Sent ${messageType} to ${user.email} via ${user.messaging_platform}`);
-                        } else {
-                            errors++;
-                            results.push(`✗ ${user.email} - send failed`);
-                            console.error(`Failed to send to ${user.email}`);
-                        }
-                    }
-                }
-            } catch (userErr) {
-                console.error(`Error processing user ${user.id}:`, userErr);
-                errors++;
+            const messageType = shouldSendToUser(user);
+            if (messageType) {
+                usersToSend.push({ user, messageType });
             }
         }
 
+        if (usersToSend.length === 0) {
+            return NextResponse.json({
+                success: true,
+                message: 'No users to send at this time',
+                totalUsers: users.length,
+                eligible: 0,
+                duration: `${Date.now() - startTime}ms`,
+                timestamp: new Date().toISOString()
+            });
+        }
+
+        console.log(`[Cron] Processing ${usersToSend.length} users in ${Math.ceil(usersToSend.length / BATCH_SIZE)} batches`);
+
+        // Process in batches for scalability
+        const results = await processInBatches(pb, usersToSend);
+
+        const duration = Date.now() - startTime;
+
         return NextResponse.json({
             success: true,
-            processed: users.length,
-            sent,
-            errors,
-            results,
+            totalUsers: users.length,
+            eligible: usersToSend.length,
+            sent: results.sent,
+            errors: results.errors,
+            duration: `${duration}ms`,
+            batches: Math.ceil(usersToSend.length / BATCH_SIZE),
             timestamp: new Date().toISOString()
         });
 
     } catch (error) {
         console.error('Cron delivery error:', error);
-        return NextResponse.json({ error: 'Delivery failed' }, { status: 500 });
+        return NextResponse.json({
+            error: 'Delivery failed',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        }, { status: 500 });
     }
 }
 
-interface UserData {
-    id: string;
-    tier: number;
-    love_language?: string;
-    preferred_tone?: string;
+/**
+ * Determines if a user should receive a message at the current time
+ */
+function shouldSendToUser(user: UserRecord): MessageType | null {
+    const userTimezone = user.timezone || 'UTC';
+
+    // Get user's local time (HH:MM format)
+    const userTime = new Date().toLocaleTimeString('en-US', {
+        timeZone: userTimezone,
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+    });
+
+    // Get user's local date for special occasions
+    const userDate = new Date().toLocaleDateString('en-CA', {
+        timeZone: userTimezone
+    }); // YYYY-MM-DD
+
+    // Check special occasions first (Legend tier only) - they take priority
+    if (user.tier >= 2 && user.special_occasions_enabled) {
+        const todayMonthDay = userDate.slice(5); // MM-DD
+        const targetTime = user.morning_time || '09:00';
+
+        if (user.anniversary_date && userTime === targetTime) {
+            const anniversaryMonthDay = user.anniversary_date.slice(5);
+            if (todayMonthDay === anniversaryMonthDay) {
+                return 'anniversary';
+            }
+        }
+
+        if (user.partner_birthday && userTime === targetTime) {
+            const birthdayMonthDay = user.partner_birthday.slice(5);
+            if (todayMonthDay === birthdayMonthDay) {
+                return 'birthday';
+            }
+        }
+    }
+
+    // Check morning delivery
+    if (user.morning_enabled && user.morning_time && userTime === user.morning_time) {
+        return 'morning';
+    }
+
+    // Check evening delivery
+    if (user.evening_enabled && user.evening_time && userTime === user.evening_time) {
+        return 'evening';
+    }
+
+    return null;
 }
 
+/**
+ * Process users in batches with rate limiting
+ */
+async function processInBatches(
+    pb: PocketBase,
+    usersToSend: Array<{ user: UserRecord; messageType: MessageType }>
+): Promise<{ sent: number; errors: number }> {
+    let sent = 0;
+    let errors = 0;
+
+    // Split into batches
+    const batches: typeof usersToSend[] = [];
+    for (let i = 0; i < usersToSend.length; i += BATCH_SIZE) {
+        batches.push(usersToSend.slice(i, i + BATCH_SIZE));
+    }
+
+    for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+        const batch = batches[batchIndex];
+        console.log(`[Cron] Processing batch ${batchIndex + 1}/${batches.length} (${batch.length} users)`);
+
+        // Process batch with limited concurrency
+        const batchResults = await processWithConcurrency(pb, batch);
+        sent += batchResults.sent;
+        errors += batchResults.errors;
+
+        // Delay between batches (except for last batch)
+        if (batchIndex < batches.length - 1) {
+            await sleep(BATCH_DELAY_MS);
+        }
+    }
+
+    return { sent, errors };
+}
+
+/**
+ * Process a batch with limited concurrency
+ */
+async function processWithConcurrency(
+    pb: PocketBase,
+    batch: Array<{ user: UserRecord; messageType: MessageType }>
+): Promise<{ sent: number; errors: number }> {
+    let sent = 0;
+    let errors = 0;
+
+    // Process in chunks of 'CONCURRENT_SENDS' at a time
+    for (let i = 0; i < batch.length; i += CONCURRENT_SENDS) {
+        const chunk = batch.slice(i, i + CONCURRENT_SENDS);
+
+        const results = await Promise.allSettled(
+            chunk.map(({ user, messageType }) => sendToUser(pb, user, messageType))
+        );
+
+        for (const result of results) {
+            if (result.status === 'fulfilled' && result.value) {
+                sent++;
+            } else {
+                errors++;
+            }
+        }
+
+        // Small delay between concurrent chunks
+        if (i + CONCURRENT_SENDS < batch.length) {
+            await sleep(100);
+        }
+    }
+
+    return { sent, errors };
+}
+
+/**
+ * Send a spark message to a single user
+ */
+async function sendToUser(
+    pb: PocketBase,
+    user: UserRecord,
+    messageType: MessageType
+): Promise<boolean> {
+    try {
+        const spark = await getDailySparkForUser(pb, user, messageType);
+        if (!spark) {
+            console.warn(`[Cron] No spark found for user ${user.id}`);
+            return false;
+        }
+
+        const success = await sendMessage({
+            to: user.messaging_id!,
+            platform: (user.messaging_platform as 'telegram' | 'whatsapp') || 'telegram',
+            body: formatSparkMessage(spark, user.partner_name, messageType)
+        });
+
+        if (success) {
+            console.log(`[Cron] ✓ Sent ${messageType} to ${user.email}`);
+        }
+
+        return success;
+    } catch (err) {
+        console.error(`[Cron] ✗ Error sending to ${user.email}:`, err);
+        return false;
+    }
+}
+
+function sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Get appropriate spark message for user
+ */
 async function getDailySparkForUser(
     pb: PocketBase,
-    user: UserData,
-    messageType: 'morning' | 'evening' | 'anniversary' | 'birthday'
-) {
+    user: UserRecord,
+    messageType: MessageType
+): Promise<{ body: string } | null> {
     const today = new Date().toISOString().split('T')[0];
 
     try {
-        // Build filter based on message type and user preferences
         let filter = '';
 
         // Special occasion messages
@@ -159,22 +287,16 @@ async function getDailySparkForUser(
         } else if (messageType === 'birthday') {
             filter = `occasion = "birthday"`;
         } else {
-            // Regular sparks - filter by tier access
+            // Regular sparks
             if (user.tier >= 2) {
-                // Legend: access to all messages
                 filter = `tier <= 2`;
-
-                // Apply love language filter if set
                 if (user.love_language) {
                     filter += ` && (love_language = "${user.love_language}" || love_language = "")`;
                 }
-
-                // Apply emotional tone filter if set
                 if (user.preferred_tone) {
                     filter += ` && (tone = "${user.preferred_tone}" || tone = "")`;
                 }
             } else {
-                // Hero: shared messages only
                 filter = `tier <= 1`;
             }
         }
@@ -192,15 +314,13 @@ async function getDailySparkForUser(
             });
             if (fallback.length > 0) {
                 const hash = simpleHash(user.id + today + messageType);
-                return fallback[hash % fallback.length];
+                return fallback[hash % fallback.length] as { body: string };
             }
             return null;
         }
 
-        // Deterministic selection based on user ID + date + message type
         const hash = simpleHash(user.id + today + messageType);
-        const index = hash % messages.length;
-        return messages[index];
+        return messages[hash % messages.length] as { body: string };
 
     } catch (err) {
         console.error('Error getting spark:', err);
@@ -221,25 +341,21 @@ function simpleHash(str: string): number {
 function formatSparkMessage(
     spark: { body: string },
     partnerName?: string,
-    messageType: 'morning' | 'evening' | 'anniversary' | 'birthday' = 'morning'
+    messageType: MessageType = 'morning'
 ): string {
     let message = spark.body;
 
-    // Replace placeholder with partner name
     if (partnerName) {
         message = message.replace(/\{partner\}/gi, partnerName);
         message = message.replace(/\{name\}/gi, partnerName);
     }
 
-    // Different headers based on message type
-    let header = '💝 Your Daily Spark';
-    if (messageType === 'evening') {
-        header = '🌙 Your Evening Spark';
-    } else if (messageType === 'anniversary') {
-        header = '💕 Happy Anniversary!';
-    } else if (messageType === 'birthday') {
-        header = '🎂 Birthday Wishes';
-    }
+    const headers: Record<MessageType, string> = {
+        morning: '💝 Your Daily Spark',
+        evening: '🌙 Your Night Spark',
+        anniversary: '💕 Happy Anniversary!',
+        birthday: '🎂 Birthday Wishes'
+    };
 
-    return `${header}\n\n${message}\n\n— Luvora`;
+    return `${headers[messageType]}\n\n${message}\n\n— Luvora`;
 }
