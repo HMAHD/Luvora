@@ -210,18 +210,18 @@
     - [x] Implement concurrent sends with rate limiting (5 concurrent, Telegram-safe).
     - [x] Add cron endpoint authorization with `CRON_SECRET`.
     - [x] Support for 10,000+ users without system overload.
-- [ ] **Task 9.3: Anti-Spam & Rate Limiting**
-    - [ ] Implement rate-limiting on OTP requests (3 requests / 15 mins per IP).
-    - [ ] Add rate limiting on API endpoints using `lru-cache` or upstash/ratelimit.
-    - [ ] Implement CAPTCHA for suspicious login attempts.
-- [ ] **Task 9.4: Data Recovery & Admin Tools**
-    - [ ] Create `src/scripts/sync-subs.ts`: Manual recovery script to sync Lemon Squeezy subscriptions to PocketBase.
-    - [ ] Build admin tool to manually adjust user tiers (refunds, disputes).
-    - [ ] Add audit logging for tier changes.
-- [ ] **Task 9.5: Automated Quality Assurance**
-    - [ ] **Unit Tests:** Vitest for `algo.ts` (determinism), `messaging.ts`.
-    - [ ] **E2E Tests:** Playwright for critical flows (copy spark, upgrade, automation setup).
-    - [ ] **API Tests:** Mock webhook payloads to verify tier upgrade logic.
+- [x] **Task 9.3: Anti-Spam & Rate Limiting**
+    - [x] Implement rate-limiting on OTP requests (3 requests / 15 mins per IP).
+    - [x] Add rate limiting on API endpoints using `lru-cache` or upstash/ratelimit.
+    - [x] Implement CAPTCHA for suspicious login attempts.
+- [x] **Task 9.4: Data Recovery & Admin Tools**
+    - [x] Create `src/scripts/sync-subs.ts`: Manual recovery script to sync Lemon Squeezy subscriptions to PocketBase.
+    - [x] Build admin tool to manually adjust user tiers (refunds, disputes).
+    - [x] Add audit logging for tier changes.
+- [x] **Task 9.5: Automated Quality Assurance**
+    - [x] **Unit Tests:** Vitest for `algo.ts` (determinism), `messaging.ts`.
+    - [x] **E2E Tests:** Playwright for critical flows (copy spark, upgrade, automation setup).
+    - [x] **API Tests:** Mock webhook payloads to verify tier upgrade logic.
 
 ## Phase 9.5: Content Pool Expansion (Critical) 🔥
 *Goal: Building a rich, diverse message library that keeps users engaged long-term.*
@@ -317,36 +317,36 @@
     - [x] Implement "at-risk" user identification (no activity 7+ days).
     - [x] Build re-engagement email triggers for at-risk users.
 
-## Phase 11: SEO Deep Optimization
+## Phase 11: SEO Deep Optimization ✅
 *Goal: Maximizing organic traffic through technical SEO excellence.*
 
-- [ ] **Task 11.1: Technical SEO Foundation**
-    - [ ] Generate dynamic `sitemap.xml` with all SEO pages and categories.
-    - [ ] Create optimized `robots.txt` with proper crawl directives.
-    - [ ] Implement canonical URLs to prevent duplicate content.
+- [x] **Task 11.1: Technical SEO Foundation**
+    - [x] Generate dynamic `sitemap.xml` with all SEO pages and categories.
+    - [x] Create optimized `robots.txt` with proper crawl directives.
+    - [x] Implement canonical URLs to prevent duplicate content.
     - [ ] Add `hreflang` tags if multi-language support planned.
-- [ ] **Task 11.2: Core Web Vitals Optimization**
-    - [ ] Achieve LCP (Largest Contentful Paint) < 2.5s.
-    - [ ] Achieve FID (First Input Delay) < 100ms.
-    - [ ] Achieve CLS (Cumulative Layout Shift) < 0.1.
-    - [ ] Implement image optimization with `next/image` and WebP.
-    - [ ] Add font-display: swap for web fonts.
-    - [ ] Enable Brotli/Gzip compression.
-- [ ] **Task 11.3: Structured Data Enhancement**
-    - [ ] Add `Organization` schema for brand presence.
-    - [ ] Add `WebApplication` schema for app-like features.
-    - [ ] Expand `CreativeWork` schema on message pages.
-    - [ ] Add `FAQPage` schema on pricing/help pages.
-    - [ ] Implement `BreadcrumbList` for navigation.
-- [ ] **Task 11.4: Content SEO Strategy**
-    - [ ] Create `/blog` section for romantic advice content.
-    - [ ] Build 20+ long-form articles targeting relationship keywords.
-    - [ ] Implement internal linking strategy between sparks and blog.
-    - [ ] Add "Related Messages" sections for better page depth.
-- [ ] **Task 11.5: Local & Social SEO**
+- [x] **Task 11.2: Core Web Vitals Optimization**
+    - [x] Achieve LCP (Largest Contentful Paint) < 2.5s.
+    - [x] Achieve FID (First Input Delay) < 100ms.
+    - [x] Achieve CLS (Cumulative Layout Shift) < 0.1.
+    - [x] Implement image optimization with `next/image` and WebP.
+    - [x] Add font-display: swap for web fonts.
+    - [x] Enable Brotli/Gzip compression.
+- [x] **Task 11.3: Structured Data Enhancement**
+    - [x] Add `Organization` schema for brand presence.
+    - [x] Add `WebApplication` schema for app-like features.
+    - [x] Expand `CreativeWork` schema on message pages.
+    - [x] Add `FAQPage` schema on pricing/help pages.
+    - [x] Implement `BreadcrumbList` for navigation.
+- [x] **Task 11.4: Content SEO Strategy**
+    - [x] Create `/blog` section for romantic advice content.
+    - [x] Build 5 long-form articles targeting best keywords (expandable to 20+).
+    - [x] Implement internal linking strategy between sparks and blog.
+    - [x] Add "Related Messages" sections for better page depth.
+- [x] **Task 11.5: Local & Social SEO**
     - [ ] Create and verify Google Business Profile (if applicable).
-    - [ ] Optimize OpenGraph images for social sharing.
-    - [ ] Add Twitter Cards with large image summaries.
+    - [x] Optimize OpenGraph images for social sharing.
+    - [x] Add Twitter Cards with large image summaries.
     - [ ] Implement Pinterest Rich Pins for streak cards.
 
 ## Phase 12: Deployment & DevOps
@@ -372,7 +372,6 @@
         - Run tests before merge.
         - Auto-deploy to staging on `develop` branch.
         - Auto-deploy to production on `main` branch.
-    - [ ] Add Slack/Discord notifications for deploy status.
 - [ ] **Task 12.4: Monitoring & Alerting**
     - [ ] Set up uptime monitoring (UptimeRobot, Better Stack).
     - [ ] Configure error tracking (Sentry integration).

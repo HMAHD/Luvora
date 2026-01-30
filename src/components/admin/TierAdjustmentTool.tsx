@@ -215,25 +215,38 @@ export function TierAdjustmentTool({ adminId }: TierAdjustmentToolProps) {
                         className="mt-6 p-4 bg-base-200 rounded-xl space-y-4"
                     >
                         {/* User Info */}
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="font-medium">{foundUser.name}</p>
-                                <p className="text-sm text-base-content/60">{foundUser.email}</p>
+                        <div className="flex items-center justify-between p-3 bg-base-100 rounded-lg border border-base-content/10">
+                            <div className="flex items-center gap-3">
+                                <div className="avatar placeholder">
+                                    <div className="bg-primary/10 text-primary rounded-full w-10 h-10 flex items-center justify-center">
+                                        <span className="text-lg font-medium leading-none">
+                                            {foundUser.name.charAt(0).toUpperCase()}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <p className="font-medium">{foundUser.name}</p>
+                                    <p className="text-sm text-base-content/60">{foundUser.email}</p>
+                                </div>
                             </div>
-                            <div className={`badge ${getTierBadgeClass(foundUser.tier)} gap-1`}>
-                                {getTierIcon(foundUser.tier)}
-                                {TIER_NAMES[foundUser.tier]}
+                            <div className="flex flex-col items-end gap-1">
+                                <span className="text-xs text-base-content/50">Current Tier</span>
+                                <div className={`badge ${getTierBadgeClass(foundUser.tier)} gap-1`}>
+                                    {getTierIcon(foundUser.tier)}
+                                    {TIER_NAMES[foundUser.tier]}
+                                </div>
                             </div>
                         </div>
 
                         {/* Tier Selection */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="divider text-xs text-base-content/40 my-2">Change Tier</div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text">New Tier</span>
+                                <label className="label pb-1">
+                                    <span className="label-text font-medium">New Tier</span>
                                 </label>
                                 <select
-                                    className="select select-bordered"
+                                    className="select select-bordered w-full"
                                     value={selectedTier}
                                     onChange={(e) => setSelectedTier(Number(e.target.value) as TierLevel)}
                                 >
@@ -244,11 +257,11 @@ export function TierAdjustmentTool({ adminId }: TierAdjustmentToolProps) {
                             </div>
 
                             <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text">Reason</span>
+                                <label className="label pb-1">
+                                    <span className="label-text font-medium">Reason</span>
                                 </label>
                                 <select
-                                    className="select select-bordered"
+                                    className="select select-bordered w-full"
                                     value={selectedReason}
                                     onChange={(e) => setSelectedReason(e.target.value as TierChangeReason)}
                                 >
@@ -260,14 +273,15 @@ export function TierAdjustmentTool({ adminId }: TierAdjustmentToolProps) {
                                 </select>
                             </div>
 
-                            <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text">Notes (optional)</span>
+                            <div className="form-control sm:col-span-2">
+                                <label className="label pb-1">
+                                    <span className="label-text font-medium">Notes</span>
+                                    <span className="label-text-alt text-base-content/50">Optional</span>
                                 </label>
                                 <input
                                     type="text"
-                                    placeholder="e.g., Order #12345"
-                                    className="input input-bordered"
+                                    placeholder="e.g., Order #12345, Refund request, etc."
+                                    className="input input-bordered w-full"
                                     value={notes}
                                     onChange={(e) => setNotes(e.target.value)}
                                 />
@@ -275,11 +289,11 @@ export function TierAdjustmentTool({ adminId }: TierAdjustmentToolProps) {
                         </div>
 
                         {/* Actions */}
-                        <div className="flex items-center justify-between pt-2">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-base-content/10">
                             <button
                                 onClick={loadHistory}
                                 disabled={loadingHistory}
-                                className="btn btn-ghost btn-sm gap-1"
+                                className="btn btn-ghost btn-sm gap-2"
                             >
                                 {loadingHistory ? (
                                     <span className="loading loading-spinner loading-xs" />
@@ -297,16 +311,25 @@ export function TierAdjustmentTool({ adminId }: TierAdjustmentToolProps) {
                             <button
                                 onClick={handleTierChange}
                                 disabled={loading || selectedTier === foundUser.tier}
-                                className={`btn ${selectedTier > foundUser.tier ? 'btn-success' : 'btn-warning'}`}
+                                className={`btn gap-2 ${
+                                    selectedTier === foundUser.tier
+                                        ? 'btn-disabled'
+                                        : selectedTier > foundUser.tier
+                                            ? 'btn-success'
+                                            : 'btn-warning'
+                                }`}
                             >
                                 {loading ? (
                                     <span className="loading loading-spinner loading-sm" />
-                                ) : selectedTier > foundUser.tier ? (
-                                    'Upgrade User'
-                                ) : selectedTier < foundUser.tier ? (
-                                    'Downgrade User'
-                                ) : (
+                                ) : selectedTier === foundUser.tier ? (
                                     'No Change'
+                                ) : (
+                                    <>
+                                        {selectedTier > foundUser.tier ? 'Upgrade' : 'Downgrade'}
+                                        <span className="opacity-75">
+                                            {TIER_NAMES[foundUser.tier]} → {TIER_NAMES[selectedTier]}
+                                        </span>
+                                    </>
                                 )}
                             </button>
                         </div>

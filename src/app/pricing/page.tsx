@@ -31,6 +31,7 @@ import {
     Download,
 } from 'lucide-react';
 import Link from 'next/link';
+import { FAQSchema, BreadcrumbSchema } from '@/components/seo/JsonLd';
 
 // Feature item type
 type FeatureItem = {
@@ -333,8 +334,41 @@ export default function PricingPage() {
         );
     };
 
+    // FAQ data for structured data
+    const faqData = [
+        {
+            question: "What's the difference between shared and 1-of-1 messages?",
+            answer: "Free and Hero users receive the same daily message selected from our pool of 300+ messages. Legend users get a truly unique message generated using a cryptographic hash of their user ID + date - no one else will ever receive the same spark on the same day.",
+        },
+        {
+            question: "Is this a subscription or one-time payment?",
+            answer: "One-time payment with lifetime access. Pay once, use forever. No recurring charges, no hidden fees. You also get all future updates included.",
+        },
+        {
+            question: "How does auto-delivery work?",
+            answer: "Set your preferred delivery time and connect your WhatsApp or Telegram. We'll automatically send your partner their daily spark at your chosen time - you'll never forget to show love again, even on busy days.",
+        },
+        {
+            question: "What if I'm not satisfied?",
+            answer: "We offer a 7-day money-back guarantee. If you're not completely satisfied, email us and we'll refund your purchase. No questions asked.",
+        },
+        {
+            question: "Can I upgrade from Hero to Legend later?",
+            answer: "Yes! You can upgrade anytime. We'll apply your Hero purchase as credit toward Legend. Contact support and we'll help you upgrade at a discounted rate.",
+        },
+    ];
+
+    const breadcrumbItems = [
+        { name: 'Home', url: 'https://luvora.love' },
+        { name: 'Pricing', url: 'https://luvora.love/pricing' },
+    ];
+
     return (
         <div className="min-h-screen bg-base-200">
+            {/* Structured Data */}
+            <FAQSchema faqs={faqData} />
+            <BreadcrumbSchema items={breadcrumbItems} />
+
             {/* Header */}
             <header className="bg-base-100 border-b border-base-content/10 sticky top-0 z-40">
                 <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
