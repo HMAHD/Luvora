@@ -87,8 +87,8 @@ describe('Phase 8: Message Rarity Types', () => {
 });
 
 describe('Phase 8: Daily Spark with Tone', () => {
-    test('getDailySpark returns spark with tone field', () => {
-        const spark = getDailySpark(new Date('2026-01-29'), 'neutral');
+    test('getDailySpark returns spark with tone field', async () => {
+        const spark = await getDailySpark(new Date('2026-01-29'), 'neutral');
 
         expect(spark.morning.tone).toBeDefined();
         expect(spark.night.tone).toBeDefined();
@@ -98,8 +98,8 @@ describe('Phase 8: Daily Spark with Tone', () => {
         expect(validTones).toContain(spark.night.tone);
     });
 
-    test('getDailySpark returns spark with optional rarity field', () => {
-        const spark = getDailySpark(new Date('2026-01-29'), 'neutral');
+    test('getDailySpark returns spark with optional rarity field', async () => {
+        const spark = await getDailySpark(new Date('2026-01-29'), 'neutral');
 
         // Rarity may or may not be present
         if (spark.morning.rarity) {
@@ -108,10 +108,10 @@ describe('Phase 8: Daily Spark with Tone', () => {
         }
     });
 
-    test('getDailySpark is deterministic', () => {
+    test('getDailySpark is deterministic', async () => {
         const date = new Date('2026-01-29');
-        const spark1 = getDailySpark(date, 'neutral');
-        const spark2 = getDailySpark(date, 'neutral');
+        const spark1 = await getDailySpark(date, 'neutral');
+        const spark2 = await getDailySpark(date, 'neutral');
 
         expect(spark1.morning.content).toBe(spark2.morning.content);
         expect(spark1.night.content).toBe(spark2.night.content);
@@ -119,11 +119,11 @@ describe('Phase 8: Daily Spark with Tone', () => {
         expect(spark1.night.tone).toBe(spark2.night.tone);
     });
 
-    test('Different roles produce different sparks', () => {
+    test('Different roles produce different sparks', async () => {
         const date = new Date('2026-01-29');
-        const neutralSpark = getDailySpark(date, 'neutral');
-        const feminineSpark = getDailySpark(date, 'feminine');
-        const masculineSpark = getDailySpark(date, 'masculine');
+        const neutralSpark = await getDailySpark(date, 'neutral');
+        const feminineSpark = await getDailySpark(date, 'feminine');
+        const masculineSpark = await getDailySpark(date, 'masculine');
 
         // At least one should be different (depends on pool content)
         const contents = new Set([
@@ -212,10 +212,10 @@ describe('Phase 8: Rarity Info Display', () => {
 
 describe('Phase 8: Special Occasion Detection', () => {
     // Testing the internal logic through integration
-    test('Spark includes isSpecialOccasion when relevant', () => {
+    test('Spark includes isSpecialOccasion when relevant', async () => {
         // This tests the structure - actual special occasion detection
         // requires the async getLegendSpark function
-        const spark = getDailySpark(new Date('2026-02-14'), 'neutral');
+        const spark = await getDailySpark(new Date('2026-02-14'), 'neutral');
 
         // getDailySpark doesn't have special occasion detection
         // only getLegendSpark does
@@ -242,7 +242,8 @@ describe('Phase 8: Message Pool Structure', () => {
         expect(pool.messages.special_occasions).toBeDefined();
         expect(pool.messages.special_occasions.anniversary).toBeDefined();
         expect(pool.messages.special_occasions.birthday).toBeDefined();
-        expect(pool.messages.special_occasions.milestone).toBeDefined();
+        expect(pool.messages.special_occasions.valentines).toBeDefined();
+        expect(pool.messages.special_occasions.holiday).toBeDefined();
     });
 
     test('Message pool has love language specific messages', async () => {

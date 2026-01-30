@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Copy, Heart, Share2, Zap, Crown } from 'lucide-react';
 import { getDailySpark, getPremiumSpark, type DailySpark } from '@/lib/algo';
@@ -41,6 +41,14 @@ function ElectricFilter() {
   );
 }
 
+// Default fallback spark while loading
+const FALLBACK_SPARK: DailySpark = {
+  date: new Date().toISOString().split('T')[0],
+  nickname: 'love',
+  morning: { content: 'Every moment with you is a gift I never knew I needed.', tone: 'romantic' },
+  night: { content: 'Sleep well, knowing you are deeply loved.', tone: 'sweet' },
+};
+
 export function SparkCard() {
   const [mounted, setMounted] = useState(false);
   const { user } = useAuth();
@@ -54,9 +62,9 @@ export function SparkCard() {
   const isHeroPlus = userTier >= TIER.HERO;
   const isLegend = userTier === TIER.LEGEND;
 
-  // State for Spark
-  const dailySpark = useMemo(() => getDailySpark(new Date(), role), [role, partnerName]);
-  const [spark, setSpark] = useState<DailySpark>(dailySpark);
+  // State for Spark (now async from PocketBase)
+  const [spark, setSpark] = useState<DailySpark>(FALLBACK_SPARK);
+  const [sparkLoading, setSparkLoading] = useState(true);
   const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
   const [isAutoSettingsOpen, setIsAutoSettingsOpen] = useState(false);
@@ -78,18 +86,27 @@ export function SparkCard() {
     prevTierRef.current = userTier;
   }, [userTier]);
 
-  // Effect to handle Spark generation based on tier
+  // Effect to handle Spark generation based on tier (now fully async)
   useEffect(() => {
     async function loadSpark() {
-      if (isLegend && user?.id) {
-        const premiumSpark = await getPremiumSpark(new Date(), user.id, role);
-        setSpark(premiumSpark);
-      } else {
-        setSpark(dailySpark);
+      setSparkLoading(true);
+      try {
+        if (isLegend && user?.id) {
+          const premiumSpark = await getPremiumSpark(new Date(), user.id, role);
+          setSpark(premiumSpark);
+        } else {
+          const dailySpark = await getDailySpark(new Date(), role);
+          setSpark(dailySpark);
+        }
+      } catch (error) {
+        console.error('Failed to load spark:', error);
+        // Keep fallback spark on error
+      } finally {
+        setSparkLoading(false);
       }
     }
     loadSpark();
-  }, [user, role, isLegend, dailySpark]);
+  }, [user, role, isLegend]);
 
   const [copied, setCopied] = useState(false);
 

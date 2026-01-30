@@ -8,19 +8,19 @@ describe('Logic: Deterministic Algorithm', () => {
     // Shared Date
     const date = new Date('2026-05-20T08:00:00Z');
 
-    test('Consistency: Same seed + Same Date = Same Message', () => {
-        const spark1 = getDailySpark(date, 'neutral');
-        const spark2 = getDailySpark(date, 'neutral');
+    test('Consistency: Same seed + Same Date = Same Message', async () => {
+        const spark1 = await getDailySpark(date, 'neutral');
+        const spark2 = await getDailySpark(date, 'neutral');
 
         expect(spark1.morning.content).toBe(spark2.morning.content);
         expect(spark1.nickname).toBe(spark2.nickname);
     });
 
-    test('Differentiation: Role impacts message selection', () => {
+    test('Differentiation: Role impacts message selection', async () => {
         // We need to ensure pool has enough variance, or mock the pool.
         // Assuming real pool data for integration-style unit test.
-        const neutral = getDailySpark(date, 'neutral');
-        const masculine = getDailySpark(date, 'masculine');
+        const neutral = await getDailySpark(date, 'neutral');
+        const masculine = await getDailySpark(date, 'masculine');
 
         // They might share a message if fallback triggered or pool small,
         // but 'masculine' input should definitely work without error.
@@ -32,10 +32,10 @@ describe('Logic: Deterministic Algorithm', () => {
 describe('Logic: Role-Based Differentiation (Phase 7.5)', () => {
     const date = new Date('2026-05-20T08:00:00Z');
 
-    test('Different roles produce different messages for same date', () => {
-        const neutral = getDailySpark(date, 'neutral');
-        const masculine = getDailySpark(date, 'masculine');
-        const feminine = getDailySpark(date, 'feminine');
+    test('Different roles produce different messages for same date', async () => {
+        const neutral = await getDailySpark(date, 'neutral');
+        const masculine = await getDailySpark(date, 'masculine');
+        const feminine = await getDailySpark(date, 'feminine');
 
         // All should have valid content
         expect(neutral.morning.content).toBeDefined();
@@ -54,14 +54,14 @@ describe('Logic: Role-Based Differentiation (Phase 7.5)', () => {
         expect(messages.size).toBeGreaterThanOrEqual(1);
     });
 
-    test('Same role + different dates = different messages', () => {
+    test('Same role + different dates = different messages', async () => {
         const date1 = new Date('2026-05-20T08:00:00Z');
         const date2 = new Date('2026-05-21T08:00:00Z');
         const date3 = new Date('2026-05-22T08:00:00Z');
 
-        const spark1 = getDailySpark(date1, 'neutral');
-        const spark2 = getDailySpark(date2, 'neutral');
-        const spark3 = getDailySpark(date3, 'neutral');
+        const spark1 = await getDailySpark(date1, 'neutral');
+        const spark2 = await getDailySpark(date2, 'neutral');
+        const spark3 = await getDailySpark(date3, 'neutral');
 
         const messages = new Set([
             spark1.morning.content,
@@ -73,8 +73,8 @@ describe('Logic: Role-Based Differentiation (Phase 7.5)', () => {
         expect(messages.size).toBeGreaterThan(1);
     });
 
-    test('Spark contains expected structure', () => {
-        const spark = getDailySpark(date, 'neutral');
+    test('Spark contains expected structure', async () => {
+        const spark = await getDailySpark(date, 'neutral');
 
         expect(spark).toHaveProperty('date');
         expect(spark).toHaveProperty('nickname');
@@ -86,8 +86,8 @@ describe('Logic: Role-Based Differentiation (Phase 7.5)', () => {
         expect(spark.night).toHaveProperty('tone');
     });
 
-    test('Tone is one of valid options (Phase 8)', () => {
-        const spark = getDailySpark(date, 'neutral');
+    test('Tone is one of valid options (Phase 8)', async () => {
+        const spark = await getDailySpark(date, 'neutral');
         const validTones = ['poetic', 'playful', 'romantic', 'passionate', 'sweet', 'supportive'];
 
         expect(validTones).toContain(spark.morning.tone);
@@ -194,10 +194,10 @@ describe('Logic: Premium + Role Combination (Phase 7.5.7)', () => {
 describe('Logic: FREE vs LEGEND Algorithm Difference', () => {
     const date = new Date('2026-05-20T08:00:00Z');
 
-    test('FREE users (getDailySpark) share same message for same date', () => {
+    test('FREE users (getDailySpark) share same message for same date', async () => {
         // Simulating two FREE users on same day
-        const freeUser1Spark = getDailySpark(date, 'neutral');
-        const freeUser2Spark = getDailySpark(date, 'neutral');
+        const freeUser1Spark = await getDailySpark(date, 'neutral');
+        const freeUser2Spark = await getDailySpark(date, 'neutral');
 
         // FREE uses Hash(Date) - same for all users
         expect(freeUser1Spark.morning.content).toBe(freeUser2Spark.morning.content);

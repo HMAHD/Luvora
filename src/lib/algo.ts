@@ -1,7 +1,20 @@
-import pool from './data/pool.json';
+import { pb } from './pocketbase';
 import type { LoveLanguage, EmotionalTone, MessageRarity } from './types';
 
 type Role = 'masculine' | 'feminine' | 'neutral';
+
+// PocketBase message record type
+type PBMessage = {
+    id: string;
+    content: string;
+    target: string;
+    vibe: string;
+    time_of_day: string;
+    rarity: string;
+    love_language: string;
+    tier: number;
+    occasion: string;
+};
 
 // Extended message type with Phase 8 fields
 type MessageObj = {
@@ -10,6 +23,96 @@ type MessageObj = {
     love_language?: string;
     rarity?: string;
 };
+
+// ============================================
+// MESSAGE CACHE (1 hour TTL for performance)
+// ============================================
+type CacheEntry<T> = { data: T; expires: number };
+const messageCache = new Map<string, CacheEntry<PBMessage[]>>();
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour
+
+async function getCachedMessages(cacheKey: string, filter: string): Promise<PBMessage[]> {
+    const cached = messageCache.get(cacheKey);
+    if (cached && cached.expires > Date.now()) {
+        return cached.data;
+    }
+
+    try {
+        const messages = await pb.collection('messages').getFullList<PBMessage>({
+            filter,
+            requestKey: cacheKey, // Prevents duplicate requests
+        });
+
+        messageCache.set(cacheKey, {
+            data: messages,
+            expires: Date.now() + CACHE_TTL,
+        });
+
+        return messages;
+    } catch (error) {
+        console.error('Failed to fetch messages from PocketBase:', error);
+        // Return empty array on error, fallback will handle it
+        return [];
+    }
+}
+
+// Pre-fetch common message pools for performance
+async function getMessagesByTimeAndVibe(timeOfDay: string, vibe: string): Promise<PBMessage[]> {
+    const cacheKey = `${timeOfDay}-${vibe}`;
+    return getCachedMessages(cacheKey, `time_of_day = "${timeOfDay}" && vibe = "${vibe}"`);
+}
+
+async function getMessagesByOccasion(occasion: string): Promise<PBMessage[]> {
+    const cacheKey = `occasion-${occasion}`;
+    return getCachedMessages(cacheKey, `occasion = "${occasion}"`);
+}
+
+async function getMessagesByLoveLanguage(loveLanguage: string): Promise<PBMessage[]> {
+    const cacheKey = `ll-${loveLanguage}`;
+    return getCachedMessages(cacheKey, `love_language = "${loveLanguage}"`);
+}
+
+async function getPremiumMessages(): Promise<PBMessage[]> {
+    const cacheKey = 'premium';
+    return getCachedMessages(cacheKey, `tier = 2`);
+}
+
+// Nicknames cache (separate since they're simple strings)
+let nicknamesCache: { data: string[]; expires: number } | null = null;
+
+async function getNicknames(): Promise<string[]> {
+    if (nicknamesCache && nicknamesCache.expires > Date.now()) {
+        return nicknamesCache.data;
+    }
+
+    // Fallback nicknames in case PocketBase is unavailable
+    const fallbackNicknames = [
+        'my love', 'sweetheart', 'darling', 'sunshine', 'angel', 'honey',
+        'babe', 'dear', 'beloved', 'treasure', 'star', 'heart'
+    ];
+
+    try {
+        // Fetch unique messages and extract any nickname patterns, or use a dedicated collection
+        // For now, use the fallback list since nicknames aren't stored in messages collection
+        nicknamesCache = {
+            data: fallbackNicknames,
+            expires: Date.now() + CACHE_TTL,
+        };
+        return fallbackNicknames;
+    } catch {
+        return fallbackNicknames;
+    }
+}
+
+// Convert PBMessage to MessageObj for backward compatibility
+function toMessageObj(msg: PBMessage): MessageObj {
+    return {
+        content: msg.content,
+        target: msg.target,
+        love_language: msg.love_language || undefined,
+        rarity: msg.rarity || undefined,
+    };
+}
 
 type Message = {
     content: string;
@@ -152,49 +255,59 @@ function checkSpecialOccasion(
 }
 
 /**
- * Gets special occasion messages from the pool.
+ * Gets special occasion messages from PocketBase.
  */
-function getSpecialOccasionMessages(occasion: 'anniversary' | 'birthday' | 'milestone'): MessageObj[] {
-    const specialPool = (pool.messages as Record<string, unknown>).special_occasions as Record<string, MessageObj[]> | undefined;
-    if (!specialPool || !specialPool[occasion]) return [];
-    return specialPool[occasion];
+async function getSpecialOccasionMessagesAsync(occasion: 'anniversary' | 'birthday' | 'milestone'): Promise<MessageObj[]> {
+    const messages = await getMessagesByOccasion(occasion);
+    return messages.map(toMessageObj);
 }
 
 /**
- * Gets love language specific messages from the pool.
+ * Gets love language specific messages from PocketBase.
  */
-function getLoveLanguageMessages(loveLanguage: LoveLanguage): MessageObj[] {
-    const llPool = (pool.messages as Record<string, unknown>).love_language_specific as Record<string, MessageObj[]> | undefined;
-    if (!llPool || !llPool[loveLanguage]) return [];
-    return llPool[loveLanguage];
+async function getLoveLanguageMessagesAsync(loveLanguage: LoveLanguage): Promise<MessageObj[]> {
+    const messages = await getMessagesByLoveLanguage(loveLanguage);
+    return messages.map(toMessageObj);
 }
 
 /**
  * Generates the deterministic Daily Spark for a given date.
+ * Now fetches from PocketBase with caching.
  * @param date Optional date object.
  * @param role The recipient's role (defaults to 'neutral').
  */
-export function getDailySpark(date: Date = new Date(), role: Role = 'neutral'): DailySpark {
+export async function getDailySpark(date: Date = new Date(), role: Role = 'neutral'): Promise<DailySpark> {
     const dateStr = date.toISOString().split('T')[0];
 
     // 1. Select Nickname
-    const nickIndex = selectIndex(pool.nicknames.length, `${dateStr}-nick`);
-    const nickname = pool.nicknames[nickIndex];
+    const nicknames = await getNicknames();
+    const nickIndex = selectIndex(nicknames.length, `${dateStr}-nick`);
+    const nickname = nicknames[nickIndex];
 
     // 2. Select Tones (using TONES instead of old vibes)
     const morningTone = selectTone(`${dateStr}-morning-tone`);
     const nightTone = selectTone(`${dateStr}-night-tone`);
 
-    // 3. Filter & Select Messages
-    const morningPool = pool.messages.morning as Record<string, MessageObj[]>;
-    const nightPool = pool.messages.night as Record<string, MessageObj[]>;
+    // 3. Fetch Messages from PocketBase
+    const [rawMorningPB, rawNightPB] = await Promise.all([
+        getMessagesByTimeAndVibe('morning', morningTone),
+        getMessagesByTimeAndVibe('night', nightTone),
+    ]);
 
-    // Get messages for selected tone, fallback to 'poetic' if tone doesn't exist
-    const rawMorning = morningPool[morningTone] || morningPool['poetic'] || [];
-    const rawNight = nightPool[nightTone] || nightPool['poetic'] || [];
+    // Fallback to 'poetic' if no messages for selected tone
+    let rawMorning = rawMorningPB;
+    let rawNight = rawNightPB;
 
-    const morningFiltered = filterByRole(rawMorning, role);
-    const nightFiltered = filterByRole(rawNight, role);
+    if (rawMorning.length === 0) {
+        rawMorning = await getMessagesByTimeAndVibe('morning', 'poetic');
+    }
+    if (rawNight.length === 0) {
+        rawNight = await getMessagesByTimeAndVibe('night', 'poetic');
+    }
+
+    // Convert to MessageObj and filter by role
+    const morningFiltered = filterByRole(rawMorning.map(toMessageObj), role);
+    const nightFiltered = filterByRole(rawNight.map(toMessageObj), role);
 
     // Apply rarity weighting
     const morningMsg = applyRarityWeighting(morningFiltered, `${dateStr}-${role}-morning-msg`);
@@ -235,6 +348,7 @@ export type LegendSparkOptions = {
  * - Special occasion detection (anniversary/birthday)
  * - Rarity-weighted selection
  * - SHA-256 for high entropy distribution
+ * - Now fetches from PocketBase with caching
  */
 export async function getLegendSpark(date: Date, options: LegendSparkOptions): Promise<DailySpark> {
     const dateStr = date.toISOString().split('T')[0];
@@ -258,7 +372,8 @@ export async function getLegendSpark(date: Date, options: LegendSparkOptions): P
     const safeSpin = Math.abs(spin);
 
     // 1. Nickname (Standard pool, unique spin)
-    const nickname = pool.nicknames[safeSpin % pool.nicknames.length];
+    const nicknames = await getNicknames();
+    const nickname = nicknames[safeSpin % nicknames.length];
 
     // 2. Tones (with preference)
     const morningTone = selectTone(`${seed}-mT`, preferredTone);
@@ -269,7 +384,7 @@ export async function getLegendSpark(date: Date, options: LegendSparkOptions): P
 
     // 3. Special Occasion Override
     if (specialOccasion) {
-        const specialMessages = getSpecialOccasionMessages(specialOccasion);
+        const specialMessages = await getSpecialOccasionMessagesAsync(specialOccasion);
         const filtered = filterByRole(specialMessages, role);
 
         if (filtered.length > 0) {
@@ -298,7 +413,7 @@ export async function getLegendSpark(date: Date, options: LegendSparkOptions): P
 
     // 4. Love Language Specific Messages (25% chance if love language set)
     if (loveLanguage && fnv1a(`${seed}-ll-check`) % 100 < 25) {
-        const llMessages = getLoveLanguageMessages(loveLanguage);
+        const llMessages = await getLoveLanguageMessagesAsync(loveLanguage);
         const filtered = filterByRole(llMessages, role);
 
         if (filtered.length >= 2) {
@@ -324,8 +439,9 @@ export async function getLegendSpark(date: Date, options: LegendSparkOptions): P
         }
     }
 
-    // 5. Premium Pool with Love Language and Tone Filtering
-    const premiumMsgs = (pool.messages as Record<string, unknown>).premium as MessageObj[] || [];
+    // 5. Premium Pool with Love Language and Tone Filtering (from PocketBase)
+    const premiumMsgsPB = await getPremiumMessages();
+    const premiumMsgs = premiumMsgsPB.map(toMessageObj);
     let morningPool = filterByRole(premiumMsgs, role);
     let nightPool = [...morningPool];
 
@@ -337,12 +453,14 @@ export async function getLegendSpark(date: Date, options: LegendSparkOptions): P
         morningContent = applyRarityWeighting(morningPool, `${seed}-m-msg`);
         nightContent = applyRarityWeighting(nightPool, `${seed}-n-msg`);
     } else {
-        // Fallback to standard tone-based pool
-        const morningTonePool = (pool.messages.morning as Record<string, MessageObj[]>)[morningTone] || [];
-        const nightTonePool = (pool.messages.night as Record<string, MessageObj[]>)[nightTone] || [];
+        // Fallback to standard tone-based pool from PocketBase
+        const [morningTonePoolPB, nightTonePoolPB] = await Promise.all([
+            getMessagesByTimeAndVibe('morning', morningTone),
+            getMessagesByTimeAndVibe('night', nightTone),
+        ]);
 
-        let mFiltered = filterByRole(morningTonePool, role);
-        let nFiltered = filterByRole(nightTonePool, role);
+        let mFiltered = filterByRole(morningTonePoolPB.map(toMessageObj), role);
+        let nFiltered = filterByRole(nightTonePoolPB.map(toMessageObj), role);
 
         mFiltered = filterByLoveLanguage(mFiltered, loveLanguage, `${seed}-fb-morning`);
         nFiltered = filterByLoveLanguage(nFiltered, loveLanguage, `${seed}-fb-night`);

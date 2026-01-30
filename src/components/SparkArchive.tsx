@@ -53,25 +53,44 @@ export function SparkArchive({ userTier, role }: SparkArchiveProps) {
 
     // Generate spark history based on tier
     const daysToShow = userTier >= TIER.LEGEND ? 90 : userTier >= TIER.HERO ? 30 : 7;
+    const [loadingHistory, setLoadingHistory] = useState(true);
 
     useEffect(() => {
-        const history: SparkEntry[] = [];
-        for (let i = 0; i < daysToShow; i++) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            const spark = getDailySpark(date, role);
-            history.push({
-                date: date.toISOString().split('T')[0],
-                morning: spark.morning.content,
-                night: spark.night.content,
-                morningRarity: spark.morning.rarity,
-                nightRarity: spark.night.rarity,
-                morningTone: spark.morning.tone,
-                nightTone: spark.night.tone,
-                isFavorite: favorites.has(date.toISOString().split('T')[0]),
+        async function loadSparkHistory() {
+            setLoadingHistory(true);
+            const history: SparkEntry[] = [];
+
+            // Load sparks in parallel batches for better performance
+            const dates: Date[] = [];
+            for (let i = 0; i < daysToShow; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                dates.push(date);
+            }
+
+            // Fetch all sparks in parallel
+            const sparkPromises = dates.map(date => getDailySpark(date, role));
+            const sparks = await Promise.all(sparkPromises);
+
+            sparks.forEach((spark, i) => {
+                const date = dates[i];
+                history.push({
+                    date: date.toISOString().split('T')[0],
+                    morning: spark.morning.content,
+                    night: spark.night.content,
+                    morningRarity: spark.morning.rarity,
+                    nightRarity: spark.night.rarity,
+                    morningTone: spark.morning.tone,
+                    nightTone: spark.night.tone,
+                    isFavorite: favorites.has(date.toISOString().split('T')[0]),
+                });
             });
+
+            setSparkHistory(history);
+            setLoadingHistory(false);
         }
-        setSparkHistory(history);
+
+        loadSparkHistory();
     }, [daysToShow, role, favorites]);
 
     // Load favorites from localStorage

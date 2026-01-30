@@ -275,7 +275,7 @@ async function getDailySparkForUser(
     pb: PocketBase,
     user: UserRecord,
     messageType: MessageType
-): Promise<{ body: string } | null> {
+): Promise<{ content: string } | null> {
     const today = new Date().toISOString().split('T')[0];
 
     try {
@@ -314,13 +314,13 @@ async function getDailySparkForUser(
             });
             if (fallback.length > 0) {
                 const hash = simpleHash(user.id + today + messageType);
-                return fallback[hash % fallback.length] as { body: string };
+                return fallback[hash % fallback.length] as unknown as { content: string };
             }
             return null;
         }
 
         const hash = simpleHash(user.id + today + messageType);
-        return messages[hash % messages.length] as { body: string };
+        return messages[hash % messages.length] as unknown as { content: string };
 
     } catch (err) {
         console.error('Error getting spark:', err);
@@ -339,11 +339,11 @@ function simpleHash(str: string): number {
 }
 
 function formatSparkMessage(
-    spark: { body: string },
+    spark: { content: string },
     partnerName?: string,
     messageType: MessageType = 'morning'
 ): string {
-    let message = spark.body;
+    let message = spark.content;
 
     if (partnerName) {
         message = message.replace(/\{partner\}/gi, partnerName);
