@@ -11,6 +11,7 @@ import { pb } from '@/lib/pocketbase';
 import { TierBadge } from '@/components/TierBadge';
 import { TIER } from '@/lib/types';
 import { AdBanner } from '@/components/AdBanner';
+import { Footer } from '@/components/Footer';
 
 export default function Home() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -33,6 +34,9 @@ export default function Home() {
     <main className="min-h-screen w-full flex flex-col justify-center items-center bg-base-200 p-4 relative overflow-hidden safe-area-inset-top safe-area-inset-bottom">
       <DynamicTitle />
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+
+      {/* Menu Button (Top Left) - z-40 so modals (z-50) appear above */}
+      <Footer />
 
       {/* Auth Button (Top Right) - z-40 so modals (z-50) appear above */}
       <div className="absolute top-4 right-4 z-40">
