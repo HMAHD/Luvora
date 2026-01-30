@@ -34,6 +34,7 @@ import {
   BarChart3,
 } from 'lucide-react';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
+import { TierAdjustmentTool } from '@/components/admin/TierAdjustmentTool';
 import Link from 'next/link';
 import {
   TIER,
@@ -805,6 +806,9 @@ function AdminContent() {
                 </div>
               </div>
             </div>
+
+            {/* Tier Adjustment Tool */}
+            <TierAdjustmentTool pb={pb} adminId={pb.authStore.model?.id || 'admin'} />
           </motion.div>
         )}
 
