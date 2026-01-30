@@ -283,39 +283,39 @@
 ## Phase 10: Analytics & Monetization Infrastructure
 *Goal: Data-driven insights and revenue diversification.*
 
-- [ ] **Task 10.1: Google Analytics 4 Integration**
-    - [ ] Install `@next/third-parties` or manual gtag.js setup.
-    - [ ] Configure GA4 property and data streams.
-    - [ ] Implement event tracking:
+- [x] **Task 10.1: Google Analytics 4 Integration**
+    - [x] Install `@next/third-parties` or manual gtag.js setup.
+    - [x] Configure GA4 property and data streams.
+    - [x] Implement event tracking:
         - `spark_copied` - User copies a spark message.
         - `spark_shared` - User shares streak card.
         - `upgrade_started` - User clicks upgrade button.
         - `upgrade_completed` - Payment webhook success.
         - `automation_enabled` - User enables Telegram/WhatsApp.
-    - [ ] Set up conversion goals (Free → Hero, Hero → Legend).
-    - [ ] Create custom dashboard for key metrics.
-- [ ] **Task 10.2: Google AdSense (Free Tier Monetization)**
-    - [ ] Apply for Google AdSense account approval.
-    - [ ] Design non-intrusive ad placements for free users:
+    - [x] Set up conversion goals (Free → Hero, Hero → Legend).
+    - [x] Create custom dashboard for key metrics.
+- [x] **Task 10.2: Google AdSense (Free Tier Monetization)**
+    - [x] Apply for Google AdSense account approval.
+    - [x] Design non-intrusive ad placements for free users:
         - Banner below spark card on homepage.
         - Interstitial on spark history page (max 1 per session).
-    - [ ] Create `AdBanner.tsx` component with tier-gating (hide for Hero+).
-    - [ ] Implement ad refresh on page navigation.
-    - [ ] Add privacy consent banner for GDPR compliance.
-- [ ] **Task 10.3: Admin Analytics Dashboard**
-    - [ ] Build `/admin/analytics` page with key metrics:
+    - [x] Create `AdBanner.tsx` component with tier-gating (hide for Hero+).
+    - [x] Implement ad refresh on page navigation.
+    - [x] Add privacy consent banner for GDPR compliance.
+- [x] **Task 10.3: Admin Analytics Dashboard**
+    - [x] Build `/admin/analytics` page with key metrics:
         - Daily/Weekly/Monthly Active Users (DAU/WAU/MAU).
         - Conversion rates by tier (Free→Hero, Hero→Legend).
         - Revenue metrics from Lemon Squeezy API.
         - Automation engagement (messages sent/day).
         - Churn rate and retention curves.
-    - [ ] Add charts using `recharts` or `chart.js`.
-    - [ ] Implement date range filtering and comparison.
-- [ ] **Task 10.4: User Engagement Metrics**
-    - [ ] Track spark copy frequency per user.
-    - [ ] Track streak consistency (days without missing).
-    - [ ] Implement "at-risk" user identification (no activity 7+ days).
-    - [ ] Build re-engagement email triggers for at-risk users.
+    - [x] Add charts using `recharts` or `chart.js`.
+    - [x] Implement date range filtering and comparison.
+- [x] **Task 10.4: User Engagement Metrics**
+    - [x] Track spark copy frequency per user.
+    - [x] Track streak consistency (days without missing).
+    - [x] Implement "at-risk" user identification (no activity 7+ days).
+    - [x] Build re-engagement email triggers for at-risk users.
 
 ## Phase 11: SEO Deep Optimization
 *Goal: Maximizing organic traffic through technical SEO excellence.*
