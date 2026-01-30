@@ -29,7 +29,7 @@ describe('API: Payment Webhook', () => {
 
     test('Validates Signature Correctly', async () => {
         const payload = JSON.stringify({
-            meta: { event_name: 'order_created', custom_data: { user_id: 'user-123' } },
+            meta: { event_name: 'order_created', custom_data: { user_id: 'user-123', tier: 'hero' } },
             data: { attributes: {} }
         });
 
@@ -42,15 +42,13 @@ describe('API: Payment Webhook', () => {
             body: payload
         });
 
-        // Mock User not premium yet
-        mockGetOne.mockResolvedValue({ is_premium: false });
+        // Mock User with FREE tier (0)
+        mockGetOne.mockResolvedValue({ tier: 0 });
 
         const res = await POST(req);
 
-        // Should succeed
-        // Update: POST returns NextResponse.
-        // We can check status if we could inspect it, or check side effects.
-        expect(mockUpdate).toHaveBeenCalledWith('user-123', expect.objectContaining({ is_premium: true }));
+        // Should upgrade to HERO tier (1)
+        expect(mockUpdate).toHaveBeenCalledWith('user-123', expect.objectContaining({ tier: 1 }));
     });
 
     test('Rejects Invalid Signature', async () => {
@@ -67,9 +65,9 @@ describe('API: Payment Webhook', () => {
         expect(mockUpdate).not.toHaveBeenCalled();
     });
 
-    test('Idempotency: Skips if already premium', async () => {
+    test('Idempotency: Skips if already at requested tier', async () => {
         const payload = JSON.stringify({
-            meta: { event_name: 'order_created', custom_data: { user_id: 'user-already-premium' } },
+            meta: { event_name: 'order_created', custom_data: { user_id: 'user-already-premium', tier: 'hero' } },
             data: { attributes: {} }
         });
 
@@ -82,7 +80,8 @@ describe('API: Payment Webhook', () => {
             body: payload
         });
 
-        mockGetOne.mockResolvedValue({ is_premium: true });
+        // User already has HERO tier (1), trying to upgrade to hero (1) should be skipped
+        mockGetOne.mockResolvedValue({ tier: 1 });
 
         await POST(req);
         expect(mockUpdate).not.toHaveBeenCalled();

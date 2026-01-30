@@ -6,11 +6,13 @@ import { Copy, Heart, Share2, Zap, Crown } from 'lucide-react';
 import { getDailySpark, getPremiumSpark, type DailySpark } from '@/lib/algo';
 import { SpecialnessCounter } from './SpecialnessCounter';
 import { useAuth } from '@/hooks/useAuth';
+import { useAnalytics } from '@/hooks/useAnalytics';
 import { UpgradeModal } from './UpgradeModal';
 import { ShareCard } from './ShareCard';
 import { AutomationSettings } from './AutomationSettings';
 import { RoleSelector } from './RoleSelector';
 import { incrementGlobalStats } from '@/actions/stats';
+import { trackUserActivity } from '@/actions/engagement';
 import { TIER } from '@/lib/types';
 
 type Role = 'neutral' | 'masculine' | 'feminine';
@@ -52,6 +54,7 @@ const FALLBACK_SPARK: DailySpark = {
 export function SparkCard() {
   const [mounted, setMounted] = useState(false);
   const { user } = useAuth();
+  const { trackCopy, trackShare, trackUpgradeModal } = useAnalytics();
 
   // Per-user data from PocketBase (fixes data isolation bug)
   const partnerName = user?.partner_name || '';
@@ -147,9 +150,33 @@ export function SparkCard() {
 
     try {
       await incrementGlobalStats();
+      // Track analytics event
+      trackCopy(isNight ? 'night' : 'morning', message.tone, message.rarity);
+      // Track user engagement for streaks
+      if (user?.id) {
+        await trackUserActivity(user.id, 'copy');
+      }
     } catch (err) {
       console.error("Failed to increment stats", err);
     }
+  };
+
+  const handleShareClick = async () => {
+    trackShare('card');
+    // Track user engagement for shares
+    if (user?.id) {
+      try {
+        await trackUserActivity(user.id, 'share');
+      } catch (err) {
+        console.error("Failed to track share", err);
+      }
+    }
+    setIsShareOpen(true);
+  };
+
+  const handleUpgradeClick = () => {
+    trackUpgradeModal('spark_card');
+    setIsUpgradeOpen(true);
   };
 
   const container = {
@@ -194,7 +221,7 @@ export function SparkCard() {
       </motion.p>
 
       <button
-        onClick={() => setIsShareOpen(true)}
+        onClick={handleShareClick}
         className="absolute top-4 left-4 btn btn-ghost btn-circle btn-sm text-base-content hover:bg-base-200"
         title="Share Streak"
       >
@@ -223,7 +250,7 @@ export function SparkCard() {
 
         {userTier === TIER.FREE && (
           <button
-            onClick={() => setIsUpgradeOpen(true)}
+            onClick={handleUpgradeClick}
             className="premium-cta-wrapper group mt-2"
           >
             <div className="premium-cta-glow" />
@@ -243,7 +270,7 @@ export function SparkCard() {
             <button onClick={() => setIsAutoSettingsOpen(true)} className="btn btn-ghost btn-xs opacity-60 hover:opacity-100">
               <Zap className="w-3 h-3 mr-1" /> Configure Automation
             </button>
-            <button onClick={() => setIsUpgradeOpen(true)} className="btn btn-ghost btn-xs text-warning/70 hover:text-warning">
+            <button onClick={handleUpgradeClick} className="btn btn-ghost btn-xs text-warning/70 hover:text-warning">
               <Crown className="w-3 h-3 mr-1" /> Unlock 1-of-1 Exclusivity
             </button>
           </div>

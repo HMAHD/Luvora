@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import PocketBase from 'pocketbase';
+import { trackUpgradeCompletedServer } from '@/lib/analytics-server';
 
 // Tier constants (0=Free, 1=Hero, 2=Legend)
 const TIER = {
@@ -26,7 +27,9 @@ export async function POST(request: Request) {
         const digest = Buffer.from(hmac.update(rawBody).digest('hex'), 'utf8');
         const signatureBuffer = Buffer.from(signature, 'utf8');
 
-        if (!crypto.timingSafeEqual(digest, signatureBuffer)) {
+        // Check buffer lengths first to avoid timingSafeEqual throwing
+        if (digest.length !== signatureBuffer.length ||
+            !crypto.timingSafeEqual(digest, signatureBuffer)) {
             return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
         }
 
@@ -69,6 +72,20 @@ export async function POST(request: Request) {
                         tier: newTier
                     });
                     console.log(`User ${userId} upgraded to tier ${newTier} (${purchasedTier}).`);
+
+                    // Track conversion in GA4
+                    const orderTotal = payload.data?.attributes?.total ??
+                        (purchasedTier === 'legend' ? 1999 : 499);
+                    const orderId = payload.data?.id || `order_${Date.now()}`;
+
+                    await trackUpgradeCompletedServer({
+                        userId,
+                        fromTier: currentTier,
+                        toTier: newTier,
+                        planType: purchasedTier as 'hero' | 'legend',
+                        value: orderTotal / 100, // Convert cents to dollars
+                        transactionId: orderId,
+                    });
 
                 } catch (err: unknown) {
                     console.error("User lookup failed:", err);

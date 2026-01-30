@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { pb } from '@/lib/pocketbase';
 import { TierBadge } from '@/components/TierBadge';
 import { TIER } from '@/lib/types';
+import { AdBanner } from '@/components/AdBanner';
 
 export default function Home() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -117,6 +118,15 @@ export default function Home() {
 
         {/* The Main Interface */}
         <SparkCard />
+
+        {/* Ad Banner for Free Users - only render after mount to avoid hydration mismatch */}
+        {isMounted && (!user || (user.tier ?? TIER.FREE) === TIER.FREE) && (
+          <AdBanner
+            adSlot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_BANNER || ''}
+            adFormat="horizontal"
+            className="w-full mt-4"
+          />
+        )}
 
       </div>
     </main>

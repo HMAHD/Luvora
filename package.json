@@ -11,6 +11,7 @@
     "test:e2e": "playwright test"
   },
   "dependencies": {
+    "@next/third-parties": "^16.1.6",
     "@vercel/og": "^0.8.6",
     "daisyui": "^5.5.14",
     "date-fns": "^4.1.0",
@@ -21,7 +22,8 @@
     "next": "16.1.5",
     "pocketbase": "^0.26.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "recharts": "^3.7.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.0",

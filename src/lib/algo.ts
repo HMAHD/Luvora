@@ -25,6 +25,29 @@ type MessageObj = {
 };
 
 // ============================================
+// LOCAL FALLBACK MESSAGES (used when PocketBase unavailable)
+// ============================================
+const FALLBACK_MESSAGES: PBMessage[] = [
+    // Morning messages
+    { id: 'f1', content: 'Good morning, beautiful. Every sunrise reminds me why I fell in love with you.', target: 'neutral', vibe: 'poetic', time_of_day: 'morning', rarity: 'common', love_language: 'words_of_affirmation', tier: 0, occasion: 'daily' },
+    { id: 'f2', content: 'Rise and shine! You make every morning worth waking up for.', target: 'neutral', vibe: 'playful', time_of_day: 'morning', rarity: 'common', love_language: 'words_of_affirmation', tier: 0, occasion: 'daily' },
+    { id: 'f3', content: 'The world is brighter because you\'re in it. Have an amazing day, my love.', target: 'neutral', vibe: 'romantic', time_of_day: 'morning', rarity: 'common', love_language: 'words_of_affirmation', tier: 0, occasion: 'daily' },
+    { id: 'f4', content: 'I hope your day is as wonderful as the smile you put on my face.', target: 'neutral', vibe: 'sweet', time_of_day: 'morning', rarity: 'common', love_language: 'words_of_affirmation', tier: 0, occasion: 'daily' },
+    { id: 'f5', content: 'Sending you all my love to start your day. You\'ve got this!', target: 'neutral', vibe: 'supportive', time_of_day: 'morning', rarity: 'common', love_language: 'words_of_affirmation', tier: 0, occasion: 'daily' },
+    { id: 'f6', content: 'Can\'t stop thinking about you. Hurry back to me.', target: 'neutral', vibe: 'passionate', time_of_day: 'morning', rarity: 'common', love_language: 'physical_touch', tier: 0, occasion: 'daily' },
+    // Night messages
+    { id: 'f7', content: 'Goodnight, my love. Dream of us dancing under the stars.', target: 'neutral', vibe: 'poetic', time_of_day: 'night', rarity: 'common', love_language: 'words_of_affirmation', tier: 0, occasion: 'daily' },
+    { id: 'f8', content: 'Sleep tight! Don\'t let the bed bugs bite... unless they\'re love bugs from me!', target: 'neutral', vibe: 'playful', time_of_day: 'night', rarity: 'common', love_language: 'words_of_affirmation', tier: 0, occasion: 'daily' },
+    { id: 'f9', content: 'As you close your eyes tonight, know that you are deeply loved.', target: 'neutral', vibe: 'romantic', time_of_day: 'night', rarity: 'common', love_language: 'words_of_affirmation', tier: 0, occasion: 'daily' },
+    { id: 'f10', content: 'Sweet dreams, sweetheart. Can\'t wait to see you again.', target: 'neutral', vibe: 'sweet', time_of_day: 'night', rarity: 'common', love_language: 'words_of_affirmation', tier: 0, occasion: 'daily' },
+    { id: 'f11', content: 'Rest well tonight. Tomorrow is another day to love you.', target: 'neutral', vibe: 'supportive', time_of_day: 'night', rarity: 'common', love_language: 'words_of_affirmation', tier: 0, occasion: 'daily' },
+    { id: 'f12', content: 'Wish you were here beside me. Missing you tonight.', target: 'neutral', vibe: 'passionate', time_of_day: 'night', rarity: 'common', love_language: 'physical_touch', tier: 0, occasion: 'daily' },
+];
+
+// Track if we've logged the fallback warning
+let fallbackWarningLogged = false;
+
+// ============================================
 // MESSAGE CACHE (1 hour TTL for performance)
 // ============================================
 type CacheEntry<T> = { data: T; expires: number };
@@ -49,10 +72,28 @@ async function getCachedMessages(cacheKey: string, filter: string): Promise<PBMe
         });
 
         return messages;
-    } catch (error) {
-        console.error('Failed to fetch messages from PocketBase:', error);
-        // Return empty array on error, fallback will handle it
-        return [];
+    } catch {
+        // Silently fall back to local messages - only log once in dev
+        if (!fallbackWarningLogged && process.env.NODE_ENV === 'development') {
+            console.info('[Luvora] Using local fallback messages (PocketBase unavailable or restricted)');
+            fallbackWarningLogged = true;
+        }
+        // Return matching fallback messages
+        return FALLBACK_MESSAGES.filter(msg => {
+            if (filter.includes('tier = 2')) return msg.tier === 2;
+            if (filter.includes('time_of_day') && filter.includes('vibe')) {
+                const timeMatch = filter.match(/time_of_day = "(\w+)"/);
+                const vibeMatch = filter.match(/vibe = "(\w+)"/);
+                if (timeMatch && vibeMatch) {
+                    return msg.time_of_day === timeMatch[1] && msg.vibe === vibeMatch[1];
+                }
+            }
+            if (filter.includes('occasion')) {
+                const occasionMatch = filter.match(/occasion = "(\w+)"/);
+                if (occasionMatch) return msg.occasion === occasionMatch[1];
+            }
+            return true;
+        });
     }
 }
 
@@ -497,21 +538,36 @@ export async function getPremiumSpark(date: Date, userId: string, role: Role): P
 
 /**
  * Counts days until a special occasion.
+ * Uses UTC dates to avoid timezone issues.
  */
 export function getDaysUntilOccasion(targetDate: string, fromDate: Date = new Date()): number {
-    const [year, month, day] = targetDate.split('-').map(Number);
-    const currentYear = fromDate.getFullYear();
+    const [, month, day] = targetDate.split('-').map(Number);
 
-    // Try this year first
-    let target = new Date(currentYear, month - 1, day);
+    // Normalize fromDate to UTC midnight for consistent comparison
+    const fromYear = fromDate.getUTCFullYear();
+    const fromMonth = fromDate.getUTCMonth() + 1;
+    const fromDay = fromDate.getUTCDate();
 
-    // If the date has passed this year, use next year
-    if (target < fromDate) {
-        target = new Date(currentYear + 1, month - 1, day);
+    // For dates passed as ISO strings (like '2026-02-14'), they're parsed as UTC midnight
+    // So we need to use UTC methods for comparison
+
+    // Create target in the current year (using UTC)
+    let targetYear = fromYear;
+    let target = Date.UTC(targetYear, month - 1, day);
+
+    // Create fromDate as UTC midnight
+    const from = Date.UTC(fromYear, fromMonth - 1, fromDay);
+
+    // If the target date has passed this year, use next year
+    if (target < from) {
+        targetYear = fromYear + 1;
+        target = Date.UTC(targetYear, month - 1, day);
     }
 
-    const diffTime = target.getTime() - fromDate.getTime();
-    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const diffTime = target - from;
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays;
 }
 
 /**

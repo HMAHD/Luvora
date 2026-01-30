@@ -31,7 +31,10 @@ import {
   AlertTriangle,
   ExternalLink,
   Save,
+  BarChart3,
 } from 'lucide-react';
+import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
+import { AnalyticsSettings } from '@/components/admin/AnalyticsSettings';
 import Link from 'next/link';
 import {
   TIER,
@@ -102,7 +105,7 @@ const INITIAL_PRICING: PricingConfig = DEFAULT_PRICING;
 
 function AdminContent() {
   const { pb } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'users' | 'content' | 'broadcasts' | 'partners' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'analytics' | 'users' | 'content' | 'broadcasts' | 'partners' | 'settings'>('dashboard');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -406,6 +409,7 @@ function AdminContent() {
   // Tab configuration
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'content', label: 'Content', icon: MessageSquare },
     { id: 'partners', label: 'Partners', icon: Link2 },
@@ -596,6 +600,16 @@ function AdminContent() {
                 </div>
               </div>
             </div>
+          </motion.div>
+        )}
+
+        {/* Analytics Tab */}
+        {activeTab === 'analytics' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+          >
+            <AnalyticsDashboard pb={pb} />
           </motion.div>
         )}
 
@@ -1432,6 +1446,9 @@ function AdminContent() {
                 )}
               </div>
             </div>
+
+            {/* Analytics & Monetization Settings */}
+            <AnalyticsSettings />
 
           </motion.div>
         )}
