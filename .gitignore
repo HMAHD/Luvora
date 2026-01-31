@@ -75,4 +75,9 @@ next-env.d.ts
 
 # Sentry
 .sentryclirc
-docs/GITHUB_SECRETS.md
+
+# Documentation (use GitHub Wiki instead)
+/docs/
+
+# Wiki source files (keep these - they sync to GitHub Wiki)
+!/wiki/

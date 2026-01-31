@@ -290,7 +290,17 @@ See [docs/METRICS.md](docs/METRICS.md) for complete metrics documentation.
 | **Phase 7** | **Deployment** (VPS, CI/CD) | ✅ Complete |
 | **Phase 8** | **Legend Tier Enhancements** | 🚧 In Progress |
 
-**[📖 View Full Roadmap](docs/ROADMAP.md)**
+---
+
+## 📚 Documentation
+
+Complete documentation is available in the **[GitHub Wiki](https://github.com/HMAHD/Luvora/wiki)**:
+
+- **[Production Deployment](https://github.com/HMAHD/Luvora/wiki/Production-Deployment)** - Complete guide for luvora.love
+- **[Staging Deployment](https://github.com/HMAHD/Luvora/wiki/Staging-Deployment)** - Guide for staging.luvora.love
+- **[Nginx Configuration](https://github.com/HMAHD/Luvora/wiki/Nginx-Configuration)** - Production and staging configs
+- **[PM2 Process Management](https://github.com/HMAHD/Luvora/wiki/PM2-Process-Management)** - Managing processes
+- **[GitHub Actions](https://github.com/HMAHD/Luvora/wiki/GitHub-Actions)** - CI/CD workflows
 
 ---
 
@@ -324,8 +334,8 @@ This project is proprietary and confidential.
 
 - **Production**: [luvora.love](https://luvora.love)
 - **Staging**: [staging.luvora.love](https://staging.luvora.love)
+- **Documentation**: [GitHub Wiki](https://github.com/HMAHD/Luvora/wiki)
 - **Sentry**: [akash-hasendra.sentry.io](https://akash-hasendra.sentry.io/)
-- **Documentation**: [docs/](docs/)
 
 ---
 
