@@ -15,7 +15,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+         
         setIsMounted(true);
 
         const readValue = () => {

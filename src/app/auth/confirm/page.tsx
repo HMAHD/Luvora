@@ -24,7 +24,7 @@ function ConfirmContent() {
                 });
         } else {
             // If no params, showing generic message or handling accordingly
-            // eslint-disable-next-line react-hooks/set-state-in-effect
+             
             if (!otpId && !code) setStatus('Checking session...');
         }
     }, [searchParams, router]);

@@ -769,7 +769,7 @@ Great communication isn't about agreeing on everything—it's about creating a s
         readingTime: 9,
         publishedAt: '2024-03-10',
         updatedAt: '2024-03-10',
-        image: 'https://images.unsplash.com/photo-1529543544277-dc578753ec83?w=800&h=450&fit=crop',
+        image: 'https://images.unsplash.com/photo-1490818387583-1baba5e638af?w=800&h=450&fit=crop',
         content: `
 ## Why At-Home Dates Are Underrated
 
