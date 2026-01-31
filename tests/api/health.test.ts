@@ -25,7 +25,7 @@ describe('/api/health endpoint', () => {
     describe('Healthy State', () => {
         it('should return 200 and healthy status when all checks pass', async () => {
             const { pb } = await import('@/lib/pocketbase');
-            vi.mocked(pb.health.check).mockResolvedValue(undefined);
+            vi.mocked(pb.health.check).mockResolvedValue(undefined as any);
 
             const { GET } = await import('@/app/api/health/route');
             const response = await GET();
@@ -42,7 +42,7 @@ describe('/api/health endpoint', () => {
 
         it('should include database latency when healthy', async () => {
             const { pb } = await import('@/lib/pocketbase');
-            vi.mocked(pb.health.check).mockResolvedValue(undefined);
+            vi.mocked(pb.health.check).mockResolvedValue(undefined as any);
 
             const { GET } = await import('@/app/api/health/route');
             const response = await GET();
@@ -53,7 +53,7 @@ describe('/api/health endpoint', () => {
 
         it('should have proper cache-control headers', async () => {
             const { pb } = await import('@/lib/pocketbase');
-            vi.mocked(pb.health.check).mockResolvedValue(undefined);
+            vi.mocked(pb.health.check).mockResolvedValue(undefined as any);
 
             const { GET } = await import('@/app/api/health/route');
             const response = await GET();
@@ -121,7 +121,7 @@ describe('/api/health endpoint', () => {
             process.env.NEXT_PUBLIC_APP_VERSION = '1.2.3';
 
             const { pb } = await import('@/lib/pocketbase');
-            vi.mocked(pb.health.check).mockResolvedValue(undefined);
+            vi.mocked(pb.health.check).mockResolvedValue(undefined as any);
 
             const { GET } = await import('@/app/api/health/route');
             const response = await GET();
@@ -134,7 +134,7 @@ describe('/api/health endpoint', () => {
             delete process.env.NEXT_PUBLIC_APP_VERSION;
 
             const { pb } = await import('@/lib/pocketbase');
-            vi.mocked(pb.health.check).mockResolvedValue(undefined);
+            vi.mocked(pb.health.check).mockResolvedValue(undefined as any);
 
             const { GET } = await import('@/app/api/health/route');
             const response = await GET();
@@ -147,7 +147,7 @@ describe('/api/health endpoint', () => {
     describe('Response Format', () => {
         it('should include all required fields in response', async () => {
             const { pb } = await import('@/lib/pocketbase');
-            vi.mocked(pb.health.check).mockResolvedValue(undefined);
+            vi.mocked(pb.health.check).mockResolvedValue(undefined as any);
 
             const { GET } = await import('@/app/api/health/route');
             const response = await GET();
@@ -164,7 +164,7 @@ describe('/api/health endpoint', () => {
 
         it('should have valid ISO timestamp', async () => {
             const { pb } = await import('@/lib/pocketbase');
-            vi.mocked(pb.health.check).mockResolvedValue(undefined);
+            vi.mocked(pb.health.check).mockResolvedValue(undefined as any);
 
             const { GET } = await import('@/app/api/health/route');
             const response = await GET();

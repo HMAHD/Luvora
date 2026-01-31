@@ -121,7 +121,7 @@ describe('Sentry Configuration', () => {
             };
 
             // Simulate filtering
-            const filtered = { ...headers };
+            const filtered = { ...headers } as any;
             delete filtered.Authorization;
             delete filtered.Cookie;
 
@@ -141,7 +141,7 @@ describe('Sentry Configuration', () => {
             };
 
             // Simulate filtering
-            const sanitized = { ...breadcrumb.data };
+            const sanitized = { ...breadcrumb.data } as any;
             Object.keys(sanitized).forEach((key) => {
                 if (
                     key.toLowerCase().includes('token') ||

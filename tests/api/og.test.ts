@@ -1,4 +1,5 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest';
+import { NextRequest } from 'next/server';
 
 // Mock @vercel/og since it requires edge runtime
 vi.mock('@vercel/og', () => ({
@@ -20,7 +21,7 @@ describe('API: OG Image Generation', () => {
   });
 
   test('generates default OG image when no params provided', async () => {
-    const req = new Request('http://localhost/api/og');
+    const req = new NextRequest('http://localhost/api/og');
     const response = await GET(req);
 
     // ImageResponse is returned
@@ -31,7 +32,7 @@ describe('API: OG Image Generation', () => {
   });
 
   test('generates category OG image for valid category', async () => {
-    const req = new Request('http://localhost/api/og?category=morning-messages-for-her');
+    const req = new NextRequest('http://localhost/api/og?category=morning-messages-for-her');
     const response = await GET(req);
 
     expect(response).toBeDefined();
@@ -40,7 +41,7 @@ describe('API: OG Image Generation', () => {
   });
 
   test('generates streak card when streak param provided', async () => {
-    const req = new Request('http://localhost/api/og?streak=15&name=Luna');
+    const req = new NextRequest('http://localhost/api/og?streak=15&name=Luna');
     const response = await GET(req);
 
     expect(response).toBeDefined();
@@ -49,7 +50,7 @@ describe('API: OG Image Generation', () => {
   });
 
   test('falls back to default for invalid category', async () => {
-    const req = new Request('http://localhost/api/og?category=non-existent');
+    const req = new NextRequest('http://localhost/api/og?category=non-existent');
     const response = await GET(req);
 
     // Should still return a response (default card)
@@ -57,7 +58,7 @@ describe('API: OG Image Generation', () => {
   });
 
   test('handles streak with default name', async () => {
-    const req = new Request('http://localhost/api/og?streak=7');
+    const req = new NextRequest('http://localhost/api/og?streak=7');
     const response = await GET(req);
 
     expect(response).toBeDefined();

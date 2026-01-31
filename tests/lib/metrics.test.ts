@@ -303,7 +303,7 @@ describe('Metrics Utility', () => {
     describe('Error Handling', () => {
         it('should handle Sentry errors gracefully in production', () => {
             const originalEnv = process.env.NODE_ENV;
-            process.env.NODE_ENV = 'production';
+            Object.defineProperty(process.env, 'NODE_ENV', { value: 'production', writable: true });
 
             (mockMetrics.increment as ReturnType<typeof vi.fn>).mockImplementationOnce(() => {
                 throw new Error('Sentry error');
@@ -314,12 +314,12 @@ describe('Metrics Utility', () => {
                 metrics.increment('test.counter');
             }).not.toThrow();
 
-            process.env.NODE_ENV = originalEnv;
+            Object.defineProperty(process.env, 'NODE_ENV', { value: originalEnv, writable: true });
         });
 
         it('should log metrics in development mode when Sentry fails', () => {
             const originalEnv = process.env.NODE_ENV;
-            process.env.NODE_ENV = 'development';
+            Object.defineProperty(process.env, 'NODE_ENV', { value: 'development', writable: true });
             const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
 
             (mockMetrics.increment as ReturnType<typeof vi.fn>).mockImplementationOnce(() => {
@@ -334,7 +334,7 @@ describe('Metrics Utility', () => {
             );
 
             consoleSpy.mockRestore();
-            process.env.NODE_ENV = originalEnv;
+            Object.defineProperty(process.env, 'NODE_ENV', { value: originalEnv, writable: true });
         });
     });
 });
