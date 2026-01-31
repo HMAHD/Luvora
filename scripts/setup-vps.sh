@@ -7,13 +7,6 @@ echo "🚀 Luvora VPS Setup"
 echo "==================="
 echo ""
 
-# Check if running as root
-if [ "$EUID" -eq 0 ]; then
-  echo "⚠️  Please run as regular user, not root"
-  echo "   Use: su - your-username"
-  exit 1
-fi
-
 echo "This script will:"
 echo "1. Install Bun"
 echo "2. Install PM2"
