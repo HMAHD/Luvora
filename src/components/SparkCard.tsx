@@ -110,7 +110,7 @@ export function SparkCard() {
       }
     }
     loadSpark();
-  }, [user, role, isLegend]);
+  }, [user?.id, user?.recipient_role, user?.tier, isLegend, role]);
 
   const [copied, setCopied] = useState(false);
 
@@ -224,13 +224,22 @@ export function SparkCard() {
         variants={container}
         initial="hidden"
         animate="show"
-        className="mb-8"
+        className="mb-8 min-h-[120px] flex items-center justify-center"
       >
-        {message.content.split(" ").map((word, i) => (
-          <motion.span key={i} variants={item} className="inline-block mr-1 text-2xl sm:text-3xl font-serif leading-tight text-base-content">
-            {word}
-          </motion.span>
-        ))}
+        {sparkLoading ? (
+          <div className="flex flex-col items-center gap-3">
+            <span className="loading loading-spinner loading-lg text-primary"></span>
+            <span className="text-sm text-base-content/60">Generating your spark...</span>
+          </div>
+        ) : (
+          <div className="text-center">
+            {message.content.split(" ").map((word, i) => (
+              <motion.span key={i} variants={item} className="inline-block mr-1 text-2xl sm:text-3xl font-serif leading-tight text-base-content">
+                {word}
+              </motion.span>
+            ))}
+          </div>
+        )}
       </motion.div>
 
       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }} className="text-sm font-medium text-base-content mb-8 inline-block px-2">

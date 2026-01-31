@@ -372,15 +372,25 @@ export default function BlogArticleClient({ article }: BlogArticleClientProps) {
                             transition={{ duration: 0.6, delay: 0.4 }}
                             className="mt-12 pt-8 border-t border-base-content/10"
                         >
-                            <div className="flex flex-wrap gap-2">
-                                {article.keywords.map((keyword) => (
-                                    <span
-                                        key={keyword}
-                                        className="badge badge-ghost badge-sm bg-base-200"
-                                    >
-                                        {keyword}
-                                    </span>
-                                ))}
+                            <div className="flex items-center gap-3 mb-4">
+                                <Sparkles className="w-5 h-5 text-primary" />
+                                <h3 className="text-lg font-semibold text-base-content">Topics & Keywords</h3>
+                            </div>
+                            <div className="flex flex-wrap gap-2.5">
+                                {article.keywords.map((keyword, index) => {
+                                    const config = categoryConfig[article.category];
+                                    return (
+                                        <motion.span
+                                            key={keyword}
+                                            initial={{ opacity: 0, scale: 0.9 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            transition={{ duration: 0.3, delay: 0.4 + index * 0.05 }}
+                                            className={`badge ${config.color} border px-4 py-3 text-sm font-medium hover:shadow-md hover:scale-105 transition-all duration-200 cursor-default`}
+                                        >
+                                            {keyword}
+                                        </motion.span>
+                                    );
+                                })}
                             </div>
                         </motion.div>
 

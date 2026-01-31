@@ -36,9 +36,11 @@ import {
   Mail,
   Bug,
   Cloud,
+  FileText,
 } from 'lucide-react';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { TierAdjustmentTool } from '@/components/admin/TierAdjustmentTool';
+import { BlogPostManager } from '@/components/admin/BlogPostManager';
 import Link from 'next/link';
 import {
   TIER,
@@ -109,7 +111,7 @@ const INITIAL_PRICING: PricingConfig = DEFAULT_PRICING;
 
 function AdminContent() {
   const { pb } = useAuth();
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'analytics' | 'users' | 'content' | 'broadcasts' | 'partners' | 'settings'>('dashboard');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'analytics' | 'users' | 'content' | 'blog' | 'broadcasts' | 'partners' | 'settings'>('dashboard');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -416,6 +418,7 @@ function AdminContent() {
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'content', label: 'Content', icon: MessageSquare },
+    { id: 'blog', label: 'Blog', icon: FileText },
     { id: 'partners', label: 'Partners', icon: Link2 },
     { id: 'broadcasts', label: 'Broadcasts', icon: Send },
     { id: 'settings', label: 'Settings', icon: Settings },
@@ -1143,6 +1146,17 @@ function AdminContent() {
                 <div className="modal-backdrop" onClick={() => setEditingMessage(null)} />
               </div>
             )}
+          </motion.div>
+        )}
+
+        {/* Blog Tab */}
+        {activeTab === 'blog' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            <BlogPostManager />
           </motion.div>
         )}
 

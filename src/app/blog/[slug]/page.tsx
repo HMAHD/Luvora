@@ -20,26 +20,52 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         return { title: 'Article Not Found | Luvora' };
     }
 
+    const ogImageUrl = `/api/og?title=${encodeURIComponent(article.title)}&category=${article.category}`;
+
     return {
         title: `${article.title} | Luvora Blog`,
         description: article.description,
         keywords: article.keywords,
+        authors: [{ name: 'Luvora Team' }],
         openGraph: {
             title: article.title,
             description: article.description,
+            url: `https://luvora.love/blog/${slug}`,
             type: 'article',
             siteName: 'Luvora',
             publishedTime: article.publishedAt,
             modifiedTime: article.updatedAt,
-            authors: ['Luvora'],
+            authors: ['Luvora Team'],
+            images: [
+                {
+                    url: article.image || ogImageUrl,
+                    width: 1200,
+                    height: 630,
+                    alt: article.title,
+                },
+            ],
+            locale: 'en_US',
         },
         twitter: {
             card: 'summary_large_image',
             title: article.title,
             description: article.description,
+            images: [article.image || ogImageUrl],
+            creator: '@luvora',
         },
         alternates: {
-            canonical: `/blog/${slug}`,
+            canonical: `https://luvora.love/blog/${slug}`,
+        },
+        robots: {
+            index: true,
+            follow: true,
+            googleBot: {
+                index: true,
+                follow: true,
+                'max-video-preview': -1,
+                'max-image-preview': 'large',
+                'max-snippet': -1,
+            },
         },
     };
 }
@@ -47,9 +73,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 function generateArticleJsonLd(article: NonNullable<ReturnType<typeof getArticleBySlug>>) {
     return {
         '@context': 'https://schema.org',
-        '@type': 'Article',
+        '@type': 'BlogPosting',
         headline: article.title,
         description: article.description,
+        image: article.image ? [article.image] : [],
         author: {
             '@type': 'Organization',
             name: 'Luvora',
@@ -62,6 +89,8 @@ function generateArticleJsonLd(article: NonNullable<ReturnType<typeof getArticle
             logo: {
                 '@type': 'ImageObject',
                 url: 'https://luvora.love/icon.png',
+                width: 512,
+                height: 512,
             },
         },
         datePublished: article.publishedAt,
@@ -73,6 +102,12 @@ function generateArticleJsonLd(article: NonNullable<ReturnType<typeof getArticle
         keywords: article.keywords.join(', '),
         articleSection: article.category,
         wordCount: article.content.split(/\s+/).length,
+        inLanguage: 'en-US',
+        isAccessibleForFree: true,
+        about: {
+            '@type': 'Thing',
+            name: article.category.replace('-', ' '),
+        },
     };
 }
 

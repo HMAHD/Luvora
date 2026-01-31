@@ -19,22 +19,34 @@ import {
 
 const categoryConfig = {
     relationships: {
-        color: 'bg-rose-500/10 text-rose-600 border-rose-200',
+        color: 'from-rose-500/20 via-rose-500/10 to-transparent',
+        badgeColor: 'badge-error',
+        textColor: 'text-rose-600',
+        borderColor: 'border-rose-200',
         icon: Heart,
         label: 'Relationships',
     },
     communication: {
-        color: 'bg-violet-500/10 text-violet-600 border-violet-200',
+        color: 'from-violet-500/20 via-violet-500/10 to-transparent',
+        badgeColor: 'badge-secondary',
+        textColor: 'text-violet-600',
+        borderColor: 'border-violet-200',
         icon: MessageCircle,
         label: 'Communication',
     },
     tips: {
-        color: 'bg-amber-500/10 text-amber-600 border-amber-200',
+        color: 'from-amber-500/20 via-amber-500/10 to-transparent',
+        badgeColor: 'badge-warning',
+        textColor: 'text-amber-600',
+        borderColor: 'border-amber-200',
         icon: Sparkles,
         label: 'Tips & Ideas',
     },
     'love-languages': {
-        color: 'bg-pink-500/10 text-pink-600 border-pink-200',
+        color: 'from-pink-500/20 via-pink-500/10 to-transparent',
+        badgeColor: 'badge-primary',
+        textColor: 'text-pink-600',
+        borderColor: 'border-pink-200',
         icon: BookOpen,
         label: 'Love Languages',
     },
@@ -44,7 +56,7 @@ const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
-        transition: { staggerChildren: 0.08, delayChildren: 0.1 },
+        transition: { staggerChildren: 0.08, delayChildren: 0.2 },
     },
 };
 
@@ -59,43 +71,43 @@ function ArticleCard({ article, featured = false }: { article: BlogArticle; feat
 
     if (featured) {
         return (
-            <motion.div variants={itemVariants}>
+            <motion.div variants={itemVariants} className="mb-12">
                 <Link href={`/blog/${article.slug}`} className="group block">
-                    <article className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/5 via-base-100 to-secondary/5 border border-base-content/5 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1">
-                        {/* Featured Image */}
-                        <div className="relative h-64 md:h-80 overflow-hidden">
+                    <article className="relative overflow-hidden rounded-3xl bg-base-100 border border-base-content/5 hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5">
+                        {/* Featured Image with Gradient Overlay */}
+                        <div className="relative h-[400px] md:h-[500px] overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-t from-base-100 via-base-100/60 to-transparent z-10" />
                             <img
                                 src={article.image}
                                 alt={article.title}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
-                            <div className="absolute inset-0 bg-gradient-to-t from-base-100 via-base-100/50 to-transparent" />
 
-                            {/* Badges on image */}
-                            <div className="absolute top-4 left-4 flex items-center gap-2">
-                                <span className="badge badge-primary badge-lg gap-2 shadow-lg">
-                                    <Sparkles className="w-3.5 h-3.5" />
-                                    Featured
+                            {/* Floating Badges */}
+                            <div className="absolute top-6 left-6 flex items-center gap-2 z-20">
+                                <span className="badge badge-lg gap-2 shadow-2xl bg-white/95 dark:bg-white/90 backdrop-blur-md border border-primary/20 text-base-content">
+                                    <Sparkles className="w-4 h-4 text-primary" />
+                                    <span className="font-semibold text-gray-900">Featured</span>
                                 </span>
-                                <span className={`badge ${config.color} border gap-1.5 shadow-lg bg-base-100/90 backdrop-blur-sm`}>
-                                    <Icon className="w-3 h-3" />
-                                    {config.label}
+                                <span className={`badge ${config.badgeColor} border shadow-2xl gap-1.5 bg-white/95 dark:bg-white/90 backdrop-blur-md ${config.textColor}`}>
+                                    <Icon className="w-3.5 h-3.5" />
+                                    <span className="font-medium">{config.label}</span>
                                 </span>
                             </div>
                         </div>
 
-                        {/* Content */}
-                        <div className="relative p-8 md:p-10 -mt-16">
-                            <h2 className="text-2xl md:text-3xl font-bold text-base-content mb-4 leading-tight group-hover:text-primary transition-colors duration-300 font-romantic">
+                        {/* Content Overlay */}
+                        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-20">
+                            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-base-content mb-4 leading-tight group-hover:text-primary transition-colors duration-300 font-romantic">
                                 {article.title}
                             </h2>
 
-                            <p className="text-base-content/70 text-base leading-relaxed mb-6 max-w-2xl">
+                            <p className="text-base-content/80 text-lg leading-relaxed mb-6 max-w-3xl line-clamp-2">
                                 {article.description}
                             </p>
 
                             <div className="flex flex-wrap items-center justify-between gap-4">
-                                <div className="flex items-center gap-4 text-sm text-base-content/50">
+                                <div className="flex items-center gap-4 text-sm text-base-content/60">
                                     <span className="flex items-center gap-1.5">
                                         <Clock className="w-4 h-4" />
                                         {article.readingTime} min read
@@ -110,10 +122,10 @@ function ArticleCard({ article, featured = false }: { article: BlogArticle; feat
                                     </span>
                                 </div>
 
-                                <span className="inline-flex items-center gap-2 text-primary font-semibold group-hover:gap-3 transition-all duration-300">
+                                <div className="inline-flex items-center gap-2 text-primary font-semibold group-hover:gap-3 transition-all duration-300">
                                     Read Article
                                     <ArrowRight className="w-4 h-4" />
-                                </span>
+                                </div>
                             </div>
                         </div>
                     </article>
@@ -125,28 +137,28 @@ function ArticleCard({ article, featured = false }: { article: BlogArticle; feat
     return (
         <motion.div variants={itemVariants}>
             <Link href={`/blog/${article.slug}`} className="group block h-full">
-                <article className="h-full bg-base-100 rounded-2xl border border-base-content/5 overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-base-content/5 hover:-translate-y-1 hover:border-primary/20">
+                <article className="h-full bg-base-100 rounded-2xl border border-base-content/5 overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-base-content/5 hover:-translate-y-1 hover:border-primary/20">
                     {/* Article Image */}
-                    <div className="relative h-44 overflow-hidden">
+                    <div className="relative h-48 overflow-hidden">
+                        <div className={`absolute inset-0 bg-gradient-to-br ${config.color} opacity-60 z-10`} />
                         <img
                             src={article.image}
                             alt={article.title}
                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-base-100/80 to-transparent" />
 
                         {/* Category Badge */}
-                        <div className="absolute top-3 left-3">
-                            <span className={`badge ${config.color} border badge-sm gap-1 shadow-md bg-base-100/90 backdrop-blur-sm`}>
+                        <div className="absolute top-3 left-3 z-20">
+                            <span className={`badge gap-1 shadow-lg bg-white/95 dark:bg-white/90 backdrop-blur-sm border ${config.textColor}`}>
                                 <Icon className="w-3 h-3" />
-                                {config.label}
+                                <span className="font-medium">{config.label}</span>
                             </span>
                         </div>
                     </div>
 
                     {/* Content */}
-                    <div className="p-5">
-                        <h3 className="text-lg font-bold text-base-content mb-2 leading-snug group-hover:text-primary transition-colors duration-200 line-clamp-2">
+                    <div className="p-6">
+                        <h3 className="text-xl font-bold text-base-content mb-3 leading-snug group-hover:text-primary transition-colors duration-200 line-clamp-2 min-h-[3.5rem]">
                             {article.title}
                         </h3>
 
@@ -154,7 +166,7 @@ function ArticleCard({ article, featured = false }: { article: BlogArticle; feat
                             {article.description}
                         </p>
 
-                        <div className="flex items-center justify-between pt-3 border-t border-base-content/5">
+                        <div className="flex items-center justify-between pt-4 border-t border-base-content/5">
                             <div className="flex items-center gap-3 text-xs text-base-content/40">
                                 <span className="flex items-center gap-1">
                                     <Clock className="w-3 h-3" />
@@ -195,58 +207,64 @@ export default function BlogPage() {
     const otherArticles = filteredArticles.slice(1);
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-base-100 via-base-200/50 to-base-200">
-            {/* Elegant Header */}
-            <header className="sticky top-0 z-50 bg-base-100/80 backdrop-blur-xl border-b border-base-content/5">
-                <div className="max-w-6xl mx-auto px-4 py-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
-                            <Link
-                                href="/"
-                                className="btn btn-ghost btn-circle btn-sm hover:bg-primary/10 hover:text-primary transition-colors"
-                            >
-                                <ArrowLeft className="w-5 h-5" />
-                            </Link>
-                            <div>
-                                <Link href="/" className="text-xl font-bold text-base-content font-romantic hover:text-primary transition-colors">
-                                    Luvora
+        <div className="min-h-screen bg-gradient-to-b from-base-100 via-base-200/30 to-base-100">
+            {/* Elegant Floating Header */}
+            <header className="sticky top-4 z-50 max-w-7xl mx-auto px-4">
+                <div className="bg-base-100/80 backdrop-blur-2xl border border-base-content/10 rounded-2xl shadow-lg">
+                    <div className="px-6 py-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <Link
+                                    href="/"
+                                    className="btn btn-ghost btn-circle btn-sm hover:bg-primary/10 hover:text-primary transition-all hover:scale-105"
+                                >
+                                    <ArrowLeft className="w-5 h-5" />
                                 </Link>
-                                <p className="text-xs text-base-content/50">Love & Relationship Blog</p>
+                                <div>
+                                    <Link href="/" className="text-xl font-bold text-base-content font-romantic hover:text-primary transition-colors">
+                                        Luvora
+                                    </Link>
+                                    <p className="text-xs text-base-content/50">Relationship Blog</p>
+                                </div>
                             </div>
-                        </div>
 
-                        <Link href="/" className="btn btn-primary btn-sm gap-2">
-                            <Heart className="w-3.5 h-3.5" />
-                            Get Daily Sparks
-                        </Link>
+                            <Link href="/" className="btn btn-primary btn-sm gap-2 hover:scale-105 transition-transform">
+                                <Heart className="w-4 h-4 fill-current" />
+                                Get Daily Sparks
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </header>
 
-            <main className="max-w-6xl mx-auto px-4 py-12 md:py-16">
+            <main className="max-w-7xl mx-auto px-4 py-16 md:py-20">
                 {/* Hero Section */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="text-center mb-12"
+                    className="text-center mb-16"
                 >
-                    <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-medium mb-6">
-                        <BookOpen className="w-4 h-4" />
-                        Relationship Wisdom
+                    <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 border border-primary/20 px-5 py-2 rounded-full text-sm font-semibold mb-8 hover:scale-105 transition-transform">
+                        <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+                        Relationship Wisdom & Insights
                     </div>
 
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-base-content mb-6 font-romantic leading-tight">
-                        Nurture Your Love,
+                    <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-base-content mb-6 font-romantic leading-tight">
+                        Build Love That
                         <br />
-                        <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-                            Strengthen Your Bond
+                        <span className="relative inline-block">
+                            <span className="absolute -inset-1 bg-gradient-to-r from-primary via-secondary to-primary blur-xl opacity-30"></span>
+                            <span className="relative bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
+                                Lasts Forever
+                            </span>
                         </span>
                     </h1>
 
-                    <p className="text-lg md:text-xl text-base-content/60 max-w-2xl mx-auto leading-relaxed">
-                        Expert insights and heartfelt advice to help couples build deeper connections
-                        and keep the romance alive.
+                    <p className="text-xl md:text-2xl text-base-content/60 max-w-3xl mx-auto leading-relaxed">
+                        Expert advice and heartfelt insights to nurture deep connections
+                        <br className="hidden md:block" />
+                        and keep the romance alive in your relationship
                     </p>
                 </motion.div>
 
@@ -254,26 +272,26 @@ export default function BlogPage() {
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.1 }}
-                    className="mb-12"
+                    transition={{ duration: 0.6, delay: 0.15 }}
+                    className="mb-16"
                 >
                     <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
                         {/* Search */}
-                        <div className="relative w-full sm:w-80">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-base-content/40" />
+                        <div className="relative w-full sm:w-96">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-base-content/30" />
                             <input
                                 type="text"
-                                placeholder="Search articles..."
+                                placeholder="Search articles by title, keywords..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="input input-bordered w-full pl-11 pr-10 bg-base-100 border-base-content/10 focus:border-primary/50"
+                                className="input input-bordered w-full pl-12 pr-12 h-12 bg-base-100 border-base-content/10 focus:border-primary/50 rounded-xl transition-all"
                             />
                             {searchQuery && (
                                 <button
                                     onClick={() => setSearchQuery('')}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-base-content/40 hover:text-base-content"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-base-content/30 hover:text-base-content transition-colors"
                                 >
-                                    <X className="w-4 h-4" />
+                                    <X className="w-5 h-5" />
                                 </button>
                             )}
                         </div>
@@ -282,11 +300,11 @@ export default function BlogPage() {
                         <div className="flex flex-wrap gap-2 justify-center">
                             <button
                                 onClick={() => setSelectedCategory(null)}
-                                className={`btn btn-sm ${
-                                    !selectedCategory ? 'btn-primary' : 'btn-ghost'
+                                className={`btn btn-sm rounded-xl transition-all hover:scale-105 ${
+                                    !selectedCategory ? 'btn-primary shadow-lg shadow-primary/20' : 'btn-ghost'
                                 }`}
                             >
-                                All
+                                All Topics
                             </button>
                             {Object.entries(categoryConfig).map(([key, config]) => {
                                 const Icon = config.icon;
@@ -294,8 +312,8 @@ export default function BlogPage() {
                                     <button
                                         key={key}
                                         onClick={() => setSelectedCategory(selectedCategory === key ? null : key)}
-                                        className={`btn btn-sm gap-1.5 ${
-                                            selectedCategory === key ? 'btn-primary' : 'btn-ghost'
+                                        className={`btn btn-sm gap-1.5 rounded-xl transition-all hover:scale-105 ${
+                                            selectedCategory === key ? `btn-primary shadow-lg shadow-primary/20` : 'btn-ghost'
                                         }`}
                                     >
                                         <Icon className="w-3.5 h-3.5" />
@@ -305,6 +323,17 @@ export default function BlogPage() {
                             })}
                         </div>
                     </div>
+
+                    {/* Results Count */}
+                    {(searchQuery || selectedCategory) && (
+                        <motion.p
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            className="text-center mt-4 text-sm text-base-content/60"
+                        >
+                            Found <span className="font-semibold text-primary">{filteredArticles.length}</span> {filteredArticles.length === 1 ? 'article' : 'articles'}
+                        </motion.p>
+                    )}
                 </motion.div>
 
                 {/* Articles */}
@@ -312,15 +341,27 @@ export default function BlogPage() {
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="text-center py-16"
+                        className="text-center py-20"
                     >
-                        <Heart className="w-12 h-12 text-base-content/20 mx-auto mb-4" />
-                        <h3 className="text-xl font-semibold text-base-content/60 mb-2">
+                        <div className="inline-flex p-8 rounded-full bg-base-200/50 mb-6">
+                            <Heart className="w-16 h-16 text-base-content/20" />
+                        </div>
+                        <h3 className="text-2xl font-semibold text-base-content/60 mb-3">
                             No articles found
                         </h3>
-                        <p className="text-base-content/40">
+                        <p className="text-base-content/40 mb-6">
                             Try adjusting your search or filter
                         </p>
+                        <button
+                            onClick={() => {
+                                setSearchQuery('');
+                                setSelectedCategory(null);
+                            }}
+                            className="btn btn-primary gap-2"
+                        >
+                            <X className="w-4 h-4" />
+                            Clear Filters
+                        </button>
                     </motion.div>
                 ) : (
                     <motion.div
@@ -329,15 +370,11 @@ export default function BlogPage() {
                         animate="visible"
                     >
                         {/* Featured Article */}
-                        {featuredArticle && (
-                            <div className="mb-12">
-                                <ArticleCard article={featuredArticle} featured />
-                            </div>
-                        )}
+                        {featuredArticle && <ArticleCard article={featuredArticle} featured />}
 
-                        {/* Article Grid */}
+                        {/* Other Articles Grid */}
                         {otherArticles.length > 0 && (
-                            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                                 {otherArticles.map((article) => (
                                     <ArticleCard key={article.slug} article={article} />
                                 ))}
@@ -346,57 +383,85 @@ export default function BlogPage() {
                     </motion.div>
                 )}
 
-                {/* Newsletter CTA */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.4 }}
-                    className="mt-20"
-                >
-                    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary to-secondary p-8 md:p-12 text-center">
-                        {/* Decorative */}
-                        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4xIj48cGF0aCBkPSJNMzYgMzRjMC0yIDItNCAyLTRzMiAyIDIgNGMwIDItMiA0LTIgNHMtMi0yLTItNHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-30" />
+                {/* Bottom CTA - Blog Card Style */}
+                {filteredArticles.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                        className="mt-20"
+                    >
+                        <Link href="/" className="group block relative overflow-hidden rounded-3xl border border-primary/20 bg-base-100 shadow-2xl hover:shadow-primary/20 transition-all duration-500 hover:-translate-y-2">
+                            {/* Background Image with Gradient Overlay */}
+                            <div className="relative h-[400px] md:h-[500px] overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-rose-500 via-pink-500 to-purple-600"></div>
+                                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=1200&q=80')] bg-cover bg-center opacity-20 group-hover:scale-110 transition-transform duration-700"></div>
 
-                        <div className="relative">
-                            <Heart className="w-12 h-12 text-primary-content/80 mx-auto mb-4" />
-                            <h3 className="text-2xl md:text-3xl font-bold text-primary-content mb-4 font-romantic">
-                                Ready to Spark More Love?
-                            </h3>
-                            <p className="text-primary-content/80 mb-6 max-w-lg mx-auto">
-                                Get a personalized romantic message delivered to your partner every day.
-                                Start your free streak today!
-                            </p>
-                            <Link
-                                href="/"
-                                className="btn btn-lg bg-white text-primary hover:bg-white/90 border-none shadow-lg"
-                            >
-                                <Sparkles className="w-5 h-5" />
-                                Start Free
-                            </Link>
-                        </div>
-                    </div>
-                </motion.div>
+                                {/* Gradient Overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent"></div>
+
+                                {/* Featured Badge */}
+                                <div className="absolute top-6 left-6">
+                                    <span className="badge badge-lg gap-2 shadow-2xl bg-white/95 dark:bg-white/90 backdrop-blur-md border border-primary/20">
+                                        <Sparkles className="w-4 h-4 text-primary" />
+                                        <span className="font-semibold text-gray-900">Free Forever</span>
+                                    </span>
+                                </div>
+
+                                {/* Content */}
+                                <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <Heart className="w-5 h-5 text-rose-400 fill-current" />
+                                        <span className="text-rose-400 font-medium">Transform Your Relationship</span>
+                                    </div>
+
+                                    <h3 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">
+                                        Join 10,000+ Couples Getting Daily Sparks
+                                    </h3>
+
+                                    <p className="text-white/90 text-lg md:text-xl mb-6 max-w-2xl leading-relaxed">
+                                        Don't let another day pass without deepening your connection. Get one personalized message daily—designed to bring you closer, spark meaningful conversations, and keep the romance alive.
+                                    </p>
+
+                                    <div className="flex flex-wrap items-center gap-6 text-white/80">
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                            <span className="text-sm font-medium">100% Free</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                            <span className="text-sm font-medium">No Credit Card</span>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                                            <span className="text-sm font-medium">Start in 30 Seconds</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-8">
+                                        <span className="inline-flex items-center gap-3 px-8 py-4 bg-white text-gray-900 rounded-full font-bold text-lg shadow-2xl group-hover:bg-primary group-hover:text-white transition-all duration-300 group-hover:gap-4">
+                                            Start Your Free Journey
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                            </svg>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </Link>
+                    </motion.div>
+                )}
             </main>
 
             {/* Footer */}
-            <footer className="border-t border-base-content/5 py-8 mt-8">
-                <div className="max-w-6xl mx-auto px-4">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-base-content/50">
-                        <p className="font-romantic text-base-content/60">
-                            Luvora — Daily sparks of love
-                        </p>
-                        <div className="flex gap-6">
-                            <Link href="/" className="hover:text-primary transition-colors">
-                                Home
-                            </Link>
-                            <Link href="/pricing" className="hover:text-primary transition-colors">
-                                Pricing
-                            </Link>
-                            <Link href="/privacy" className="hover:text-primary transition-colors">
-                                Privacy
-                            </Link>
-                        </div>
-                    </div>
+            <footer className="border-t border-base-content/5 mt-20">
+                <div className="max-w-7xl mx-auto px-4 py-12 text-center">
+                    <Link href="/" className="text-2xl font-bold font-romantic hover:text-primary transition-colors inline-block mb-4">
+                        Luvora
+                    </Link>
+                    <p className="text-base-content/50 text-sm">
+                        Nurturing relationships, one spark at a time
+                    </p>
                 </div>
             </footer>
         </div>

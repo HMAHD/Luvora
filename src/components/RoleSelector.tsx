@@ -25,24 +25,33 @@ export function RoleSelector() {
 
         if (user?.id) {
             try {
-                // Update PocketBase user record
-                await pb.collection('users').update(user.id, {
-                    recipient_role: newRole,
-                });
-
-                // Directly update auth store record to trigger onChange in ALL components
-                // This ensures SparkCard and other components see the change immediately
+                // CRITICAL: Update auth store FIRST to trigger immediate UI updates
+                // This ensures SparkCard sees the change before the database roundtrip
                 const currentRecord = pb.authStore.record;
                 if (currentRecord) {
+                    // Create a NEW object to ensure React detects the change
                     pb.authStore.save(pb.authStore.token!, {
                         ...currentRecord,
                         recipient_role: newRole,
                     });
                 }
+
+                // Then update PocketBase (async in background)
+                await pb.collection('users').update(user.id, {
+                    recipient_role: newRole,
+                });
             } catch (err) {
                 console.error('Failed to update role:', err);
                 // Revert on error
                 setLocalRole((user.recipient_role as Role) || 'neutral');
+                // Revert auth store
+                const currentRecord = pb.authStore.record;
+                if (currentRecord) {
+                    pb.authStore.save(pb.authStore.token!, {
+                        ...currentRecord,
+                        recipient_role: (user.recipient_role as Role) || 'neutral',
+                    });
+                }
             }
         }
     };

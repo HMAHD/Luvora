@@ -23,6 +23,9 @@ Welcome to the Luvora wiki! Complete documentation for development, deployment, 
 - **[LemonSqueezy Setup](lemon-squeezy-setup)** - Payment integration
 - **[Sentry Setup](SENTRY_SETUP)** - Error tracking and monitoring
 
+### Content Management
+- **[Blog Setup](Blog-Setup)** - Complete blog system setup and management
+
 ### Technical Architecture
 - **[PocketBase Collections](POCKETBASE_COLLECTIONS)** - Database schema
 - **[Email Templates](email-templates)** - Email template documentation
