@@ -14,6 +14,11 @@ jobs:
       url: https://staging.luvora.love
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -21,17 +26,61 @@ jobs:
           username: ${{ secrets.STAGING_VPS_USER }}
           key: ${{ secrets.STAGING_VPS_SSH_KEY }}
           script: |
-            cd /home/luvora-staging
-            git fetch origin
-            git reset --hard origin/develop
+            set -e  # Exit on any error
+
+            APP_DIR="/home/luvora-staging"
+            REPO_DIR="$APP_DIR/Luvora"
+
+            # Create directory if it doesn't exist
+            mkdir -p "$APP_DIR"
+
+            # Clone repo if it doesn't exist, otherwise pull
+            if [ ! -d "$REPO_DIR" ]; then
+              echo "📦 First time setup: Cloning repository..."
+              cd "$APP_DIR"
+              git clone https://github.com/HMAHD/Luvora.git
+              cd "$REPO_DIR"
+              git checkout develop
+            else
+              echo "🔄 Updating existing repository..."
+              cd "$REPO_DIR"
+              git fetch origin
+              git reset --hard origin/develop
+            fi
+
+            # Check if .env.local exists
+            if [ ! -f "$REPO_DIR/.env.local" ]; then
+              echo "⚠️  Warning: .env.local not found! Please create it manually."
+              echo "Deployment will continue but app may not work correctly."
+            fi
+
+            # Create logs directory
+            mkdir -p "$REPO_DIR/logs"
+
+            # Install dependencies
+            echo "📦 Installing dependencies..."
             bun install --frozen-lockfile
+
+            # Build the application
+            echo "🔨 Building application..."
             bun run build
-            pm2 reload luvora-staging-3003 --update-env
+
+            # Check if PM2 process exists
+            if pm2 describe luvora-staging-3003 > /dev/null 2>&1; then
+              echo "♻️  Reloading PM2 process..."
+              pm2 reload luvora-staging-3003 --update-env
+            else
+              echo "🚀 Starting PM2 process for first time..."
+              pm2 start ecosystem.config.js --only luvora-staging-3003
+            fi
+
             pm2 save
+
+            echo "✅ Deployment completed successfully!"
 
       - name: Health check
         run: |
-          sleep 10
+          sleep 15
           curl -f https://staging.luvora.love/api/health || exit 1
 
       - name: Notify Sentry of deployment
