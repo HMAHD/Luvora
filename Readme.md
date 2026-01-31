@@ -1,8 +1,15 @@
-# ⚡️ Luvora
-> **The Deterministic Daily Spark.**
-> *Meaningful connection, one day at a time.*
+<div align="center">
 
-![Gradient Line](https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.png)
+# ⚡️ Luvora
+
+**The Deterministic Daily Spark.**
+*Meaningful connection, one day at a time.*
+
+<br/>
+
+</div>
+
+---
 
 <div align="center">
 
@@ -43,7 +50,7 @@ Built with the **"Mirat" Spirit** (Meaningful, Intentional, Ritualistic, Authent
 - **🚀 CI/CD**: Automated testing and deployment with GitHub Actions
 - **🔄 Zero-Downtime Deployments**: PM2 with health checks and automatic rollbacks
 
-![Gradient Line](https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.png)
+---
 
 ## 🛠 Tech Stack
 
@@ -69,7 +76,7 @@ Built with the **"Mirat" Spirit** (Meaningful, Intentional, Ritualistic, Authent
 - **SSL**: Let's Encrypt via Certbot
 - **Environments**: Staging (develop) & Production (main)
 
-![Gradient Line](https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.png)
+---
 
 ## 🚀 Getting Started
 
@@ -121,7 +128,7 @@ Built with the **"Mirat" Spirit** (Meaningful, Intentional, Ritualistic, Authent
 
 Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-![Gradient Line](https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.png)
+---
 
 ## 📚 Documentation
 
@@ -140,7 +147,7 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 - **[Testing Guide](tests/README.md)** - Unit and integration test examples
 - **[Roadmap](docs/ROADMAP.md)** - Feature planning and implementation phases
 
-![Gradient Line](https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.png)
+---
 
 ## 🔧 Configuration
 
@@ -171,7 +178,7 @@ WHAPI_API_TOKEN=your-whapi-token
 
 **📖 See [.env.example](.env.example) for complete configuration**
 
-![Gradient Line](https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.png)
+---
 
 ## 🚀 Deployment
 
@@ -214,7 +221,7 @@ GitHub Actions
   Notify Sentry
 ```
 
-![Gradient Line](https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.png)
+---
 
 ## 🧪 Testing
 
@@ -240,7 +247,7 @@ bun run tsc --noEmit
 - API route tests (health checks, webhooks)
 - Integration tests (Sentry, database)
 
-![Gradient Line](https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.png)
+---
 
 ## 📊 Monitoring & Observability
 
@@ -267,7 +274,7 @@ sum(d:custom/automation.sent@none{success:true}) / sum(d:custom/automation.sent@
 
 See [docs/METRICS.md](docs/METRICS.md) for complete metrics documentation.
 
-![Gradient Line](https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.png)
+---
 
 ## 🗺 Roadmap Status
 
@@ -285,7 +292,7 @@ See [docs/METRICS.md](docs/METRICS.md) for complete metrics documentation.
 
 **[📖 View Full Roadmap](docs/ROADMAP.md)**
 
-![Gradient Line](https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.png)
+---
 
 ## 🤝 Contributing
 
@@ -303,7 +310,7 @@ We welcome contributions! Please follow these guidelines:
 - Update documentation for new features
 - Keep commits atomic and well-described
 
-![Gradient Line](https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.png)
+---
 
 ## 📝 License
 
