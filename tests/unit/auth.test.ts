@@ -20,8 +20,17 @@ const localStorageMock = (() => {
 })();
 
 Object.defineProperty(global, 'localStorage', {
-    value: localStorageMock
+    value: localStorageMock,
+    writable: true,
 });
+
+// Also set it on window for browser environment
+if (typeof window !== 'undefined') {
+    Object.defineProperty(window, 'localStorage', {
+        value: localStorageMock,
+        writable: true,
+    });
+}
 
 describe('Auth: Hydration & LocalStorage', () => {
     beforeEach(() => {

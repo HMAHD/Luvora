@@ -18,6 +18,19 @@ vi.mock('@/lib/pocketbase', () => ({
 // Mock fetch for Telegram API calls
 global.fetch = vi.fn();
 
+// Helper to create mock request
+function createMockRequest(update: any, secret: string = 'test_secret'): NextRequest {
+    return {
+        headers: {
+            get: (name: string) => {
+                if (name === 'X-Telegram-Bot-Api-Secret-Token') return secret;
+                return null;
+            },
+        },
+        json: async () => update,
+    } as any as NextRequest;
+}
+
 describe('/api/webhooks/telegram endpoint', () => {
     beforeEach(() => {
         vi.clearAllMocks();
@@ -44,14 +57,7 @@ describe('/api/webhooks/telegram endpoint', () => {
                 },
             };
 
-            const request = new NextRequest('http://localhost/api/webhooks/telegram', {
-                method: 'POST',
-                headers: {
-                    'X-Telegram-Bot-Api-Secret-Token': 'test_secret',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(update),
-            });
+            const request = createMockRequest(update);
 
             const { POST } = await import('@/app/api/webhooks/telegram/route');
             const response = await POST(request);
@@ -65,14 +71,7 @@ describe('/api/webhooks/telegram endpoint', () => {
                 message: { text: '/start' },
             };
 
-            const request = new NextRequest('http://localhost/api/webhooks/telegram', {
-                method: 'POST',
-                headers: {
-                    'X-Telegram-Bot-Api-Secret-Token': 'wrong_secret',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(update),
-            });
+            const request = createMockRequest(update, 'wrong_secret');
 
             const { POST } = await import('@/app/api/webhooks/telegram/route');
             const response = await POST(request);
@@ -95,14 +94,7 @@ describe('/api/webhooks/telegram endpoint', () => {
                 },
             };
 
-            const request = new NextRequest('http://localhost/api/webhooks/telegram', {
-                method: 'POST',
-                headers: {
-                    'X-Telegram-Bot-Api-Secret-Token': 'test_secret',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(update),
-            });
+            const request = createMockRequest(update);
 
             const { POST } = await import('@/app/api/webhooks/telegram/route');
             await POST(request);
@@ -132,14 +124,7 @@ describe('/api/webhooks/telegram endpoint', () => {
                 },
             };
 
-            const request = new NextRequest('http://localhost/api/webhooks/telegram', {
-                method: 'POST',
-                headers: {
-                    'X-Telegram-Bot-Api-Secret-Token': 'test_secret',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(update),
-            });
+            const request = createMockRequest(update);
 
             const { POST } = await import('@/app/api/webhooks/telegram/route');
             await POST(request);
@@ -166,7 +151,7 @@ describe('/api/webhooks/telegram endpoint', () => {
                     status: 'active',
                 }),
             };
-            vi.mocked(pb.collection).mockReturnValue(mockCollection as any);
+            (pb.collection as any).mockReturnValue(mockCollection as any);
 
             const update = {
                 update_id: 123,
@@ -179,14 +164,7 @@ describe('/api/webhooks/telegram endpoint', () => {
                 },
             };
 
-            const request = new NextRequest('http://localhost/api/webhooks/telegram', {
-                method: 'POST',
-                headers: {
-                    'X-Telegram-Bot-Api-Secret-Token': 'test_secret',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(update),
-            });
+            const request = createMockRequest(update);
 
             const { POST } = await import('@/app/api/webhooks/telegram/route');
             await POST(request);
@@ -202,7 +180,7 @@ describe('/api/webhooks/telegram endpoint', () => {
             const mockCollection = {
                 getFirstListItem: vi.fn().mockRejectedValue(new Error('Not found')),
             };
-            vi.mocked(pb.collection).mockReturnValue(mockCollection as any);
+            (pb.collection as any).mockReturnValue(mockCollection as any);
 
             const update = {
                 update_id: 123,
@@ -215,14 +193,7 @@ describe('/api/webhooks/telegram endpoint', () => {
                 },
             };
 
-            const request = new NextRequest('http://localhost/api/webhooks/telegram', {
-                method: 'POST',
-                headers: {
-                    'X-Telegram-Bot-Api-Secret-Token': 'test_secret',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(update),
-            });
+            const request = createMockRequest(update);
 
             const { POST } = await import('@/app/api/webhooks/telegram/route');
             await POST(request);
@@ -252,14 +223,7 @@ describe('/api/webhooks/telegram endpoint', () => {
                 },
             };
 
-            const request = new NextRequest('http://localhost/api/webhooks/telegram', {
-                method: 'POST',
-                headers: {
-                    'X-Telegram-Bot-Api-Secret-Token': 'test_secret',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(update),
-            });
+            const request = createMockRequest(update);
 
             const { POST } = await import('@/app/api/webhooks/telegram/route');
             await POST(request);
@@ -304,14 +268,7 @@ describe('/api/webhooks/telegram endpoint', () => {
                 },
             };
 
-            const request = new NextRequest('http://localhost/api/webhooks/telegram', {
-                method: 'POST',
-                headers: {
-                    'X-Telegram-Bot-Api-Secret-Token': 'test_secret',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(update),
-            });
+            const request = createMockRequest(update);
 
             const { POST } = await import('@/app/api/webhooks/telegram/route');
             const response = await POST(request);
