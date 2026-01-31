@@ -7,6 +7,10 @@ echo "🚀 Luvora Production Setup"
 echo "==========================="
 echo ""
 
+# Setup Bun environment
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
 APP_DIR="/home/luvora-production"
 REPO_DIR="$APP_DIR/Luvora"
 

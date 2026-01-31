@@ -28,6 +28,10 @@ jobs:
           script: |
             set -e  # Exit on any error
 
+            # Setup Bun environment
+            export BUN_INSTALL="$HOME/.bun"
+            export PATH="$BUN_INSTALL/bin:$PATH"
+
             APP_DIR="/home/luvora-staging"
             REPO_DIR="$APP_DIR/Luvora"
 
