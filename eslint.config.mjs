@@ -33,9 +33,10 @@ const eslintConfig = defineConfig([
   {
     files: ["tests/**/*.ts", "tests/**/*.tsx", "**/*.test.ts", "**/*.test.tsx"],
     rules: {
-      // Allow any types in test files
+      // Allow any types and relaxed rules in test files
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
     }
   }
 ]);

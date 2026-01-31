@@ -46,7 +46,6 @@ export const metrics = {
      */
     gauge: (name: string, value: number, tags?: Record<string, string>) => {
         try {
-            // @ts-expect-error - Sentry metrics API may not be available in all versions
             if (Sentry.metrics && typeof Sentry.metrics.gauge === 'function') {
                 // @ts-expect-error - Sentry metrics API may not be available in all versions
                 Sentry.metrics.gauge(name, value, { tags });
@@ -74,7 +73,6 @@ export const metrics = {
         unit?: string
     ) => {
         try {
-            // @ts-expect-error - Sentry metrics API may not be available in all versions
             if (Sentry.metrics && typeof Sentry.metrics.distribution === 'function') {
                 // @ts-expect-error - Sentry metrics API may not be available in all versions
                 Sentry.metrics.distribution(name, value, { tags, unit });

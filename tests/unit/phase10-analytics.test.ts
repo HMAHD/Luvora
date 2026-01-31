@@ -40,7 +40,7 @@ describe('Phase 10: Spark Event Tracking', () => {
     beforeEach(() => {
         mockGtag = vi.fn();
         (globalThis as { gtag?: typeof mockGtag }).gtag = mockGtag;
-        (globalThis.window as { gtag?: typeof mockGtag }).gtag = mockGtag;
+        (globalThis.window as unknown as { gtag?: typeof mockGtag }).gtag = mockGtag;
     });
 
     afterEach(() => {
