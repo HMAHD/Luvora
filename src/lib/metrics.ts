@@ -19,7 +19,15 @@ export const metrics = {
      */
     increment: (name: string, value = 1, tags?: Record<string, string>) => {
         try {
-            Sentry.metrics.increment(name, value, { tags });
+            // Check if Sentry metrics API is available
+            if (Sentry.metrics && typeof Sentry.metrics.increment === 'function') {
+                Sentry.metrics.increment(name, value, { tags });
+            } else {
+                // Fallback: log as custom event
+                if (process.env.NODE_ENV === 'development') {
+                    console.log(`[Metrics] ${name}: +${value}`, tags);
+                }
+            }
         } catch (error) {
             // Silently fail in development or if Sentry not initialized
             if (process.env.NODE_ENV === 'development') {
@@ -36,7 +44,11 @@ export const metrics = {
      */
     gauge: (name: string, value: number, tags?: Record<string, string>) => {
         try {
-            Sentry.metrics.gauge(name, value, { tags });
+            if (Sentry.metrics && typeof Sentry.metrics.gauge === 'function') {
+                Sentry.metrics.gauge(name, value, { tags });
+            } else if (process.env.NODE_ENV === 'development') {
+                console.log(`[Metrics] ${name}: ${value}`, tags);
+            }
         } catch (error) {
             if (process.env.NODE_ENV === 'development') {
                 console.log(`[Metrics] ${name}: ${value}`, tags);
@@ -58,7 +70,11 @@ export const metrics = {
         unit?: string
     ) => {
         try {
-            Sentry.metrics.distribution(name, value, { tags, unit });
+            if (Sentry.metrics && typeof Sentry.metrics.distribution === 'function') {
+                Sentry.metrics.distribution(name, value, { tags, unit });
+            } else if (process.env.NODE_ENV === 'development') {
+                console.log(`[Metrics] ${name}: ${value}${unit ? unit : ''}`, tags);
+            }
         } catch (error) {
             if (process.env.NODE_ENV === 'development') {
                 console.log(`[Metrics] ${name}: ${value}${unit ? unit : ''}`, tags);
@@ -74,7 +90,11 @@ export const metrics = {
      */
     set: (name: string, value: string | number, tags?: Record<string, string>) => {
         try {
-            Sentry.metrics.set(name, value, { tags });
+            if (Sentry.metrics && typeof Sentry.metrics.set === 'function') {
+                Sentry.metrics.set(name, value, { tags });
+            } else if (process.env.NODE_ENV === 'development') {
+                console.log(`[Metrics] ${name}: ${value}`, tags);
+            }
         } catch (error) {
             if (process.env.NODE_ENV === 'development') {
                 console.log(`[Metrics] ${name}: ${value}`, tags);
