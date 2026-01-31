@@ -1,0 +1,56 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Production Environment
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://luvora.love
+
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.PRODUCTION_VPS_HOST }}
+          username: ${{ secrets.PRODUCTION_VPS_USER }}
+          key: ${{ secrets.PRODUCTION_VPS_SSH_KEY }}
+          script: |
+            cd /home/luvora-production
+            git fetch origin
+            git reset --hard origin/main
+            bun install --frozen-lockfile
+            bun run build
+            pm2 reload luvora-production-3002 --update-env
+            pm2 save
+
+      - name: Health check
+        run: |
+          sleep 15
+          curl -f https://luvora.love/api/health || exit 1
+
+      - name: Notify Sentry of deployment
+        if: success()
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: akash-hasendra
+          SENTRY_PROJECT: luvora
+        with:
+          environment: production
+          version: ${{ github.sha }}
+
+      - name: Deployment notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "Production deployment successful!"
+          else
+            echo "Production deployment failed!"
+            exit 1
+          fi

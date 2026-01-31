@@ -14,6 +14,7 @@ import { RoleSelector } from './RoleSelector';
 import { incrementGlobalStats } from '@/actions/stats';
 import { trackUserActivity } from '@/actions/engagement';
 import { TIER } from '@/lib/types';
+import { trackEvent } from '@/lib/metrics';
 
 type Role = 'neutral' | 'masculine' | 'feminine';
 
@@ -155,7 +156,13 @@ export function SparkCard() {
       // Track user engagement for streaks
       if (user?.id) {
         await trackUserActivity(user.id, 'copy');
+        trackEvent.dailyActiveUser(user.id, isLegend ? 'legend' : isHeroPlus ? 'hero' : 'free');
       }
+      // Track Sentry metrics
+      trackEvent.sparkCopied(
+        isLegend ? 'legend' : isHeroPlus ? 'hero' : 'free',
+        isNight ? 'night' : 'morning'
+      );
     } catch (err) {
       console.error("Failed to increment stats", err);
     }
@@ -171,11 +178,21 @@ export function SparkCard() {
         console.error("Failed to track share", err);
       }
     }
+    // Track Sentry metrics
+    trackEvent.streakShared(
+      isLegend ? 'legend' : isHeroPlus ? 'hero' : 'free',
+      'card'
+    );
     setIsShareOpen(true);
   };
 
   const handleUpgradeClick = () => {
     trackUpgradeModal('spark_card');
+    // Track Sentry metrics
+    trackEvent.upgradeStarted(
+      userTier === TIER.FREE ? 'free' : 'hero',
+      userTier === TIER.FREE ? 'hero' : 'legend'
+    );
     setIsUpgradeOpen(true);
   };
 

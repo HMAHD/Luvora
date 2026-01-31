@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import PocketBase from 'pocketbase';
 import { trackUpgradeCompletedServer } from '@/lib/analytics-server';
+import { trackEvent, serverMetrics } from '@/lib/metrics';
 
 // Tier constants (0=Free, 1=Hero, 2=Legend)
 const TIER = {
@@ -11,6 +12,7 @@ const TIER = {
 } as const;
 
 export async function POST(request: Request) {
+    const startTime = Date.now();
     try {
         // 1. Raw Body Reading (Text) for Signature Verification
         const rawBody = await request.text();
@@ -87,17 +89,30 @@ export async function POST(request: Request) {
                         transactionId: orderId,
                     });
 
+                    // Track Sentry metrics for payment
+                    trackEvent.upgradeCompleted(purchasedTier as 'hero' | 'legend', 'lemonsqueezy');
+                    trackEvent.paymentReceived(
+                        orderTotal / 100,
+                        purchasedTier as 'hero' | 'legend',
+                        payload.data?.attributes?.currency || 'USD'
+                    );
+
                 } catch (err: unknown) {
                     console.error("User lookup failed:", err);
+                    trackEvent.paymentFailed('unknown', 'user_not_found');
+                    serverMetrics.webhookProcessed('lemonsqueezy', false, Date.now() - startTime);
                     return NextResponse.json({ error: 'User not found' }, { status: 404 });
                 }
             }
         }
 
+        serverMetrics.webhookProcessed('lemonsqueezy', true, Date.now() - startTime);
         return NextResponse.json({ received: true });
 
     } catch (error: unknown) {
         console.error('Webhook error:', error);
+        serverMetrics.webhookProcessed('lemonsqueezy', false, Date.now() - startTime);
+        trackEvent.apiError('/api/webhooks/payments', error instanceof Error ? error.message : 'unknown', 500);
         return NextResponse.json({ error: error instanceof Error ? error.message : "Unknown error" }, { status: 500 });
     }
 }

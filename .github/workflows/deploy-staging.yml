@@ -1,0 +1,55 @@
+name: Deploy to Staging
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Staging Environment
+    runs-on: ubuntu-latest
+    environment:
+      name: staging
+      url: https://staging.luvora.love
+
+    steps:
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.STAGING_VPS_HOST }}
+          username: ${{ secrets.STAGING_VPS_USER }}
+          key: ${{ secrets.STAGING_VPS_SSH_KEY }}
+          script: |
+            cd /home/luvora-staging
+            git fetch origin
+            git reset --hard origin/develop
+            bun install --frozen-lockfile
+            bun run build
+            pm2 reload luvora-staging-3003 --update-env
+            pm2 save
+
+      - name: Health check
+        run: |
+          sleep 10
+          curl -f https://staging.luvora.love/api/health || exit 1
+
+      - name: Notify Sentry of deployment
+        if: success()
+        uses: getsentry/action-release@v1
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: akash-hasendra
+          SENTRY_PROJECT: luvora
+        with:
+          environment: staging
+          version: ${{ github.sha }}
+
+      - name: Deployment notification
+        if: always()
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "Staging deployment successful!"
+          else
+            echo "Staging deployment failed!"
+          fi

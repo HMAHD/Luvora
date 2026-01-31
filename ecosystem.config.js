@@ -1,0 +1,50 @@
+module.exports = {
+  apps: [
+    {
+      name: 'luvora-production-3002',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start',
+      cwd: '/home/luvora-production',
+      instances: 1,
+      exec_mode: 'cluster',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 3002,
+      },
+      error_file: '/home/luvora-production/logs/pm2-error.log',
+      out_file: '/home/luvora-production/logs/pm2-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      merge_logs: true,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '1G',
+      env_production: {
+        NODE_ENV: 'production',
+        PORT: 3002,
+      },
+    },
+    {
+      name: 'luvora-staging-3003',
+      script: 'node_modules/next/dist/bin/next',
+      args: 'start',
+      cwd: '/home/luvora-staging',
+      instances: 1,
+      exec_mode: 'cluster',
+      env: {
+        NODE_ENV: 'production',
+        PORT: 3003,
+      },
+      error_file: '/home/luvora-staging/logs/pm2-error.log',
+      out_file: '/home/luvora-staging/logs/pm2-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+      merge_logs: true,
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '512M',
+      env_staging: {
+        NODE_ENV: 'production',
+        PORT: 3003,
+      },
+    },
+  ],
+};

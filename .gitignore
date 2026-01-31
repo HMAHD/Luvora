@@ -72,3 +72,7 @@ next-env.d.ts
 .env.*.local
 .env
 
+
+# Sentry
+.sentryclirc
+docs/GITHUB_SECRETS.md

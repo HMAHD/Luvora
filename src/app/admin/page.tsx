@@ -32,6 +32,10 @@ import {
   ExternalLink,
   Save,
   BarChart3,
+  Github,
+  Mail,
+  Bug,
+  Cloud,
 } from 'lucide-react';
 import { AnalyticsDashboard } from '@/components/admin/AnalyticsDashboard';
 import { TierAdjustmentTool } from '@/components/admin/TierAdjustmentTool';
@@ -579,9 +583,11 @@ function AdminContent() {
                       target="_blank"
                       rel="noopener noreferrer"
                       className="btn btn-outline btn-sm gap-2"
+                      title="Logged in with Gmail"
                     >
                       <DollarSign className="w-4 h-4" />
                       Lemon Squeezy
+                      <Mail className="w-3 h-3 opacity-60" />
                     </a>
                     <a
                       href={`${process.env.NEXT_PUBLIC_POCKETBASE_URL}/_/`}
@@ -590,11 +596,55 @@ function AdminContent() {
                       className="btn btn-outline btn-sm gap-2"
                     >
                       <MessageSquare className="w-4 h-4" />
-                      PocketBase Admin
+                      PocketBase
+                    </a>
+                    <a
+                      href="https://akash-hasendra.sentry.io/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-outline btn-sm gap-2"
+                      title="Logged in with GitHub"
+                    >
+                      <Bug className="w-4 h-4" />
+                      Sentry
+                      <Github className="w-3 h-3 opacity-60" />
+                    </a>
+                    <a
+                      href="https://panel.whapi.cloud/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-outline btn-sm gap-2"
+                      title="Logged in with Gmail"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      Whapi
+                      <Mail className="w-3 h-3 opacity-60" />
+                    </a>
+                    <a
+                      href="https://login.sendpulse.com/smtp/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-outline btn-sm gap-2"
+                      title="Logged in with Gmail"
+                    >
+                      <Send className="w-4 h-4" />
+                      SendPulse
+                      <Mail className="w-3 h-3 opacity-60" />
+                    </a>
+                    <a
+                      href="https://dash.cloudflare.com/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn btn-outline btn-sm gap-2"
+                      title="Logged in with Gmail"
+                    >
+                      <Cloud className="w-4 h-4" />
+                      Cloudflare
+                      <Mail className="w-3 h-3 opacity-60" />
                     </a>
                     <Link href="/dashboard" className="btn btn-outline btn-sm gap-2">
                       <Users className="w-4 h-4" />
-                      User Dashboard
+                      Dashboard
                     </Link>
                   </div>
                 </div>

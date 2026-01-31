@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import PocketBase from 'pocketbase';
 import { sendMessage } from '@/lib/messaging';
+import { trackEvent, serverMetrics } from '@/lib/metrics';
 
 /**
  * Scalable Cron Delivery System
@@ -90,6 +91,13 @@ export async function GET(request: Request) {
         const results = await processInBatches(pb, usersToSend);
 
         const duration = Date.now() - startTime;
+
+        // Track batch send metrics
+        serverMetrics.batchSendDuration(
+            duration,
+            usersToSend.length,
+            results.errors === 0
+        );
 
         return NextResponse.json({
             success: true,
@@ -247,11 +255,15 @@ async function sendToUser(
             return false;
         }
 
+        const platform = (user.messaging_platform as 'telegram' | 'whatsapp') || 'telegram';
         const success = await sendMessage({
             to: user.messaging_id!,
-            platform: (user.messaging_platform as 'telegram' | 'whatsapp') || 'telegram',
+            platform,
             body: formatSparkMessage(spark, user.partner_name, messageType)
         });
+
+        // Track Sentry metrics
+        trackEvent.automationSent(platform, success);
 
         if (success) {
             console.log(`[Cron] ✓ Sent ${messageType} to ${user.email}`);
