@@ -25,7 +25,7 @@ describe('/api/webhooks/telegram endpoint', () => {
         process.env.TELEGRAM_WEBHOOK_SECRET = 'test_secret';
 
         // Mock successful Telegram API response
-        vi.mocked(global.fetch).mockResolvedValue({
+        (global.fetch as any).mockResolvedValue({
             ok: true,
             json: async () => ({ ok: true }),
         } as Response);

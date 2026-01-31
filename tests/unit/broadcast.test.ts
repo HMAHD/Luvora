@@ -22,6 +22,7 @@ describe('Automation: Timezone Trigger Logic', () => {
         const targetHour = "08"; // Morning time "08:00"
 
         // Case 1: UTC 8:00 matches UTC User
+        vi.useFakeTimers();
         vi.setSystemTime(new Date('2026-05-20T08:30:00Z')); // 8:30 UTC
         const utcUserTime = new Date().toLocaleTimeString('en-US', { timeZone: 'UTC', hour12: false });
         expect(utcUserTime.split(':')[0]).toBe(targetHour); // Match
@@ -41,5 +42,7 @@ describe('Automation: Timezone Trigger Logic', () => {
         // Hard to pick exact UTC without calculating DST, but we can iterate.
         // Or mock Date behavior entirely (too complex).
         // Best test: Logic Function Integrity.
+
+        vi.useRealTimers();
     });
 });

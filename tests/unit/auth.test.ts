@@ -1,5 +1,5 @@
 import { describe, expect, test, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useLocalStorage } from '../../src/hooks/useLocalStorage';
 
 // Mock standard LocalStorage
@@ -29,12 +29,14 @@ describe('Auth: Hydration & LocalStorage', () => {
         vi.restoreAllMocks();
     });
 
-    test('useLocalStorage hydrates from existing data', () => {
+    test('useLocalStorage hydrates from existing data', async () => {
         localStorage.setItem('role', JSON.stringify('masculine'));
 
         const { result } = renderHook(() => useLocalStorage('role', 'neutral'));
 
-        expect(result.current[0]).toBe('masculine');
+        await waitFor(() => {
+            expect(result.current[0]).toBe('masculine');
+        });
     });
 
     test('useLocalStorage handles malformed JSON safely', () => {
@@ -53,6 +55,6 @@ describe('Auth: Hydration & LocalStorage', () => {
             result.current[1]('light');
         });
 
-        expect(localStorage.getItem('theme')).toContain('light');
+        expect(localStorage.getItem('theme')).toBe(JSON.stringify('light'));
     });
 });
