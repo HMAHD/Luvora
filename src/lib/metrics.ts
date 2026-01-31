@@ -20,9 +20,9 @@ export const metrics = {
     increment: (name: string, value = 1, tags?: Record<string, string>) => {
         try {
             // Check if Sentry metrics API is available
-            // @ts-ignore - Sentry metrics API may not be available in all versions
+            // @ts-expect-error - Sentry metrics API may not be available in all versions
             if (Sentry.metrics && typeof Sentry.metrics.increment === 'function') {
-                // @ts-ignore
+                // @ts-expect-error - Sentry metrics API may not be available in all versions
                 Sentry.metrics.increment(name, value, { tags });
             } else {
                 // Fallback: log as custom event
@@ -30,7 +30,7 @@ export const metrics = {
                     console.log(`[Metrics] ${name}: +${value}`, tags);
                 }
             }
-        } catch (error) {
+        } catch {
             // Silently fail in development or if Sentry not initialized
             if (process.env.NODE_ENV === 'development') {
                 console.log(`[Metrics] ${name}: +${value}`, tags);
@@ -46,14 +46,14 @@ export const metrics = {
      */
     gauge: (name: string, value: number, tags?: Record<string, string>) => {
         try {
-            // @ts-ignore - Sentry metrics API may not be available in all versions
+            // @ts-expect-error - Sentry metrics API may not be available in all versions
             if (Sentry.metrics && typeof Sentry.metrics.gauge === 'function') {
-                // @ts-ignore
+                // @ts-expect-error - Sentry metrics API may not be available in all versions
                 Sentry.metrics.gauge(name, value, { tags });
             } else if (process.env.NODE_ENV === 'development') {
                 console.log(`[Metrics] ${name}: ${value}`, tags);
             }
-        } catch (error) {
+        } catch {
             if (process.env.NODE_ENV === 'development') {
                 console.log(`[Metrics] ${name}: ${value}`, tags);
             }
@@ -74,14 +74,14 @@ export const metrics = {
         unit?: string
     ) => {
         try {
-            // @ts-ignore - Sentry metrics API may not be available in all versions
+            // @ts-expect-error - Sentry metrics API may not be available in all versions
             if (Sentry.metrics && typeof Sentry.metrics.distribution === 'function') {
-                // @ts-ignore
+                // @ts-expect-error - Sentry metrics API may not be available in all versions
                 Sentry.metrics.distribution(name, value, { tags, unit });
             } else if (process.env.NODE_ENV === 'development') {
                 console.log(`[Metrics] ${name}: ${value}${unit ? unit : ''}`, tags);
             }
-        } catch (error) {
+        } catch {
             if (process.env.NODE_ENV === 'development') {
                 console.log(`[Metrics] ${name}: ${value}${unit ? unit : ''}`, tags);
             }
@@ -96,14 +96,14 @@ export const metrics = {
      */
     set: (name: string, value: string | number, tags?: Record<string, string>) => {
         try {
-            // @ts-ignore - Sentry metrics API may not be available in all versions
+            // @ts-expect-error - Sentry metrics API may not be available in all versions
             if (Sentry.metrics && typeof Sentry.metrics.set === 'function') {
-                // @ts-ignore
+                // @ts-expect-error - Sentry metrics API may not be available in all versions
                 Sentry.metrics.set(name, value, { tags });
             } else if (process.env.NODE_ENV === 'development') {
                 console.log(`[Metrics] ${name}: ${value}`, tags);
             }
-        } catch (error) {
+        } catch {
             if (process.env.NODE_ENV === 'development') {
                 console.log(`[Metrics] ${name}: ${value}`, tags);
             }
