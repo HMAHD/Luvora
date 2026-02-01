@@ -10,10 +10,16 @@ export function RoleSelector() {
     const { user, pb } = useAuth();
     const [localRole, setLocalRole] = useState<Role>('neutral');
 
-    // Sync local state with user data
+    // Sync local state with user data or localStorage
     useEffect(() => {
         if (user?.recipient_role) {
             setLocalRole(user.recipient_role as Role);
+        } else {
+            // For non-authenticated users, use localStorage
+            const storedRole = localStorage.getItem('preferred_role') as Role | null;
+            if (storedRole) {
+                setLocalRole(storedRole);
+            }
         }
     }, [user?.recipient_role]);
 
@@ -28,9 +34,11 @@ export function RoleSelector() {
                 // CRITICAL: Update auth store FIRST to trigger immediate UI updates
                 // This ensures SparkCard sees the change before the database roundtrip
                 const currentRecord = pb.authStore.record;
-                if (currentRecord) {
+                const token = pb.authStore.token;
+
+                if (currentRecord && token) {
                     // Create a NEW object to ensure React detects the change
-                    pb.authStore.save(pb.authStore.token!, {
+                    pb.authStore.save(token, {
                         ...currentRecord,
                         recipient_role: newRole,
                     });
@@ -46,13 +54,19 @@ export function RoleSelector() {
                 setLocalRole((user.recipient_role as Role) || 'neutral');
                 // Revert auth store
                 const currentRecord = pb.authStore.record;
-                if (currentRecord) {
-                    pb.authStore.save(pb.authStore.token!, {
+                const token = pb.authStore.token;
+                if (currentRecord && token) {
+                    pb.authStore.save(token, {
                         ...currentRecord,
                         recipient_role: (user.recipient_role as Role) || 'neutral',
                     });
                 }
             }
+        } else {
+            // User not logged in - store preference in localStorage for persistence
+            localStorage.setItem('preferred_role', newRole);
+            // Dispatch custom event for same-tab reactivity
+            window.dispatchEvent(new CustomEvent('roleChange', { detail: newRole }));
         }
     };
 

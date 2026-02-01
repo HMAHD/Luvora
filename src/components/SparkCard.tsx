@@ -59,7 +59,38 @@ export function SparkCard() {
 
   // Per-user data from PocketBase (fixes data isolation bug)
   const partnerName = user?.partner_name || '';
-  const role = (user?.recipient_role as Role) || 'neutral';
+
+  // Get role from user or localStorage (for non-authenticated users)
+  const [localStorageRole, setLocalStorageRole] = useState<Role>('neutral');
+
+  useEffect(() => {
+    // Listen for localStorage changes (for non-authenticated users)
+    const storedRole = localStorage.getItem('preferred_role') as Role | null;
+    if (storedRole) {
+      setLocalStorageRole(storedRole);
+    }
+
+    // Listen for storage events from other tabs
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'preferred_role' && e.newValue) {
+        setLocalStorageRole(e.newValue as Role);
+      }
+    };
+
+    // Listen for custom roleChange event (same-tab updates)
+    const handleRoleChange = (e: CustomEvent<Role>) => {
+      setLocalStorageRole(e.detail);
+    };
+
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('roleChange', handleRoleChange as EventListener);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('roleChange', handleRoleChange as EventListener);
+    };
+  }, []);
+
+  const role = (user?.recipient_role as Role) || localStorageRole || 'neutral';
 
   // User tier (default to FREE)
   const userTier = user?.tier ?? TIER.FREE;
