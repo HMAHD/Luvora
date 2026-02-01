@@ -79,9 +79,9 @@ export function BlogPostManager() {
             });
             setPosts(records);
             setError(null);
-        } catch (error: any) {
-            console.error('Failed to load blog posts:', error);
-            if (error?.status === 404) {
+        } catch (err: unknown) {
+            console.error('Failed to load blog posts:', err);
+            if (err && typeof err === 'object' && 'status' in err && err.status === 404) {
                 setError('blog_collection_not_found');
             } else {
                 setError('Failed to load blog posts. Please check your connection.');
