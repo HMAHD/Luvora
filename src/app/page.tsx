@@ -117,7 +117,7 @@ export default function Home() {
         {/* Header / Logo Area */}
         <div className="text-center mb-4">
           <h1 className="text-4xl font-bold font-romantic tracking-tight text-base-content mb-1">Luvora</h1>
-          <p className="text-xs uppercase tracking-[0.25em] text-base-content/50">Daily Spark</p>
+          <p className="text-sm text-base-content/60 font-medium">Daily Romantic Messages for Your Partner</p>
         </div>
 
         {/* The Main Interface */}

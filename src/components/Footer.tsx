@@ -3,9 +3,10 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Heart, Sparkles, BookOpen, CreditCard, Shield, Menu, X } from 'lucide-react';
+import { Heart, Sparkles, BookOpen, CreditCard, Shield, Menu, X, Info } from 'lucide-react';
 
 const navItems = [
+    { href: '/about', label: 'About', icon: Info, description: 'Our story' },
     { href: '/blog', label: 'Blog', icon: BookOpen, description: 'Relationship tips' },
     { href: '/pricing', label: 'Pricing', icon: CreditCard, description: 'Upgrade plans' },
     { href: '/sparks', label: 'Sparks', icon: Sparkles, description: 'Message archive' },
