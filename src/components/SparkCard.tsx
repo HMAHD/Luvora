@@ -61,25 +61,30 @@ export function SparkCard() {
   const partnerName = user?.partner_name || '';
 
   // Get role from user or localStorage (for non-authenticated users)
-  const [localStorageRole, setLocalStorageRole] = useState<Role>('neutral');
+  const [currentRole, setCurrentRole] = useState<Role>('neutral');
 
+  // Sync role from user or localStorage
   useEffect(() => {
-    // Listen for localStorage changes (for non-authenticated users)
-    const storedRole = localStorage.getItem('preferred_role') as Role | null;
-    if (storedRole) {
-      setLocalStorageRole(storedRole);
+    if (user?.recipient_role) {
+      setCurrentRole(user.recipient_role as Role);
+    } else {
+      const storedRole = localStorage.getItem('preferred_role') as Role | null;
+      setCurrentRole(storedRole || 'neutral');
     }
+  }, [user?.recipient_role]);
 
+  // Listen for localStorage changes (for non-authenticated users)
+  useEffect(() => {
     // Listen for storage events from other tabs
     const handleStorage = (e: StorageEvent) => {
       if (e.key === 'preferred_role' && e.newValue) {
-        setLocalStorageRole(e.newValue as Role);
+        setCurrentRole(e.newValue as Role);
       }
     };
 
     // Listen for custom roleChange event (same-tab updates)
     const handleRoleChange = (e: CustomEvent<Role>) => {
-      setLocalStorageRole(e.detail);
+      setCurrentRole(e.detail);
     };
 
     window.addEventListener('storage', handleStorage);
@@ -90,7 +95,7 @@ export function SparkCard() {
     };
   }, []);
 
-  const role = (user?.recipient_role as Role) || localStorageRole || 'neutral';
+  const role = currentRole;
 
   // User tier (default to FREE)
   const userTier = user?.tier ?? TIER.FREE;
