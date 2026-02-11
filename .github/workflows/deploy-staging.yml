@@ -1,9 +1,13 @@
+# DISABLED: Staging deployment temporarily disabled
+# To re-enable: uncomment the 'on:' section below
+
 name: Deploy to Staging
 
-on:
-  push:
-    branches: [develop]
-  workflow_dispatch:
+# Workflow disabled - uncomment to re-enable
+# on:
+#   push:
+#     branches: [develop]
+#   workflow_dispatch:
 
 jobs:
   deploy:
