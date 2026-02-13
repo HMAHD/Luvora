@@ -61,10 +61,17 @@ async function getCachedMessages(cacheKey: string, filter: string): Promise<PBMe
     }
 
     try {
-        const messages = await pb.collection('messages').getFullList<PBMessage>({
+        // Add timeout to prevent hanging in test environments
+        const timeoutPromise = new Promise<never>((_, reject) => {
+            setTimeout(() => reject(new Error('PocketBase request timeout')), 2000);
+        });
+
+        const fetchPromise = pb.collection('messages').getFullList<PBMessage>({
             filter,
             requestKey: cacheKey, // Prevents duplicate requests
         });
+
+        const messages = await Promise.race([fetchPromise, timeoutPromise]);
 
         messageCache.set(cacheKey, {
             data: messages,
