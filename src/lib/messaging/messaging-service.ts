@@ -129,14 +129,14 @@ class MessagingService {
 
             channel = new TelegramChannel(
                 {
+                    enabled: telegramConfig.enabled,
                     botToken,
                     botUsername: telegramConfig.botUsername,
-                    telegramUserId: telegramConfig.telegramUserId,
-                    allowedUsers: [userId]
+                    telegramUserId: telegramConfig.telegramUserId
                 },
                 userId,
                 {
-                    onLinked: async (telegramUserId: string, username?: string) => {
+                    onUserIdReceived: async (telegramUserId: string) => {
                         console.log(`[MessagingService] Telegram linked: ${telegramUserId}`);
 
                         // Update config in PocketBase
@@ -152,8 +152,7 @@ class MessagingService {
                                     {
                                         config: {
                                             ...telegramConfig,
-                                            telegramUserId,
-                                            username
+                                            telegramUserId
                                         }
                                     },
                                     { $autoCancel: false }
@@ -171,9 +170,9 @@ class MessagingService {
 
             channel = new WhatsAppChannel(
                 {
+                    enabled: whatsappConfig.enabled,
                     sessionPath: whatsappConfig.sessionPath,
-                    phoneNumber: whatsappConfig.phoneNumber,
-                    allowedUsers: [userId]
+                    phoneNumber: whatsappConfig.phoneNumber
                 },
                 userId,
                 {

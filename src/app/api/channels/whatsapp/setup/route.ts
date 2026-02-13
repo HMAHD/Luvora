@@ -21,7 +21,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { pb } from '@/lib/pocketbase';
 import { WhatsAppChannel } from '@/lib/messaging/channels/whatsapp-channel';
-import { encrypt } from '@/lib/crypto';
 import path from 'path';
 import QRCode from 'qrcode';
 
@@ -64,8 +63,8 @@ export async function GET(req: NextRequest) {
                     // Create WhatsApp channel with callbacks
                     const channel = new WhatsAppChannel(
                         {
-                            sessionPath,
-                            allowedUsers: [userId]
+                            enabled: true,
+                            sessionPath
                         },
                         userId,
                         {
