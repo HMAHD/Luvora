@@ -132,6 +132,10 @@ Open [http://localhost:3000](http://localhost:3000) to see the app.
 
 ## 📚 Documentation
 
+### User Guides
+- **[Messaging Setup Guide](docs/wiki/Messaging-Setup-Guide.md)** - Complete guide for users to set up Telegram, WhatsApp, or Discord
+- **[Documentation Hub](docs/README.md)** - All user guides and documentation
+
 ### Setup & Configuration
 - **[Deployment Guide](docs/DEPLOYMENT.md)** - Complete VPS setup, Nginx config, PM2, SSL certificates
 - **[Environment Variables](.env.example)** - All configuration options explained
