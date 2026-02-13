@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
 import PocketBase from 'pocketbase';
-import { sendMessage } from '@/lib/messaging';
+import { messagingService } from '@/lib/messaging/messaging-service';
+import type { MessagingPlatform } from '@/lib/messaging/types';
 import { trackEvent, serverMetrics } from '@/lib/metrics';
 
 /**
  * Scalable Cron Delivery System
  * Handles 10,000+ users with batching and rate limiting
+ *
+ * Updated to use MessagingService with user-managed messaging channels.
+ * Now sends to users through THEIR OWN bots (not centralized tokens).
  *
  * Set up a cron job to hit this endpoint every minute:
  * - Vercel Cron: vercel.json -> { "crons": [{ "path": "/api/cron/deliver", "schedule": "* * * * *" }] }
@@ -27,8 +31,6 @@ interface UserRecord {
     morning_time?: string;
     evening_enabled?: boolean;
     evening_time?: string;
-    messaging_platform?: string;
-    messaging_id?: string;
     partner_name?: string;
     love_language?: string;
     preferred_tone?: string;
@@ -59,9 +61,9 @@ export async function GET(request: Request) {
             process.env.POCKETBASE_ADMIN_PASSWORD || ''
         );
 
-        // Find all eligible users (Hero+ with messaging configured)
+        // Find all eligible users (Hero+ tier)
         const users = await pb.collection('users').getFullList<UserRecord>({
-            filter: `tier >= 1 && messaging_id != ""`
+            filter: `tier >= 1`
         });
 
         // Filter users who need messages NOW based on their timezone
@@ -70,7 +72,11 @@ export async function GET(request: Request) {
         for (const user of users) {
             const messageType = shouldSendToUser(user);
             if (messageType) {
-                usersToSend.push({ user, messageType });
+                // Check if user has any messaging channel configured
+                const hasChannel = await userHasMessagingChannel(pb, user.id);
+                if (hasChannel) {
+                    usersToSend.push({ user, messageType });
+                }
             }
         }
 
@@ -116,6 +122,22 @@ export async function GET(request: Request) {
             error: 'Delivery failed',
             message: error instanceof Error ? error.message : 'Unknown error'
         }, { status: 500 });
+    }
+}
+
+/**
+ * Check if user has any enabled messaging channel
+ */
+async function userHasMessagingChannel(pb: PocketBase, userId: string): Promise<boolean> {
+    try {
+        const channels = await pb.collection('messaging_channels').getFullList({
+            filter: `user="${userId}" && enabled=true`,
+            $autoCancel: false
+        });
+        return channels.length > 0;
+    } catch (error) {
+        console.error(`Error checking channels for user ${userId}:`, error);
+        return false;
     }
 }
 
@@ -241,7 +263,7 @@ async function processWithConcurrency(
 }
 
 /**
- * Send a spark message to a single user
+ * Send a spark message to a single user through their messaging channels
  */
 async function sendToUser(
     pb: PocketBase,
@@ -255,21 +277,48 @@ async function sendToUser(
             return false;
         }
 
-        const platform = (user.messaging_platform as 'telegram' | 'whatsapp') || 'telegram';
-        const success = await sendMessage({
-            to: user.messaging_id!,
-            platform,
-            body: formatSparkMessage(spark, user.partner_name, messageType)
+        const message = formatSparkMessage(spark, user.partner_name, messageType);
+
+        // Get user's enabled messaging channels
+        const channels = await pb.collection('messaging_channels').getFullList({
+            filter: `user="${user.id}" && enabled=true`,
+            sort: '-created', // Try newest channel first
+            $autoCancel: false
         });
 
-        // Track Sentry metrics
-        trackEvent.automationSent(platform, success);
-
-        if (success) {
-            console.log(`[Cron] ✓ Sent ${messageType} to ${user.email}`);
+        if (channels.length === 0) {
+            console.warn(`[Cron] No enabled channels for user ${user.id}`);
+            return false;
         }
 
-        return success;
+        // Try each channel until one succeeds
+        for (const channel of channels) {
+            const platform = channel.platform as MessagingPlatform;
+
+            try {
+                await messagingService.sendMessage(user.id, {
+                    platform,
+                    content: message
+                });
+
+                // Track Sentry metrics
+                trackEvent.automationSent(platform, true);
+
+                console.log(`[Cron] ✓ Sent ${messageType} to ${user.email} via ${platform}`);
+                return true;
+
+            } catch (error) {
+                console.error(`[Cron] Failed to send via ${platform} for ${user.id}:`, error);
+                // Try next channel
+                continue;
+            }
+        }
+
+        // All channels failed
+        trackEvent.automationSent('telegram', false); // Generic failure tracking
+        console.error(`[Cron] ✗ All channels failed for ${user.email}`);
+        return false;
+
     } catch (err) {
         console.error(`[Cron] ✗ Error sending to ${user.email}:`, err);
         return false;

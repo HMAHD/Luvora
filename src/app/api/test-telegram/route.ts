@@ -1,16 +1,36 @@
 import { NextResponse } from 'next/server';
-import { sendMessage } from '@/lib/messaging';
+import { messagingService } from '@/lib/messaging/messaging-service';
+import { pb } from '@/lib/pocketbase';
 
-// Test endpoint to verify Telegram bot is working
-// Usage: POST /api/test-telegram with { chatId: "YOUR_CHAT_ID" }
+/**
+ * Test endpoint to verify user's Telegram bot is working
+ * Now uses MessagingService with user-managed channels
+ *
+ * Usage: POST /api/test-telegram
+ * Authentication: Requires valid PocketBase session cookie
+ */
 
 export async function POST(request: Request) {
     try {
-        const { chatId } = await request.json();
-
-        if (!chatId) {
-            return NextResponse.json({ error: 'chatId is required' }, { status: 400 });
+        // Get authenticated user from PocketBase cookie
+        const cookie = request.headers.get('cookie');
+        if (!cookie) {
+            return NextResponse.json(
+                { error: 'Not authenticated' },
+                { status: 401 }
+            );
         }
+
+        pb.authStore.loadFromCookie(cookie);
+
+        if (!pb.authStore.isValid || !pb.authStore.model) {
+            return NextResponse.json(
+                { error: 'Invalid session' },
+                { status: 401 }
+            );
+        }
+
+        const userId = pb.authStore.model.id;
 
         const testMessage = `💝 Test Spark from Luvora
 
@@ -20,37 +40,58 @@ If you see this, your automation is set up properly! 🎉
 
 — Luvora`;
 
-        const success = await sendMessage({
-            to: chatId,
+        // Send via MessagingService
+        await messagingService.sendMessage(userId, {
             platform: 'telegram',
-            body: testMessage
+            content: testMessage
         });
 
-        if (success) {
-            return NextResponse.json({ success: true, message: 'Test message sent!' });
-        } else {
-            return NextResponse.json({ error: 'Failed to send. Check bot token and chat ID.' }, { status: 500 });
-        }
+        return NextResponse.json({
+            success: true,
+            message: 'Test message sent successfully!'
+        });
 
     } catch (error) {
         console.error('Test telegram error:', error);
-        return NextResponse.json({ error: 'Server error' }, { status: 500 });
+
+        const errorMessage = error instanceof Error ? error.message : 'Failed to send test message';
+
+        return NextResponse.json({
+            error: errorMessage,
+            tips: [
+                'Make sure you have set up a Telegram bot in Settings',
+                'Ensure your bot is enabled in messaging channels',
+                'Send /start to your bot on Telegram to link it',
+                'Check that MessagingService is running'
+            ]
+        }, { status: 500 });
     }
 }
 
-// GET endpoint for quick browser test (requires chatId as query param)
+// GET endpoint for quick browser test
 export async function GET(request: Request) {
-    const { searchParams } = new URL(request.url);
-    const chatId = searchParams.get('chatId');
+    try {
+        // Get authenticated user from PocketBase cookie
+        const cookie = request.headers.get('cookie');
+        if (!cookie) {
+            return NextResponse.json({
+                error: 'Not authenticated',
+                usage: 'POST /api/test-telegram (with valid session cookie)'
+            }, { status: 401 });
+        }
 
-    if (!chatId) {
-        return NextResponse.json({
-            error: 'Missing chatId parameter',
-            usage: '/api/test-telegram?chatId=YOUR_TELEGRAM_CHAT_ID'
-        }, { status: 400 });
-    }
+        pb.authStore.loadFromCookie(cookie);
 
-    const testMessage = `💝 Test Spark from Luvora
+        if (!pb.authStore.isValid || !pb.authStore.model) {
+            return NextResponse.json({
+                error: 'Invalid session',
+                usage: 'POST /api/test-telegram (with valid session cookie)'
+            }, { status: 401 });
+        }
+
+        const userId = pb.authStore.model.id;
+
+        const testMessage = `💝 Test Spark from Luvora
 
 Hello! This is a test message to verify your Telegram integration is working.
 
@@ -58,21 +99,29 @@ If you see this, your automation is ready! 🎉
 
 — Luvora`;
 
-    const success = await sendMessage({
-        to: chatId,
-        platform: 'telegram',
-        body: testMessage
-    });
+        // Send via MessagingService
+        await messagingService.sendMessage(userId, {
+            platform: 'telegram',
+            content: testMessage
+        });
 
-    if (success) {
-        return NextResponse.json({ success: true, message: 'Test message sent to Telegram!' });
-    } else {
         return NextResponse.json({
-            error: 'Failed to send message',
+            success: true,
+            message: 'Test message sent to your Telegram!'
+        });
+
+    } catch (error) {
+        console.error('Test telegram error:', error);
+
+        const errorMessage = error instanceof Error ? error.message : 'Failed to send test message';
+
+        return NextResponse.json({
+            error: errorMessage,
             tips: [
-                'Check TELEGRAM_BOT_TOKEN in .env.local',
-                'Make sure user has started the bot first (/start)',
-                'Verify chat ID is correct (use @userinfobot)'
+                'Make sure you have set up a Telegram bot in Settings',
+                'Ensure your bot is enabled in messaging channels',
+                'Send /start to your bot on Telegram to link it',
+                'Check that MessagingService is running'
             ]
         }, { status: 500 });
     }
