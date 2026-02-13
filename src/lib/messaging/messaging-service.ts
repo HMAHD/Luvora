@@ -40,6 +40,7 @@ type ChannelInstance = BaseChannel & {
 interface UserChannels {
     telegram?: ChannelInstance;
     whatsapp?: ChannelInstance;
+    discord?: ChannelInstance;
 }
 
 class MessagingService {
