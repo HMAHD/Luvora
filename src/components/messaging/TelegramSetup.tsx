@@ -1,0 +1,383 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Send, CheckCircle, AlertCircle, Loader2, ExternalLink, Copy, Check } from 'lucide-react';
+
+interface TelegramSetupProps {
+    userId: string;
+    onSuccess?: () => void;
+    onError?: (error: string) => void;
+}
+
+interface TelegramStatus {
+    connected: boolean;
+    enabled?: boolean;
+    botUsername?: string;
+    telegramUserId?: string;
+    linked?: boolean;
+}
+
+export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps) {
+    const [step, setStep] = useState<'instructions' | 'token' | 'linking' | 'success'>('instructions');
+    const [botToken, setBotToken] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [status, setStatus] = useState<TelegramStatus | null>(null);
+    const [copied, setCopied] = useState(false);
+
+    // Fetch current status on mount
+    useEffect(() => {
+        fetchStatus();
+    }, []);
+
+    const fetchStatus = async () => {
+        try {
+            const res = await fetch('/api/channels/telegram/status');
+            if (res.ok) {
+                const data = await res.json();
+                setStatus(data);
+
+                if (data.connected && data.linked) {
+                    setStep('success');
+                }
+            }
+        } catch (err) {
+            console.error('Failed to fetch status:', err);
+        }
+    };
+
+    const validateToken = (token: string): boolean => {
+        // Telegram bot tokens format: <bot_id>:<random_string>
+        // Example: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz
+        const tokenRegex = /^\d{8,10}:[A-Za-z0-9_-]{35,}$/;
+        return tokenRegex.test(token.trim());
+    };
+
+    const handleSetup = async () => {
+        const trimmedToken = botToken.trim();
+
+        if (!validateToken(trimmedToken)) {
+            setError('Invalid token format. Please check and try again.');
+            return;
+        }
+
+        setLoading(true);
+        setError('');
+
+        try {
+            const res = await fetch('/api/channels/telegram/setup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ botToken: trimmedToken })
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.error || 'Failed to setup Telegram bot');
+            }
+
+            // Success! Move to linking step
+            setStep('linking');
+            await fetchStatus();
+
+            // Start polling for link status
+            startLinkingPoll();
+
+        } catch (err) {
+            const errorMsg = err instanceof Error ? err.message : 'Setup failed';
+            setError(errorMsg);
+            onError?.(errorMsg);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Poll status every 3 seconds to detect when user sends /start
+    const startLinkingPoll = () => {
+        const pollInterval = setInterval(async () => {
+            try {
+                const res = await fetch('/api/channels/telegram/status');
+                if (res.ok) {
+                    const data = await res.json();
+                    setStatus(data);
+
+                    if (data.linked) {
+                        clearInterval(pollInterval);
+                        setStep('success');
+                        onSuccess?.();
+                    }
+                }
+            } catch (err) {
+                console.error('Polling error:', err);
+            }
+        }, 3000);
+
+        // Stop polling after 5 minutes
+        setTimeout(() => clearInterval(pollInterval), 5 * 60 * 1000);
+    };
+
+    const handleTestMessage = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/test-telegram', {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to send test message');
+            }
+
+            // Show success feedback
+            setError('');
+        } catch (err) {
+            setError('Failed to send test message. Make sure you sent /start to your bot.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <div className="space-y-4">
+            <AnimatePresence mode="wait">
+                {/* Step 1: Instructions */}
+                {step === 'instructions' && (
+                    <motion.div
+                        key="instructions"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="space-y-4"
+                    >
+                        <div className="alert alert-info">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div className="text-sm">
+                                <p className="font-semibold">Create Your Own Telegram Bot</p>
+                                <p className="opacity-75">You'll receive messages through your personal bot</p>
+                            </div>
+                        </div>
+
+                        <div className="card bg-base-200/50 p-4">
+                            <h3 className="font-semibold mb-3 flex items-center gap-2">
+                                <span className="badge badge-primary badge-sm">Step 1</span>
+                                Create Bot via @BotFather
+                            </h3>
+                            <ol className="list-decimal list-inside space-y-2 text-sm opacity-80">
+                                <li>Open Telegram and search for <code className="kbd kbd-sm">@BotFather</code></li>
+                                <li>Send the command <code className="kbd kbd-sm">/newbot</code></li>
+                                <li>Choose a name for your bot (e.g., "My Luvora Bot")</li>
+                                <li>Choose a username ending in "bot" (e.g., "myluvora_bot")</li>
+                                <li>Copy the bot token that @BotFather gives you</li>
+                            </ol>
+                            <a
+                                href="https://t.me/BotFather"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="btn btn-primary btn-sm mt-3 gap-2"
+                            >
+                                <ExternalLink className="w-4 h-4" />
+                                Open @BotFather
+                            </a>
+                        </div>
+
+                        <button
+                            onClick={() => setStep('token')}
+                            className="btn btn-primary btn-block"
+                        >
+                            I have my bot token
+                        </button>
+                    </motion.div>
+                )}
+
+                {/* Step 2: Token Input */}
+                {step === 'token' && (
+                    <motion.div
+                        key="token"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="space-y-4"
+                    >
+                        <div className="card bg-base-200/50 p-4">
+                            <h3 className="font-semibold mb-3 flex items-center gap-2">
+                                <span className="badge badge-primary badge-sm">Step 2</span>
+                                Enter Bot Token
+                            </h3>
+
+                            <div className="form-control">
+                                <label className="label">
+                                    <span className="label-text text-xs">Paste your bot token from @BotFather</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
+                                    className={`input input-bordered font-mono text-sm ${error ? 'input-error' : ''}`}
+                                    value={botToken}
+                                    onChange={(e) => {
+                                        setBotToken(e.target.value);
+                                        setError('');
+                                    }}
+                                    disabled={loading}
+                                />
+                                {error && (
+                                    <label className="label">
+                                        <span className="label-text-alt text-error flex items-center gap-1">
+                                            <AlertCircle className="w-3 h-3" />
+                                            {error}
+                                        </span>
+                                    </label>
+                                )}
+                            </div>
+
+                            <div className="alert alert-warning mt-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <span className="text-xs">Keep your token secret! Never share it publicly.</span>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-2">
+                            <button
+                                onClick={() => setStep('instructions')}
+                                className="btn btn-ghost flex-1"
+                                disabled={loading}
+                            >
+                                Back
+                            </button>
+                            <button
+                                onClick={handleSetup}
+                                disabled={loading || !botToken.trim()}
+                                className="btn btn-primary flex-1"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        Connecting...
+                                    </>
+                                ) : (
+                                    'Connect Bot'
+                                )}
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* Step 3: Linking */}
+                {step === 'linking' && (
+                    <motion.div
+                        key="linking"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="space-y-4"
+                    >
+                        <div className="card bg-base-200/50 p-4">
+                            <h3 className="font-semibold mb-3 flex items-center gap-2">
+                                <span className="badge badge-primary badge-sm">Step 3</span>
+                                Link Your Account
+                            </h3>
+
+                            <div className="alert alert-info mb-3">
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                <div className="text-sm">
+                                    <p className="font-semibold">Waiting for you to start the bot...</p>
+                                    <p className="opacity-75">This usually takes just a few seconds</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-base-300 rounded-lg p-4 space-y-3">
+                                <p className="text-sm font-medium">Complete these steps in Telegram:</p>
+                                <ol className="list-decimal list-inside space-y-2 text-sm opacity-80">
+                                    <li>Search for <code className="kbd kbd-sm">@{status?.botUsername || 'your_bot'}</code> in Telegram</li>
+                                    <li>Open the chat with your bot</li>
+                                    <li>Send the command <code className="kbd kbd-sm">/start</code></li>
+                                </ol>
+
+                                {status?.botUsername && (
+                                    <button
+                                        onClick={() => copyToClipboard(`@${status.botUsername}`)}
+                                        className="btn btn-sm btn-block gap-2"
+                                    >
+                                        {copied ? (
+                                            <>
+                                                <Check className="w-4 h-4" />
+                                                Copied!
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Copy className="w-4 h-4" />
+                                                Copy @{status.botUsername}
+                                            </>
+                                        )}
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* Step 4: Success */}
+                {step === 'success' && (
+                    <motion.div
+                        key="success"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="space-y-4"
+                    >
+                        <div className="alert alert-success">
+                            <CheckCircle className="w-6 h-6" />
+                            <div>
+                                <p className="font-semibold">Telegram Connected!</p>
+                                <p className="text-sm opacity-75">
+                                    You'll receive your daily sparks via <span className="font-mono">@{status?.botUsername}</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="card bg-base-200/50 p-4">
+                            <div className="flex items-center justify-between mb-2">
+                                <span className="text-sm font-medium">Bot Username</span>
+                                <code className="kbd kbd-sm">@{status?.botUsername}</code>
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium">Status</span>
+                                <span className="badge badge-success badge-sm">Active</span>
+                            </div>
+                        </div>
+
+                        <button
+                            onClick={handleTestMessage}
+                            disabled={loading}
+                            className="btn btn-outline btn-block gap-2"
+                        >
+                            {loading ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 animate-spin" />
+                                    Sending...
+                                </>
+                            ) : (
+                                <>
+                                    <Send className="w-4 h-4" />
+                                    Send Test Message
+                                </>
+                            )}
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+}

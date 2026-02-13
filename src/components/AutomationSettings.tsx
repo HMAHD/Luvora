@@ -14,17 +14,20 @@ import {
     Sparkles,
     Calendar,
     Crown,
-    Gift
+    Gift,
+    Send
 } from 'lucide-react';
 import { TIER, LOVE_LANGUAGE_NAMES, EMOTIONAL_TONE_NAMES } from '@/lib/types';
 import type { LoveLanguage, EmotionalTone } from '@/lib/types';
+import { TelegramSetup } from './messaging/TelegramSetup';
+import { WhatsAppSetup } from './messaging/WhatsAppSetup';
 
 export function AutomationSettings({ onClose }: { onClose: () => void }) {
     const { user, pb } = useAuth();
 
-    // Basic settings (Hero+)
-    const [platform, setPlatform] = useState<'whatsapp' | 'telegram'>(user?.messaging_platform || 'telegram');
-    const [msgId, setMsgId] = useState(user?.messaging_id || '');
+    // Messaging platform selection
+    const [selectedPlatform, setSelectedPlatform] = useState<'telegram' | 'whatsapp'>('telegram');
+    const [showMessagingSetup, setShowMessagingSetup] = useState(false);
 
     // Delivery times
     const [morningEnabled, setMorningEnabled] = useState(user?.morning_enabled ?? true);
@@ -51,9 +54,6 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
         try {
             const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
             const updateData: Record<string, unknown> = {
-                // Basic
-                messaging_platform: platform,
-                messaging_id: msgId,
                 timezone: timezone,
                 // Delivery times
                 morning_enabled: morningEnabled,
@@ -75,7 +75,9 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
             // Refresh auth to update user data in context
             await pb.collection('users').authRefresh();
             setSuccess(true);
-            setTimeout(onClose, 1500);
+            setTimeout(() => {
+                setSuccess(false);
+            }, 2000);
         } catch (err) {
             console.error(err);
         } finally {
@@ -104,49 +106,86 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
                     </div>
                     <p className="opacity-60 text-sm mb-6">Set up automatic spark delivery to your partner.</p>
 
-                    {/* Messaging Platform */}
+                    {/* Messaging Platform Selection & Setup */}
                     <div className="space-y-5">
-                        <div className="form-control">
+                        <div className="card bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/10 p-4">
                             <label className="label">
                                 <span className="label-text flex items-center gap-2 font-medium">
-                                    <MessageCircle className="w-4 h-4" /> Messaging App
+                                    <MessageCircle className="w-4 h-4" /> Messaging Channel
                                 </span>
                             </label>
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={() => setPlatform('telegram')}
-                                    className={`btn flex-1 ${platform === 'telegram' ? 'btn-primary' : 'btn-outline'}`}
-                                >
-                                    Telegram
-                                </button>
-                                <button
-                                    onClick={() => setPlatform('whatsapp')}
-                                    className={`btn flex-1 ${platform === 'whatsapp' ? 'btn-primary' : 'btn-outline'}`}
-                                >
-                                    WhatsApp
-                                </button>
-                            </div>
-                        </div>
 
-                        {/* Messaging ID */}
-                        <div className="form-control">
-                            <label className="label">
-                                <span className="label-text">
-                                    {platform === 'whatsapp' ? 'Phone Number (Intl Format)' : 'Telegram Chat ID'}
-                                </span>
-                            </label>
-                            <input
-                                type="text"
-                                placeholder={platform === 'whatsapp' ? '+1234567890' : '12345678'}
-                                className="input input-bordered w-full font-mono"
-                                value={msgId}
-                                onChange={(e) => setMsgId(e.target.value)}
-                            />
-                            {platform === 'telegram' && (
-                                <div className="flex gap-2 mt-1">
-                                    <a href="https://t.me/userinfobot" target="_blank" className="text-xs link link-hover opacity-50">
-                                        Get Chat ID via @userinfobot
-                                    </a>
+                            {!showMessagingSetup ? (
+                                <>
+                                    <div className="flex gap-2 mb-3">
+                                        <button
+                                            onClick={() => setSelectedPlatform('telegram')}
+                                            className={`btn flex-1 ${selectedPlatform === 'telegram' ? 'btn-primary' : 'btn-outline'}`}
+                                        >
+                                            Telegram
+                                        </button>
+                                        <button
+                                            onClick={() => setSelectedPlatform('whatsapp')}
+                                            className={`btn flex-1 ${selectedPlatform === 'whatsapp' ? 'btn-primary' : 'btn-outline'}`}
+                                        >
+                                            WhatsApp
+                                        </button>
+                                    </div>
+
+                                    <button
+                                        onClick={() => setShowMessagingSetup(true)}
+                                        className="btn btn-primary btn-block btn-sm gap-2"
+                                    >
+                                        <Send className="w-4 h-4" />
+                                        Set up {selectedPlatform === 'telegram' ? 'Telegram' : 'WhatsApp'}
+                                    </button>
+
+                                    <div className="alert alert-info mt-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className="stroke-current shrink-0 w-5 h-5">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <p className="text-xs">
+                                            {selectedPlatform === 'telegram'
+                                                ? 'Create your own Telegram bot to receive messages'
+                                                : 'Link your WhatsApp to receive messages'}
+                                        </p>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-sm font-medium">
+                                            {selectedPlatform === 'telegram' ? 'Telegram' : 'WhatsApp'} Setup
+                                        </span>
+                                        <button
+                                            onClick={() => setShowMessagingSetup(false)}
+                                            className="btn btn-ghost btn-xs"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+
+                                    {selectedPlatform === 'telegram' ? (
+                                        <TelegramSetup
+                                            userId={user?.id || ''}
+                                            onSuccess={() => {
+                                                setShowMessagingSetup(false);
+                                            }}
+                                            onError={(error) => {
+                                                console.error('Telegram setup error:', error);
+                                            }}
+                                        />
+                                    ) : (
+                                        <WhatsAppSetup
+                                            userId={user?.id || ''}
+                                            onSuccess={() => {
+                                                setShowMessagingSetup(false);
+                                            }}
+                                            onError={(error) => {
+                                                console.error('WhatsApp setup error:', error);
+                                            }}
+                                        />
+                                    )}
                                 </div>
                             )}
                         </div>
@@ -339,17 +378,11 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
 
                         <button
                             onClick={handleSave}
-                            disabled={loading || success || !msgId}
+                            disabled={loading || success}
                             className={`btn btn-block mt-4 ${success ? 'btn-success' : 'btn-primary'}`}
                         >
-                            {loading ? <span className="loading loading-spinner" /> : (success ? 'Saved!' : 'Save Automation')}
+                            {loading ? <span className="loading loading-spinner" /> : (success ? 'Saved!' : 'Save Settings')}
                         </button>
-
-                        {!msgId && (
-                            <p className="text-xs text-center text-error">
-                                Please enter your {platform === 'telegram' ? 'Telegram Chat ID' : 'WhatsApp number'}
-                            </p>
-                        )}
                     </div>
                 </div>
             </motion.div>
