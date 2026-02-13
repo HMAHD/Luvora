@@ -910,12 +910,12 @@ function DashboardContent() {
                         Recipient Role
                       </span>
                     </label>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-3 gap-2 sm:gap-3">
                       {(['neutral', 'feminine', 'masculine'] as Role[]).map((r) => (
                         <button
                           key={r}
                           onClick={() => setFormRole(r)}
-                          className={`btn btn-lg relative transition-all duration-300 ${
+                          className={`btn btn-md sm:btn-lg h-auto min-h-[3.5rem] sm:min-h-[4rem] px-2 sm:px-4 transition-all duration-300 ${
                             formRole === r
                               ? r === 'feminine'
                                 ? 'btn-secondary shadow-lg shadow-secondary/30'
@@ -925,12 +925,10 @@ function DashboardContent() {
                               : 'btn-outline hover:shadow-md'
                           }`}
                         >
-                          <span className="flex items-center gap-1.5">
-                            {r === 'neutral' ? '💑 Partner' : r === 'feminine' ? '💖 Her' : '💙 Him'}
+                          <span className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 text-center">
+                            <span className="text-lg sm:text-xl">{r === 'neutral' ? '💑' : r === 'feminine' ? '💖' : '💙'}</span>
+                            <span className="text-xs sm:text-base font-semibold">{r === 'neutral' ? 'Partner' : r === 'feminine' ? 'Her' : 'Him'}</span>
                           </span>
-                          {formRole === r && (
-                            <Check className="w-4 h-4 absolute top-2 right-2" />
-                          )}
                         </button>
                       ))}
                     </div>
