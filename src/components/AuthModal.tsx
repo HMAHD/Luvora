@@ -62,17 +62,46 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         e.preventDefault();
         setError('');
 
+        // Validate code before submission
+        const cleanCode = otpCode.trim();
+        if (!cleanCode) {
+            setError('Please enter the verification code.');
+            return;
+        }
+
+        if (cleanCode.length < 4) {
+            setError('Code is too short. Please check your email.');
+            return;
+        }
+
+        const previousStatus = status;
+        setStatus('verifying'); // Show loading in button
+
         try {
-            await verifyOTP(otpId, otpCode);
+            await verifyOTP(otpId, cleanCode);
             setStatus('success');
+
+            // Reload the page after successful login to refresh auth state
             setTimeout(() => {
-                onClose();
-                setStatus('idle');
-                setEmail('');
-                setOtpCode('');
+                window.location.reload();
             }, 1000);
-        } catch {
-            setError('Invalid code. Please try again.');
+        } catch (err) {
+            // Use the detailed error message from verifyOTP
+            const errorMessage = err instanceof Error ? err.message : 'Invalid code. Please try again.';
+            setError(errorMessage);
+
+            // Reset to previous status
+            setStatus(previousStatus);
+
+            // If code expired, allow user to request new one
+            if (errorMessage.toLowerCase().includes('expired') ||
+                errorMessage.toLowerCase().includes('request a new')) {
+                setTimeout(() => {
+                    setStatus('idle');
+                    setOtpCode('');
+                    setOtpId('');
+                }, 3000);
+            }
         }
     };
 
@@ -128,11 +157,31 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                     placeholder="Enter OTP Code"
                                     className="input input-bordered w-full text-center tracking-[1em] font-mono text-lg text-base-content placeholder:text-base-content/40 placeholder:tracking-normal"
                                     value={otpCode}
-                                    onChange={(e) => setOtpCode(e.target.value)}
+                                    onChange={(e) => {
+                                        // Only allow alphanumeric input
+                                        const value = e.target.value.replace(/[^a-zA-Z0-9]/g, '');
+                                        setOtpCode(value);
+                                        setError(''); // Clear error on input
+                                    }}
                                     autoFocus
+                                    maxLength={10}
+                                    disabled={status === 'requesting'}
                                 />
-                                <button type="submit" className="btn btn-primary w-full gap-2 group">
-                                    Verify Code <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                <button
+                                    type="submit"
+                                    disabled={!otpCode.trim() || status === 'requesting'}
+                                    className="btn btn-primary w-full gap-2 group"
+                                >
+                                    {status === 'requesting' ? (
+                                        <>
+                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            Verifying...
+                                        </>
+                                    ) : (
+                                        <>
+                                            Verify Code <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                        </>
+                                    )}
                                 </button>
                                 <p className="text-xs text-base-content/50 text-center">
                                     Check your spam/junk folder if you don&apos;t see the email

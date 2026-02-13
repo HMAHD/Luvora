@@ -92,14 +92,93 @@ async function ensureUserExists(email: string): Promise<void> {
 
 /**
  * Verifies the OTP code and logs the user in.
+ *
+ * @param otpId - The OTP ID from requestOTP response
+ * @param code - The verification code from user's email
+ * @throws {Error} With user-friendly message explaining the specific issue
  */
 export async function verifyOTP(otpId: string, code: string) {
+    // Validate inputs before attempting verification
+    if (!otpId || otpId.trim() === '') {
+        throw new Error('Session expired. Please request a new code.');
+    }
+
+    if (!code || code.trim() === '') {
+        throw new Error('Please enter the verification code.');
+    }
+
+    // Clean the code (remove spaces, convert to uppercase if needed)
+    const cleanCode = code.trim().replace(/\s+/g, '');
+
+    // Basic validation: most OTP codes are 6-8 characters
+    if (cleanCode.length < 4 || cleanCode.length > 10) {
+        throw new Error('Invalid code format. Please check your email and try again.');
+    }
+
     try {
-        const authData = await pb.collection('users').authWithOTP(otpId, code);
+        const authData = await pb.collection('users').authWithOTP(otpId, cleanCode);
+
+        // Log successful authentication (without sensitive data)
+        console.log('OTP verification successful:', {
+            userId: authData.record?.id,
+            email: authData.record?.email
+        });
+
         return authData;
-    } catch (error) {
-        console.error('Error verifying OTP:', error);
-        throw error;
+    } catch (error: unknown) {
+        console.error('OTP verification failed:', error);
+
+        const err = error as {
+            status?: number;
+            message?: string;
+            data?: {
+                code?: string;
+                message?: string;
+                data?: Record<string, unknown>;
+            };
+        };
+
+        // Parse PocketBase error response
+        const errorCode = err.data?.code;
+        const errorMessage = err.data?.message || err.message || '';
+
+        // Handle specific error cases with user-friendly messages
+        if (err.status === 400) {
+            // Invalid or expired OTP
+            if (errorMessage.toLowerCase().includes('expired')) {
+                throw new Error('Verification code expired. Please request a new one.');
+            }
+
+            if (errorMessage.toLowerCase().includes('invalid') || errorCode === 'invalid_otp') {
+                throw new Error('Invalid code. Please check your email and try again.');
+            }
+
+            // OTP already used
+            if (errorMessage.toLowerCase().includes('used') || errorCode === 'otp_used') {
+                throw new Error('Code already used. Please request a new one.');
+            }
+
+            // Generic 400 error
+            throw new Error('Invalid or expired code. Please request a new one.');
+        }
+
+        // Rate limiting (429)
+        if (err.status === 429) {
+            throw new Error('Too many attempts. Please wait a few minutes and try again.');
+        }
+
+        // Network errors
+        if (err.status === 0 || errorMessage.toLowerCase().includes('network')) {
+            throw new Error('Network error. Please check your connection and try again.');
+        }
+
+        // Server errors (500+)
+        if (err.status && err.status >= 500) {
+            throw new Error('Server error. Please try again in a moment.');
+        }
+
+        // Unknown error - provide generic but helpful message
+        throw new Error('Verification failed. Please request a new code and try again.');
     }
 }
 
