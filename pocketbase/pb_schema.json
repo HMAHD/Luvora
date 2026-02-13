@@ -1,0 +1,2218 @@
+[
+  {
+    "id": "pbc_3142635823",
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "name": "_superusers",
+    "type": "auth",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "cost": 0,
+        "hidden": true,
+        "id": "password901924565",
+        "max": 0,
+        "min": 8,
+        "name": "password",
+        "pattern": "",
+        "presentable": false,
+        "required": true,
+        "system": true,
+        "type": "password"
+      },
+      {
+        "autogeneratePattern": "[a-zA-Z0-9]{50}",
+        "hidden": true,
+        "id": "text2504183744",
+        "max": 60,
+        "min": 30,
+        "name": "tokenKey",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "exceptDomains": null,
+        "hidden": false,
+        "id": "email3885137012",
+        "name": "email",
+        "onlyDomains": null,
+        "presentable": false,
+        "required": true,
+        "system": true,
+        "type": "email"
+      },
+      {
+        "hidden": false,
+        "id": "bool1547992806",
+        "name": "emailVisibility",
+        "presentable": false,
+        "required": false,
+        "system": true,
+        "type": "bool"
+      },
+      {
+        "hidden": false,
+        "id": "bool256245529",
+        "name": "verified",
+        "presentable": false,
+        "required": false,
+        "system": true,
+        "type": "bool"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": true,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": true,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_tokenKey_pbc_3142635823` ON `_superusers` (`tokenKey`)",
+      "CREATE UNIQUE INDEX `idx_email_pbc_3142635823` ON `_superusers` (`email`) WHERE `email` != ''"
+    ],
+    "system": true,
+    "authRule": "",
+    "manageRule": null,
+    "authAlert": {
+      "enabled": true,
+      "emailTemplate": {
+        "subject": "Login from a new location",
+        "body": "<p>Hello,</p>\n<p>We noticed a login to your {APP_NAME} account from a new location.</p>\n<p>If this was you, you may disregard this email.</p>\n<p><strong>If this wasn't you, you should immediately change your {APP_NAME} account password to revoke access from all other locations.</strong></p>\n<p>\n  Thanks,<br/>\n  {APP_NAME} team\n</p>"
+      }
+    },
+    "oauth2": {
+      "mappedFields": {
+        "id": "",
+        "name": "",
+        "username": "",
+        "avatarURL": ""
+      },
+      "enabled": false
+    },
+    "passwordAuth": {
+      "enabled": true,
+      "identityFields": [
+        "email"
+      ]
+    },
+    "mfa": {
+      "enabled": false,
+      "duration": 1800,
+      "rule": ""
+    },
+    "otp": {
+      "enabled": false,
+      "duration": 180,
+      "length": 8,
+      "emailTemplate": {
+        "subject": "OTP for {APP_NAME}",
+        "body": "<p>Hello,</p>\n<p>Your one-time password is: <strong>{OTP}</strong></p>\n<p><i>If you didn't ask for the one-time password, you can ignore this email.</i></p>\n<p>\n  Thanks,<br/>\n  {APP_NAME} team\n</p>"
+      }
+    },
+    "authToken": {
+      "duration": 86400
+    },
+    "passwordResetToken": {
+      "duration": 1800
+    },
+    "emailChangeToken": {
+      "duration": 1800
+    },
+    "verificationToken": {
+      "duration": 259200
+    },
+    "fileToken": {
+      "duration": 180
+    },
+    "verificationTemplate": {
+      "subject": "Verify your {APP_NAME} email",
+      "body": "<p>Hello,</p>\n<p>Thank you for joining us at {APP_NAME}.</p>\n<p>Click on the button below to verify your email address.</p>\n<p>\n  <a class=\"btn\" href=\"{APP_URL}/_/#/auth/confirm-verification/{TOKEN}\" target=\"_blank\" rel=\"noopener\">Verify</a>\n</p>\n<p>\n  Thanks,<br/>\n  {APP_NAME} team\n</p>"
+    },
+    "resetPasswordTemplate": {
+      "subject": "Reset your {APP_NAME} password",
+      "body": "<p>Hello,</p>\n<p>Click on the button below to reset your password.</p>\n<p>\n  <a class=\"btn\" href=\"{APP_URL}/_/#/auth/confirm-password-reset/{TOKEN}\" target=\"_blank\" rel=\"noopener\">Reset password</a>\n</p>\n<p><i>If you didn't ask to reset your password, you can ignore this email.</i></p>\n<p>\n  Thanks,<br/>\n  {APP_NAME} team\n</p>"
+    },
+    "confirmEmailChangeTemplate": {
+      "subject": "Confirm your {APP_NAME} new email address",
+      "body": "<p>Hello,</p>\n<p>Click on the button below to confirm your new email address.</p>\n<p>\n  <a class=\"btn\" href=\"{APP_URL}/_/#/auth/confirm-email-change/{TOKEN}\" target=\"_blank\" rel=\"noopener\">Confirm new email</a>\n</p>\n<p><i>If you didn't ask to change your email address, you can ignore this email.</i></p>\n<p>\n  Thanks,<br/>\n  {APP_NAME} team\n</p>"
+    }
+  },
+  {
+    "id": "pbc_1736455494",
+    "listRule": "@request.auth.id != \"\"",
+    "viewRule": "@request.auth.id = id",
+    "createRule": "",
+    "updateRule": "@request.auth.id = id",
+    "deleteRule": "@request.auth.id = id",
+    "name": "users",
+    "type": "auth",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "cost": 0,
+        "hidden": true,
+        "id": "password901924565",
+        "max": 0,
+        "min": 8,
+        "name": "password",
+        "pattern": "",
+        "presentable": false,
+        "required": true,
+        "system": true,
+        "type": "password"
+      },
+      {
+        "autogeneratePattern": "[a-zA-Z0-9]{50}",
+        "hidden": true,
+        "id": "text2504183744",
+        "max": 60,
+        "min": 30,
+        "name": "tokenKey",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "exceptDomains": null,
+        "hidden": false,
+        "id": "email3885137012",
+        "name": "email",
+        "onlyDomains": null,
+        "presentable": false,
+        "required": true,
+        "system": true,
+        "type": "email"
+      },
+      {
+        "hidden": false,
+        "id": "bool1547992806",
+        "name": "emailVisibility",
+        "presentable": false,
+        "required": false,
+        "system": true,
+        "type": "bool"
+      },
+      {
+        "hidden": false,
+        "id": "bool256245529",
+        "name": "verified",
+        "presentable": false,
+        "required": false,
+        "system": true,
+        "type": "bool"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text236408094",
+        "max": 0,
+        "min": 0,
+        "name": "partner_name",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text922858135",
+        "max": 0,
+        "min": 0,
+        "name": "timezone",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text2639686253",
+        "max": 0,
+        "min": 0,
+        "name": "morning_time",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "number614373258",
+        "max": null,
+        "min": null,
+        "name": "tier",
+        "onlyInt": false,
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "number"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text2766477468",
+        "max": 0,
+        "min": 0,
+        "name": "recipient_role",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "select4239434145",
+        "maxSelect": 1,
+        "name": "love_language",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "ords_of_affirmation",
+          "acts_of_service",
+          "receiving_gifts",
+          "quality_time",
+          "physical_touch"
+        ]
+      },
+      {
+        "hidden": false,
+        "id": "select2145052824",
+        "maxSelect": 1,
+        "name": "preferred_tone",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "poetic",
+          "playful",
+          "romantic",
+          "passionate",
+          "sweet",
+          "supportive"
+        ]
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text2979739971",
+        "max": 0,
+        "min": 0,
+        "name": "anniversary_date",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text617099912",
+        "max": 0,
+        "min": 0,
+        "name": "partner_birthday",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text369199043",
+        "max": 0,
+        "min": 0,
+        "name": "relationship_start",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text72819641",
+        "max": 0,
+        "min": 0,
+        "name": "linked_partner_id",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "bool3304254982",
+        "name": "is_admin",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "hidden": false,
+        "id": "bool893881485",
+        "name": "morning_enabled",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "hidden": false,
+        "id": "bool4217250724",
+        "name": "evening_enabled",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text2341698636",
+        "max": 0,
+        "min": 0,
+        "name": "evening_time",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "bool1686973978",
+        "name": "special_occasions_enabled",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_tokenKey_pbc_1736455494` ON `users` (`tokenKey`)",
+      "CREATE UNIQUE INDEX `idx_email_pbc_1736455494` ON `users` (`email`) WHERE `email` != ''"
+    ],
+    "system": false,
+    "authRule": "",
+    "manageRule": null,
+    "authAlert": {
+      "enabled": true,
+      "emailTemplate": {
+        "subject": "New login to your Luvora account",
+        "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <title>New Login Detected</title>\n    <!--[if mso]>\n    <noscript>\n        <xml>\n            <o:OfficeDocumentSettings>\n                <o:PixelsPerInch>96</o:PixelsPerInch>\n            </o:OfficeDocumentSettings>\n        </xml>\n    </noscript>\n    <![endif]-->\n    <style>\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n        table { border-collapse: collapse !important; }\n        img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }\n        @media only screen and (max-width: 620px) {\n            .container { width: 100% !important; padding: 20px 16px !important; }\n            .card { padding: 32px 24px !important; }\n            .heading { font-size: 22px !important; }\n            .body-text { font-size: 14px !important; }\n            .info-box { padding: 16px !important; }\n            .info-label { font-size: 10px !important; }\n            .info-value { font-size: 13px !important; }\n        }\n    </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #0F0F1A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\">\n    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #0F0F1A;\">\n        <tr>\n            <td align=\"center\" class=\"container\" style=\"padding: 40px 20px;\">\n                <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width: 560px;\">\n\n                    <!-- Logo -->\n                    <tr>\n                        <td align=\"center\" style=\"padding-bottom: 32px;\">\n                            <span style=\"font-family: Georgia, 'Times New Roman', serif; font-size: 28px; color: #EC4899; letter-spacing: 3px; font-weight: normal;\">LUVORA</span>\n                        </td>\n                    </tr>\n\n                    <!-- Main Card -->\n                    <tr>\n                        <td class=\"card\" style=\"background-color: #1A1A2E; border-radius: 20px; padding: 48px 40px; border: 1px solid rgba(34, 197, 94, 0.2);\">\n\n                            <!-- Icon -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 24px;\">\n                                        <div style=\"width: 72px; height: 72px; background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); border-radius: 50%; line-height: 72px; text-align: center;\">\n                                            <span style=\"font-size: 32px; color: #FFFFFF;\">&#128994;</span>\n                                        </div>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Heading -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 16px;\">\n                                        <h1 class=\"heading\" style=\"margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 26px; font-weight: normal; color: #FFFFFF; line-height: 1.3;\">\n                                            New Login Detected\n                                        </h1>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Body Text -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 32px;\">\n                                        <p class=\"body-text\" style=\"margin: 0; font-size: 15px; line-height: 1.7; color: #9CA3AF; max-width: 380px;\">\n                                            We noticed a new login to your Luvora account. If this was you, no action is needed.\n                                        </p>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Login Details Box -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td style=\"padding-bottom: 32px;\">\n                                        <div class=\"info-box\" style=\"background-color: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 12px; padding: 20px;\">\n\n                                            <!-- Time -->\n                                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                                <tr>\n                                                    <td style=\"padding-bottom: 12px;\">\n                                                        <p class=\"info-label\" style=\"margin: 0 0 4px 0; font-size: 11px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;\">When</p>\n                                                        <p class=\"info-value\" style=\"margin: 0; font-size: 14px; color: #D1D5DB;\">{APP_NAME} Login - Just now</p>\n                                                    </td>\n                                                </tr>\n                                            </table>\n\n                                            <!-- Divider -->\n                                            <div style=\"height: 1px; background-color: rgba(107, 114, 128, 0.2); margin-bottom: 12px;\"></div>\n\n                                            <!-- Account -->\n                                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                                <tr>\n                                                    <td>\n                                                        <p class=\"info-label\" style=\"margin: 0 0 4px 0; font-size: 11px; color: #6B7280; text-transform: uppercase; letter-spacing: 0.5px;\">Account</p>\n                                                        <p class=\"info-value\" style=\"margin: 0; font-size: 14px; color: #D1D5DB;\">{RECORD:email}</p>\n                                                    </td>\n                                                </tr>\n                                            </table>\n\n                                        </div>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Divider -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td style=\"padding-bottom: 24px;\">\n                                        <div style=\"height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(156, 163, 175, 0.2) 50%, transparent 100%);\"></div>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Warning Section -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\">\n                                        <p style=\"margin: 0 0 16px 0; font-size: 14px; color: #9CA3AF;\">\n                                            Wasn't you?\n                                        </p>\n                                        <a href=\"{APP_URL}/_/#/auth/request-password-reset\" style=\"display: inline-block; padding: 12px 28px; background-color: rgba(239, 68, 68, 0.15); color: #EF4444; text-decoration: none; font-weight: 500; font-size: 14px; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.3);\">\n                                            Secure My Account\n                                        </a>\n                                    </td>\n                                </tr>\n                            </table>\n\n                        </td>\n                    </tr>\n\n                    <!-- Footer -->\n                    <tr>\n                        <td align=\"center\" style=\"padding-top: 32px;\">\n                            <p style=\"margin: 0; font-size: 12px; color: #4B5563; line-height: 1.6; max-width: 400px;\">\n                                This is an automated security alert. You're receiving this because login alerts are enabled for your account.\n                            </p>\n                        </td>\n                    </tr>\n\n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>"
+      }
+    },
+    "oauth2": {
+      "mappedFields": {
+        "id": "",
+        "name": "",
+        "username": "",
+        "avatarURL": ""
+      },
+      "enabled": true
+    },
+    "passwordAuth": {
+      "enabled": true,
+      "identityFields": [
+        "email"
+      ]
+    },
+    "mfa": {
+      "enabled": false,
+      "duration": 1800,
+      "rule": ""
+    },
+    "otp": {
+      "enabled": true,
+      "duration": 180,
+      "length": 5,
+      "emailTemplate": {
+        "subject": "Your Luvora verification code",
+        "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <title>Your Verification Code</title>\n    <!--[if mso]>\n    <noscript>\n        <xml>\n            <o:OfficeDocumentSettings>\n                <o:PixelsPerInch>96</o:PixelsPerInch>\n            </o:OfficeDocumentSettings>\n        </xml>\n    </noscript>\n    <![endif]-->\n    <style>\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n        table { border-collapse: collapse !important; }\n        img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }\n        @media only screen and (max-width: 620px) {\n            .container { width: 100% !important; padding: 20px 16px !important; }\n            .card { padding: 32px 24px !important; }\n            .heading { font-size: 22px !important; }\n            .body-text { font-size: 14px !important; }\n            .otp-code { font-size: 36px !important; letter-spacing: 8px !important; }\n        }\n    </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #0F0F1A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\">\n    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #0F0F1A;\">\n        <tr>\n            <td align=\"center\" class=\"container\" style=\"padding: 40px 20px;\">\n                <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width: 560px;\">\n\n                    <!-- Logo -->\n                    <tr>\n                        <td align=\"center\" style=\"padding-bottom: 32px;\">\n                            <span style=\"font-family: Georgia, 'Times New Roman', serif; font-size: 28px; color: #EC4899; letter-spacing: 3px; font-weight: normal;\">LUVORA</span>\n                        </td>\n                    </tr>\n\n                    <!-- Main Card -->\n                    <tr>\n                        <td class=\"card\" style=\"background-color: #1A1A2E; border-radius: 20px; padding: 48px 40px; border: 1px solid rgba(236, 72, 153, 0.15);\">\n\n                            <!-- Icon -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 24px;\">\n                                        <div style=\"width: 72px; height: 72px; background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 100%); border-radius: 50%; line-height: 72px; text-align: center;\">\n                                            <span style=\"font-size: 32px; color: #FFFFFF;\">&#128273;</span>\n                                        </div>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Heading -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 16px;\">\n                                        <h1 class=\"heading\" style=\"margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 26px; font-weight: normal; color: #FFFFFF; line-height: 1.3;\">\n                                            Your Verification Code\n                                        </h1>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Body Text -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 32px;\">\n                                        <p class=\"body-text\" style=\"margin: 0; font-size: 15px; line-height: 1.7; color: #9CA3AF; max-width: 380px;\">\n                                            Use the code below to complete your verification. Do not share this code with anyone.\n                                        </p>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- OTP Code -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 32px;\">\n                                        <div style=\"display: inline-block; padding: 24px 40px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%); border: 2px dashed rgba(139, 92, 246, 0.4); border-radius: 16px;\">\n                                            <p class=\"otp-code\" style=\"margin: 0; font-family: 'SF Mono', Monaco, 'Courier New', monospace; font-size: 42px; font-weight: bold; color: #A855F7; letter-spacing: 12px;\">\n                                                {OTP}\n                                            </p>\n                                        </div>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Divider -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td style=\"padding-bottom: 24px;\">\n                                        <div style=\"height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(156, 163, 175, 0.2) 50%, transparent 100%);\"></div>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Security Tip -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\">\n                                        <p style=\"margin: 0; font-size: 13px; color: #6B7280; line-height: 1.6;\">\n                                            <span style=\"color: #F59E0B;\">Tip:</span> Luvora will never ask you for this code via phone or email. Only enter it on luvora.love\n                                        </p>\n                                    </td>\n                                </tr>\n                            </table>\n\n                        </td>\n                    </tr>\n\n                    <!-- Expiry Notice -->\n                    <tr>\n                        <td align=\"center\" style=\"padding-top: 24px;\">\n                            <p style=\"margin: 0; font-size: 13px; color: #6B7280;\">\n                                This code expires in 10 minutes.\n                            </p>\n                        </td>\n                    </tr>\n\n                    <!-- Security Notice -->\n                    <tr>\n                        <td align=\"center\" style=\"padding-top: 24px;\">\n                            <p style=\"margin: 0; font-size: 12px; color: #4B5563; line-height: 1.6; max-width: 400px;\">\n                                If you didn't request this code, someone may be trying to access your account. Please secure your account.\n                            </p>\n                        </td>\n                    </tr>\n\n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>"
+      }
+    },
+    "authToken": {
+      "duration": 604800
+    },
+    "passwordResetToken": {
+      "duration": 1800
+    },
+    "emailChangeToken": {
+      "duration": 1800
+    },
+    "verificationToken": {
+      "duration": 259200
+    },
+    "fileToken": {
+      "duration": 180
+    },
+    "verificationTemplate": {
+      "subject": "Verify your Luvora account",
+      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <title>Verify Your Email</title>\n    <!--[if mso]>\n    <noscript>\n        <xml>\n            <o:OfficeDocumentSettings>\n                <o:PixelsPerInch>96</o:PixelsPerInch>\n            </o:OfficeDocumentSettings>\n        </xml>\n    </noscript>\n    <![endif]-->\n    <style>\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n        table { border-collapse: collapse !important; }\n        img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }\n        @media only screen and (max-width: 620px) {\n            .container { width: 100% !important; padding: 20px 16px !important; }\n            .card { padding: 32px 24px !important; }\n            .heading { font-size: 22px !important; }\n            .body-text { font-size: 14px !important; }\n            .btn { padding: 14px 32px !important; font-size: 14px !important; }\n        }\n    </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #0F0F1A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\">\n    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #0F0F1A;\">\n        <tr>\n            <td align=\"center\" class=\"container\" style=\"padding: 40px 20px;\">\n                <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width: 560px;\">\n\n                    <!-- Logo -->\n                    <tr>\n                        <td align=\"center\" style=\"padding-bottom: 32px;\">\n                            <span style=\"font-family: Georgia, 'Times New Roman', serif; font-size: 28px; color: #EC4899; letter-spacing: 3px; font-weight: normal;\">LUVORA</span>\n                        </td>\n                    </tr>\n\n                    <!-- Main Card -->\n                    <tr>\n                        <td class=\"card\" style=\"background-color: #1A1A2E; border-radius: 20px; padding: 48px 40px; border: 1px solid rgba(236, 72, 153, 0.15);\">\n\n                            <!-- Icon -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 24px;\">\n                                        <div style=\"width: 72px; height: 72px; background: linear-gradient(135deg, #EC4899 0%, #F43F5E 100%); border-radius: 50%; line-height: 72px; text-align: center;\">\n                                            <span style=\"font-size: 32px; color: #FFFFFF;\">&#9993;</span>\n                                        </div>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Heading -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 16px;\">\n                                        <h1 class=\"heading\" style=\"margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 26px; font-weight: normal; color: #FFFFFF; line-height: 1.3;\">\n                                            Verify Your Email\n                                        </h1>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Body Text -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 32px;\">\n                                        <p class=\"body-text\" style=\"margin: 0; font-size: 15px; line-height: 1.7; color: #9CA3AF; max-width: 380px;\">\n                                            Welcome to Luvora! Please verify your email address to start receiving daily sparks and unlock all features.\n                                        </p>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Button -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 32px;\">\n                                        <a href=\"{ACTION_URL}\" class=\"btn\" style=\"display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #EC4899 0%, #F43F5E 100%); color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(236, 72, 153, 0.35);\">\n                                            Verify Email Address\n                                        </a>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Divider -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td style=\"padding-bottom: 24px;\">\n                                        <div style=\"height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(156, 163, 175, 0.2) 50%, transparent 100%);\"></div>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Alternative Link -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\">\n                                        <p style=\"margin: 0 0 12px 0; font-size: 12px; color: #6B7280;\">\n                                            Or copy and paste this link:\n                                        </p>\n                                        <p style=\"margin: 0; font-size: 11px; color: #4B5563; word-break: break-all; max-width: 400px;\">\n                                            {ACTION_URL}\n                                        </p>\n                                    </td>\n                                </tr>\n                            </table>\n\n                        </td>\n                    </tr>\n\n                    <!-- Expiry Notice -->\n                    <tr>\n                        <td align=\"center\" style=\"padding-top: 24px;\">\n                            <p style=\"margin: 0; font-size: 13px; color: #6B7280;\">\n                                This link expires in 2 hours.\n                            </p>\n                        </td>\n                    </tr>\n\n                    <!-- Footer -->\n                    <tr>\n                        <td align=\"center\" style=\"padding-top: 32px;\">\n                            <p style=\"margin: 0; font-size: 12px; color: #4B5563; line-height: 1.6;\">\n                                If you didn't create a Luvora account, you can safely ignore this email.\n                            </p>\n                        </td>\n                    </tr>\n\n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>"
+    },
+    "resetPasswordTemplate": {
+      "subject": "Reset your Luvora password",
+      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <title>Reset Your Password</title>\n    <!--[if mso]>\n    <noscript>\n        <xml>\n            <o:OfficeDocumentSettings>\n                <o:PixelsPerInch>96</o:PixelsPerInch>\n            </o:OfficeDocumentSettings>\n        </xml>\n    </noscript>\n    <![endif]-->\n    <style>\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n        table { border-collapse: collapse !important; }\n        img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }\n        @media only screen and (max-width: 620px) {\n            .container { width: 100% !important; padding: 20px 16px !important; }\n            .card { padding: 32px 24px !important; }\n            .heading { font-size: 22px !important; }\n            .body-text { font-size: 14px !important; }\n            .btn { padding: 14px 32px !important; font-size: 14px !important; }\n        }\n    </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #0F0F1A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\">\n    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #0F0F1A;\">\n        <tr>\n            <td align=\"center\" class=\"container\" style=\"padding: 40px 20px;\">\n                <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width: 560px;\">\n\n                    <!-- Logo -->\n                    <tr>\n                        <td align=\"center\" style=\"padding-bottom: 32px;\">\n                            <span style=\"font-family: Georgia, 'Times New Roman', serif; font-size: 28px; color: #EC4899; letter-spacing: 3px; font-weight: normal;\">LUVORA</span>\n                        </td>\n                    </tr>\n\n                    <!-- Main Card -->\n                    <tr>\n                        <td class=\"card\" style=\"background-color: #1A1A2E; border-radius: 20px; padding: 48px 40px; border: 1px solid rgba(107, 114, 128, 0.2);\">\n\n                            <!-- Icon -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 24px;\">\n                                        <div style=\"width: 72px; height: 72px; background-color: rgba(107, 114, 128, 0.15); border-radius: 50%; line-height: 72px; text-align: center;\">\n                                            <span style=\"font-size: 32px;\">&#128274;</span>\n                                        </div>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Heading -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 16px;\">\n                                        <h1 class=\"heading\" style=\"margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 26px; font-weight: normal; color: #FFFFFF; line-height: 1.3;\">\n                                            Reset Your Password\n                                        </h1>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Body Text -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 32px;\">\n                                        <p class=\"body-text\" style=\"margin: 0; font-size: 15px; line-height: 1.7; color: #9CA3AF; max-width: 380px;\">\n                                            We received a request to reset your password. Click the button below to create a new password for your account.\n                                        </p>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Button -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 32px;\">\n                                        <a href=\"{ACTION_URL}\" class=\"btn\" style=\"display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #EC4899 0%, #F43F5E 100%); color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(236, 72, 153, 0.35);\">\n                                            Reset Password\n                                        </a>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Divider -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td style=\"padding-bottom: 24px;\">\n                                        <div style=\"height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(156, 163, 175, 0.2) 50%, transparent 100%);\"></div>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Alternative Link -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\">\n                                        <p style=\"margin: 0 0 12px 0; font-size: 12px; color: #6B7280;\">\n                                            Or copy and paste this link:\n                                        </p>\n                                        <p style=\"margin: 0; font-size: 11px; color: #4B5563; word-break: break-all; max-width: 400px;\">\n                                            {ACTION_URL}\n                                        </p>\n                                    </td>\n                                </tr>\n                            </table>\n\n                        </td>\n                    </tr>\n\n                    <!-- Expiry Notice -->\n                    <tr>\n                        <td align=\"center\" style=\"padding-top: 24px;\">\n                            <p style=\"margin: 0; font-size: 13px; color: #6B7280;\">\n                                This link expires in 1 hour.\n                            </p>\n                        </td>\n                    </tr>\n\n                    <!-- Security Notice -->\n                    <tr>\n                        <td align=\"center\" style=\"padding-top: 24px;\">\n                            <p style=\"margin: 0; font-size: 12px; color: #4B5563; line-height: 1.6; max-width: 400px;\">\n                                If you didn't request this password reset, you can safely ignore this email. Your password will remain unchanged.\n                            </p>\n                        </td>\n                    </tr>\n\n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>"
+    },
+    "confirmEmailChangeTemplate": {
+      "subject": "Confirm your new email address",
+      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <title>Confirm Email Change</title>\n    <!--[if mso]>\n    <noscript>\n        <xml>\n            <o:OfficeDocumentSettings>\n                <o:PixelsPerInch>96</o:PixelsPerInch>\n            </o:OfficeDocumentSettings>\n        </xml>\n    </noscript>\n    <![endif]-->\n    <style>\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body { width: 100% !important; -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }\n        table { border-collapse: collapse !important; }\n        img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }\n        @media only screen and (max-width: 620px) {\n            .container { width: 100% !important; padding: 20px 16px !important; }\n            .card { padding: 32px 24px !important; }\n            .heading { font-size: 22px !important; }\n            .body-text { font-size: 14px !important; }\n            .btn { padding: 14px 32px !important; font-size: 14px !important; }\n        }\n    </style>\n</head>\n<body style=\"margin: 0; padding: 0; background-color: #0F0F1A; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;\">\n    <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background-color: #0F0F1A;\">\n        <tr>\n            <td align=\"center\" class=\"container\" style=\"padding: 40px 20px;\">\n                <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width: 560px;\">\n\n                    <!-- Logo -->\n                    <tr>\n                        <td align=\"center\" style=\"padding-bottom: 32px;\">\n                            <span style=\"font-family: Georgia, 'Times New Roman', serif; font-size: 28px; color: #EC4899; letter-spacing: 3px; font-weight: normal;\">LUVORA</span>\n                        </td>\n                    </tr>\n\n                    <!-- Main Card -->\n                    <tr>\n                        <td class=\"card\" style=\"background-color: #1A1A2E; border-radius: 20px; padding: 48px 40px; border: 1px solid rgba(59, 130, 246, 0.2);\">\n\n                            <!-- Icon -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 24px;\">\n                                        <div style=\"width: 72px; height: 72px; background: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%); border-radius: 50%; line-height: 72px; text-align: center;\">\n                                            <span style=\"font-size: 32px; color: #FFFFFF;\">&#9993;</span>\n                                        </div>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Heading -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 16px;\">\n                                        <h1 class=\"heading\" style=\"margin: 0; font-family: Georgia, 'Times New Roman', serif; font-size: 26px; font-weight: normal; color: #FFFFFF; line-height: 1.3;\">\n                                            Confirm Your New Email\n                                        </h1>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Body Text -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 24px;\">\n                                        <p class=\"body-text\" style=\"margin: 0; font-size: 15px; line-height: 1.7; color: #9CA3AF; max-width: 380px;\">\n                                            You requested to change your email address. Click the button below to confirm this change.\n                                        </p>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- New Email Display -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 32px;\">\n                                        <div style=\"display: inline-block; padding: 12px 24px; background-color: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 10px;\">\n                                            <p style=\"margin: 0 0 4px 0; font-size: 11px; color: #6B7280; text-transform: uppercase; letter-spacing: 1px;\">New Email</p>\n                                            <p style=\"margin: 0; font-size: 15px; color: #93C5FD; font-weight: 500;\">{RECORD:email}</p>\n                                        </div>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Button -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\" style=\"padding-bottom: 32px;\">\n                                        <a href=\"{ACTION_URL}\" class=\"btn\" style=\"display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #3B82F6 0%, #6366F1 100%); color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(59, 130, 246, 0.35);\">\n                                            Confirm Email Change\n                                        </a>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Divider -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td style=\"padding-bottom: 24px;\">\n                                        <div style=\"height: 1px; background: linear-gradient(90deg, transparent 0%, rgba(156, 163, 175, 0.2) 50%, transparent 100%);\"></div>\n                                    </td>\n                                </tr>\n                            </table>\n\n                            <!-- Alternative Link -->\n                            <table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n                                <tr>\n                                    <td align=\"center\">\n                                        <p style=\"margin: 0 0 12px 0; font-size: 12px; color: #6B7280;\">\n                                            Or copy and paste this link:\n                                        </p>\n                                        <p style=\"margin: 0; font-size: 11px; color: #4B5563; word-break: break-all; max-width: 400px;\">\n                                            {ACTION_URL}\n                                        </p>\n                                    </td>\n                                </tr>\n                            </table>\n\n                        </td>\n                    </tr>\n\n                    <!-- Expiry Notice -->\n                    <tr>\n                        <td align=\"center\" style=\"padding-top: 24px;\">\n                            <p style=\"margin: 0; font-size: 13px; color: #6B7280;\">\n                                This link expires in 1 hour.\n                            </p>\n                        </td>\n                    </tr>\n\n                    <!-- Security Notice -->\n                    <tr>\n                        <td align=\"center\" style=\"padding-top: 24px;\">\n                            <p style=\"margin: 0; font-size: 12px; color: #4B5563; line-height: 1.6; max-width: 400px;\">\n                                If you didn't request this change, please secure your account immediately by resetting your password.\n                            </p>\n                        </td>\n                    </tr>\n\n                </table>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>"
+    }
+  },
+  {
+    "id": "pbc_4275539003",
+    "listRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+    "viewRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+    "name": "_authOrigins",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text455797646",
+        "max": 0,
+        "min": 0,
+        "name": "collectionRef",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text127846527",
+        "max": 0,
+        "min": 0,
+        "name": "recordRef",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text4228609354",
+        "max": 0,
+        "min": 0,
+        "name": "fingerprint",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": true,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": true,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_authOrigins_unique_pairs` ON `_authOrigins` (collectionRef, recordRef, fingerprint)"
+    ],
+    "system": true
+  },
+  {
+    "id": "pbc_2281828961",
+    "listRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+    "viewRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+    "name": "_externalAuths",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text455797646",
+        "max": 0,
+        "min": 0,
+        "name": "collectionRef",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text127846527",
+        "max": 0,
+        "min": 0,
+        "name": "recordRef",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text2462348188",
+        "max": 0,
+        "min": 0,
+        "name": "provider",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text1044722854",
+        "max": 0,
+        "min": 0,
+        "name": "providerId",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": true,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": true,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_externalAuths_record_provider` ON `_externalAuths` (collectionRef, recordRef, provider)",
+      "CREATE UNIQUE INDEX `idx_externalAuths_collection_provider` ON `_externalAuths` (collectionRef, provider, providerId)"
+    ],
+    "system": true
+  },
+  {
+    "id": "pbc_2279338944",
+    "listRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+    "viewRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "name": "_mfas",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text455797646",
+        "max": 0,
+        "min": 0,
+        "name": "collectionRef",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text127846527",
+        "max": 0,
+        "min": 0,
+        "name": "recordRef",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text1582905952",
+        "max": 0,
+        "min": 0,
+        "name": "method",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": true,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": true,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE INDEX `idx_mfas_collectionRef_recordRef` ON `_mfas` (collectionRef,recordRef)"
+    ],
+    "system": true
+  },
+  {
+    "id": "pbc_1638494021",
+    "listRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+    "viewRule": "@request.auth.id != '' && recordRef = @request.auth.id && collectionRef = @request.auth.collectionId",
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "name": "_otps",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text455797646",
+        "max": 0,
+        "min": 0,
+        "name": "collectionRef",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text127846527",
+        "max": 0,
+        "min": 0,
+        "name": "recordRef",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "cost": 8,
+        "hidden": true,
+        "id": "password901924565",
+        "max": 0,
+        "min": 0,
+        "name": "password",
+        "pattern": "",
+        "presentable": false,
+        "required": true,
+        "system": true,
+        "type": "password"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": true,
+        "id": "text3866985172",
+        "max": 0,
+        "min": 0,
+        "name": "sentTo",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": true,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": true,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE INDEX `idx_otps_collectionRef_recordRef` ON `_otps` (collectionRef, recordRef)"
+    ],
+    "system": true
+  },
+  {
+    "id": "pbc_2248329634",
+    "listRule": "@request.auth.id != '' || published = true",
+    "viewRule": "@request.auth.id != '' || published = true",
+    "createRule": "@request.auth.is_admin = true",
+    "updateRule": "@request.auth.is_admin = true",
+    "deleteRule": "@request.auth.is_admin = true",
+    "name": "blog_posts",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text2560465762",
+        "max": 0,
+        "min": 0,
+        "name": "slug",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text724990059",
+        "max": 0,
+        "min": 0,
+        "name": "title",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text1843675174",
+        "max": 0,
+        "min": 0,
+        "name": "description",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "convertURLs": false,
+        "hidden": false,
+        "id": "editor4274335913",
+        "maxSize": 0,
+        "name": "content",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "editor"
+      },
+      {
+        "hidden": false,
+        "id": "json2858399070",
+        "maxSize": 0,
+        "name": "keywords",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "json"
+      },
+      {
+        "hidden": false,
+        "id": "select105650625",
+        "maxSelect": 4,
+        "name": "category",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "One of: relationships",
+          "communication",
+          "tips",
+          "love-languages"
+        ]
+      },
+      {
+        "hidden": false,
+        "id": "number211716714",
+        "max": null,
+        "min": null,
+        "name": "readingTime",
+        "onlyInt": false,
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "number"
+      },
+      {
+        "hidden": false,
+        "id": "date3085063276",
+        "max": "",
+        "min": "",
+        "name": "publishedAt",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "hidden": false,
+        "id": "date3175243278",
+        "max": "",
+        "min": "",
+        "name": "updatedAt",
+        "presentable": false,
+        "required": true,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "exceptDomains": null,
+        "hidden": false,
+        "id": "url3309110367",
+        "name": "image",
+        "onlyDomains": null,
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "url"
+      },
+      {
+        "hidden": false,
+        "id": "bool1748787223",
+        "name": "published",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "  CREATE INDEX idx_blog_posts_category ON blog_posts (category)",
+      " CREATE INDEX idx_blog_posts_published ON blog_posts (published)\n",
+      "  CREATE UNIQUE INDEX idx_blog_posts_slug ON blog_posts (slug)"
+    ],
+    "system": false
+  },
+  {
+    "id": "pbc_231688687",
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "name": "broadcast_logs",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_1736455494",
+        "hidden": false,
+        "id": "relation2809058197",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "user_id",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text89163564",
+        "max": 0,
+        "min": 0,
+        "name": "user_email",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "select961728715",
+        "maxSelect": 1,
+        "name": "platform",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "telegram",
+          "whatsapp",
+          "email"
+        ]
+      },
+      {
+        "hidden": false,
+        "id": "select2063623452",
+        "maxSelect": 1,
+        "name": "status",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "success",
+          "failed",
+          "pending"
+        ]
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text1574812785",
+        "max": 0,
+        "min": 0,
+        "name": "error",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "date2531586952",
+        "max": "",
+        "min": "",
+        "name": "sent_at",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [],
+    "system": false
+  },
+  {
+    "id": "q5r6s7t8u9v0w1x",
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != \"\"",
+    "updateRule": null,
+    "deleteRule": null,
+    "name": "message_stats",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "y2z3a4b5c6d7e8f",
+        "max": 0,
+        "min": 0,
+        "name": "date",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "g9h0i1j2k3l4m5n",
+        "max": null,
+        "min": null,
+        "name": "copy_count",
+        "onlyInt": false,
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "number"
+      },
+      {
+        "hidden": false,
+        "id": "o6p7q8r9s0t1u2v",
+        "max": null,
+        "min": null,
+        "name": "total_users",
+        "onlyInt": false,
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "number"
+      }
+    ],
+    "indexes": [],
+    "system": false
+  },
+  {
+    "id": "w3x4y5z6a7b8c9d",
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.id != \"\"",
+    "updateRule": "@request.auth.id != \"\"",
+    "deleteRule": "@request.auth.id != \"\"",
+    "name": "messages",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "e0f1g2h3i4j5k6l",
+        "max": 0,
+        "min": 0,
+        "name": "content",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "number614373258",
+        "max": 2,
+        "min": 0,
+        "name": "tier",
+        "onlyInt": false,
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "number"
+      },
+      {
+        "hidden": false,
+        "id": "select2321997029",
+        "maxSelect": 1,
+        "name": "occasion",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "daily",
+          "anniversary",
+          "birthday",
+          "valentines",
+          "holiday"
+        ]
+      },
+      {
+        "hidden": false,
+        "id": "select1181691900",
+        "maxSelect": 1,
+        "name": "target",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "neutral",
+          "feminine",
+          "masculine"
+        ]
+      },
+      {
+        "hidden": false,
+        "id": "select1107643393",
+        "maxSelect": 1,
+        "name": "vibe",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "poetic",
+          "playful",
+          "romantic",
+          "passionate",
+          "sweet",
+          "supportive"
+        ]
+      },
+      {
+        "hidden": false,
+        "id": "select2389392961",
+        "maxSelect": 1,
+        "name": "time_of_day",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "morning",
+          "night",
+          "midday",
+          "anytime"
+        ]
+      },
+      {
+        "hidden": false,
+        "id": "select3082862150",
+        "maxSelect": 1,
+        "name": "rarity",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "common",
+          "rare",
+          "epic",
+          "legendary"
+        ]
+      },
+      {
+        "hidden": false,
+        "id": "select4239434145",
+        "maxSelect": 1,
+        "name": "love_language",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "words_of_affirmation",
+          "acts_of_service",
+          "receiving_gifts",
+          "quality_time",
+          "physical_touch"
+        ]
+      }
+    ],
+    "indexes": [],
+    "system": false
+  },
+  {
+    "id": "pbc_2726288687",
+    "listRule": "@request.auth.id != \"\" && user.id = @request.auth.id",
+    "viewRule": "@request.auth.id != \"\" && user.id = @request.auth.id",
+    "createRule": "@request.auth.id != \"\" && user.id = @request.auth.id",
+    "updateRule": "@request.auth.id != \"\" && user.id = @request.auth.id",
+    "deleteRule": "@request.auth.id != \"\" && user.id = @request.auth.id",
+    "name": "messaging_channels",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "cascadeDelete": true,
+        "collectionId": "pbc_1736455494",
+        "hidden": false,
+        "id": "relation2375276105",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "user",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "hidden": false,
+        "id": "select961728715",
+        "maxSelect": 1,
+        "name": "platform",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "telegram",
+          "whatsapp",
+          "discord"
+        ]
+      },
+      {
+        "hidden": false,
+        "id": "bool1358543748",
+        "name": "enabled",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "hidden": false,
+        "id": "json3565825916",
+        "maxSize": 0,
+        "name": "config",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "json"
+      },
+      {
+        "hidden": false,
+        "id": "date4016875332",
+        "max": "",
+        "min": "",
+        "name": "last_used",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE UNIQUE INDEX `idx_wfCbohWSDl` ON `messaging_channels` (\n  `user`,\n  `platform`\n)",
+      "CREATE INDEX `idx_BrwnHL7dYa` ON `messaging_channels` (\n  `user`,\n  `enabled`\n)"
+    ],
+    "system": false
+  },
+  {
+    "id": "pbc_4085011857",
+    "listRule": "@request.auth.id != \"\" && user.id = @request.auth.id",
+    "viewRule": "@request.auth.id != \"\" && user.id = @request.auth.id",
+    "createRule": "@request.auth.id = user.id",
+    "updateRule": "@request.auth.id != \"\"",
+    "deleteRule": "@request.auth.id != \"\"",
+    "name": "messaging_notifications",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "cascadeDelete": true,
+        "collectionId": "pbc_1736455494",
+        "hidden": false,
+        "id": "relation2375276105",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "user",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "hidden": false,
+        "id": "select961728715",
+        "maxSelect": 1,
+        "name": "platform",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "telegram",
+          "whatsapp",
+          "discord"
+        ]
+      },
+      {
+        "hidden": false,
+        "id": "select2363381545",
+        "maxSelect": 1,
+        "name": "type",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "spark",
+          "automation",
+          "alert"
+        ]
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text4274335913",
+        "max": 0,
+        "min": 0,
+        "name": "content",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "select2063623452",
+        "maxSelect": 1,
+        "name": "status",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "pending",
+          "sent",
+          "failed"
+        ]
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text1574812785",
+        "max": 0,
+        "min": 0,
+        "name": "error",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "date2531586952",
+        "max": "",
+        "min": "",
+        "name": "sent_at",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [
+      "CREATE INDEX `idx_AeRBnn57Gb` ON `messaging_notifications` (\n  `user`,\n  `status`\n)",
+      "CREATE INDEX `idx_wWPENYa3Ov` ON `messaging_notifications` (\n  `user`,\n  `created`\n)",
+      "CREATE INDEX `idx_XOoEqmDroe` ON `messaging_notifications` (\n  `platform`,\n  `status`\n)"
+    ],
+    "system": false
+  },
+  {
+    "id": "pbc_730476556",
+    "listRule": "@request.auth.id != \"\" && (inviter_id = @request.auth.id || invitee_id = @request.auth.id)",
+    "viewRule": "@request.auth.id != \"\"",
+    "createRule": "@request.auth.id != \"\" && @request.body.inviter_id = @request.auth.id",
+    "updateRule": "@request.auth.id != \"\" && (inviter_id = @request.auth.id || invitee_id = @request.auth.id)",
+    "deleteRule": "@request.auth.id != \"\" && inviter_id = @request.auth.id",
+    "name": "partner_links",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "cascadeDelete": true,
+        "collectionId": "pbc_1736455494",
+        "hidden": false,
+        "id": "relation3080670980",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "inviter_id",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_1736455494",
+        "hidden": false,
+        "id": "relation2052136994",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "invitee_id",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text1864495378",
+        "max": 32,
+        "min": 8,
+        "name": "invite_code",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "select2063623452",
+        "maxSelect": 1,
+        "name": "status",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "pending",
+          "accepted",
+          "expired",
+          "revoked"
+        ]
+      },
+      {
+        "hidden": false,
+        "id": "date261981154",
+        "max": "",
+        "min": "",
+        "name": "expires_at",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "date"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [],
+    "system": false
+  },
+  {
+    "id": "pbc_2769025244",
+    "listRule": "",
+    "viewRule": "",
+    "createRule": "@request.auth.is_admin = true",
+    "updateRule": "@request.auth.is_admin = true",
+    "deleteRule": "@request.auth.is_admin = true",
+    "name": "settings",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text2324736937",
+        "max": 0,
+        "min": 0,
+        "name": "key",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "json494360628",
+        "maxSize": 0,
+        "name": "value",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "json"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [],
+    "system": false
+  },
+  {
+    "id": "pbc_1312073526",
+    "listRule": "@request.auth.id != \"\" && user_id = @request.auth.id",
+    "viewRule": "@request.auth.id != \"\" && user_id = @request.auth.id",
+    "createRule": "@request.auth.id != \"\" && @request.body.user_id = @request.auth.id",
+    "updateRule": "@request.auth.id != \"\" && user_id = @request.auth.id",
+    "deleteRule": "@request.auth.id != \"\" && user_id = @request.auth.id",
+    "name": "spark_history",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "cascadeDelete": true,
+        "collectionId": "pbc_1736455494",
+        "hidden": false,
+        "id": "relation2809058197",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "user_id",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text1850542757",
+        "max": 0,
+        "min": 0,
+        "name": "message_content",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": true,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text2862495610",
+        "max": 0,
+        "min": 0,
+        "name": "date",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "select4239434145",
+        "maxSelect": 1,
+        "name": "love_language",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "words_of_affirmation",
+          "acts_of_service",
+          "receiving_gifts",
+          "quality_time",
+          "physical_touch"
+        ]
+      },
+      {
+        "hidden": false,
+        "id": "select1077196596",
+        "maxSelect": 1,
+        "name": "tone",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "poetic",
+          "playful",
+          "romantic",
+          "passionate",
+          "sweet",
+          "supportive"
+        ]
+      },
+      {
+        "hidden": false,
+        "id": "select3082862150",
+        "maxSelect": 1,
+        "name": "rarity",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "common",
+          "rare",
+          "epic",
+          "legendary"
+        ]
+      },
+      {
+        "hidden": false,
+        "id": "bool4251777245",
+        "name": "is_favorite",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "hidden": false,
+        "id": "bool3909826885",
+        "name": "was_shared",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "bool"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [],
+    "system": false
+  },
+  {
+    "id": "pbc_310001209",
+    "listRule": null,
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "name": "tier_audit_logs",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "cascadeDelete": false,
+        "collectionId": "pbc_1736455494",
+        "hidden": false,
+        "id": "relation2809058197",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "user_id",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
+        "hidden": false,
+        "id": "number3528589135",
+        "max": 2,
+        "min": 0,
+        "name": "previous_tier",
+        "onlyInt": false,
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "number"
+      },
+      {
+        "hidden": false,
+        "id": "number3497206615",
+        "max": 2,
+        "min": 0,
+        "name": "new_tier",
+        "onlyInt": false,
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "number"
+      },
+      {
+        "hidden": false,
+        "id": "select1001949196",
+        "maxSelect": 1,
+        "name": "reason",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "select",
+        "values": [
+          "purchase",
+          "refund",
+          "dispute",
+          "admin_upgrade",
+          "admin_downgrade",
+          "sync_script",
+          "promo_code",
+          "gift",
+          "system"
+        ]
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text280784287",
+        "max": 0,
+        "min": 0,
+        "name": "changed_by",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "json1326724116",
+        "maxSize": 0,
+        "name": "metadata",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "json"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [],
+    "system": false
+  }
+]
