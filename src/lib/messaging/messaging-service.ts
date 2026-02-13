@@ -322,7 +322,7 @@ class MessagingService {
      */
     isChannelRunning(userId: string, platform: MessagingPlatform): boolean {
         const userChannels = this.channels.get(userId);
-        return !!userChannels?.[platform];
+        return !!userChannels?.[platform as keyof UserChannels];
     }
 
     /**
@@ -330,7 +330,7 @@ class MessagingService {
      */
     getChannel(userId: string, platform: MessagingPlatform): ChannelInstance | null {
         const userChannels = this.channels.get(userId);
-        return userChannels?.[platform] || null;
+        return userChannels?.[platform as keyof UserChannels] || null;
     }
 
     /**

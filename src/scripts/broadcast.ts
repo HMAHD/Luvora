@@ -66,22 +66,21 @@ async function runBroadcast() {
 
                 // 5. Send
                 if (user.messaging_platform && user.messaging_id) {
-                    const sent = await sendMessage({
-                        to: user.messaging_id,
-                        platform: user.messaging_platform,
-                        body: messageBody
-                    });
+                    try {
+                        await messagingService.sendMessage(user.id, {
+                            platform: user.messaging_platform as 'telegram' | 'whatsapp',
+                            content: messageBody
+                        });
 
-                    // 6. Atomic Update
-                    if (sent) {
+                        // 6. Atomic Update
                         const newStreak = (user.streak || 0) + 1;
                         await pb.collection('users').update(user.id || '', {
                             last_sent_date: today,
                             streak: newStreak
                         });
                         console.log(`✅ Sent to ${user.email} (Streak: ${newStreak})`);
-                    } else {
-                        console.error(`❌ Failed to send to ${user.email}`);
+                    } catch (error) {
+                        console.error(`❌ Failed to send to ${user.email}:`, error);
                     }
                 }
             }
