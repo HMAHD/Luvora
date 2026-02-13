@@ -214,7 +214,13 @@ class MessagingService {
         await channel.start();
 
         // Store channel instance
-        userChannels[platform as keyof UserChannels] = channel as any;
+        if (platform === 'telegram') {
+            userChannels.telegram = channel;
+        } else if (platform === 'whatsapp') {
+            userChannels.whatsapp = channel;
+        } else if (platform === 'discord') {
+            userChannels.discord = channel;
+        }
     }
 
     /**
@@ -232,7 +238,15 @@ class MessagingService {
         }
 
         await channel.stop();
-        delete userChannels[platform as keyof UserChannels];
+
+        // Remove channel from map
+        if (platform === 'telegram') {
+            delete userChannels.telegram;
+        } else if (platform === 'whatsapp') {
+            delete userChannels.whatsapp;
+        } else if (platform === 'discord') {
+            delete userChannels.discord;
+        }
     }
 
     /**
