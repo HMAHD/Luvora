@@ -864,24 +864,25 @@ function DashboardContent() {
             {/* Relationship Profile */}
             <div className="card bg-base-100 shadow-xl border border-base-content/10">
               <div className="card-body p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div>
-                    <h2 className="card-title text-xl font-bold flex items-center gap-2 mb-2">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
-                        <User className="w-5 h-5 text-primary" />
-                      </div>
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center flex-shrink-0">
+                    <User className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h2 className="text-xl font-bold text-base-content">
                       Relationship Profile
                     </h2>
-                    <p className="text-sm text-base-content/70 ml-12">
+                    <p className="text-sm text-base-content/70">
                       Tell us about your special someone to personalize every spark
                     </p>
                   </div>
                 </div>
 
-                <div className="space-y-5 mt-4">
+                <div className="space-y-6">
                   {/* Partner Name Input */}
                   <div className="form-control">
-                    <label className="label">
+                    <label className="label pb-2">
                       <span className="label-text font-medium flex items-center gap-2">
                         <Heart className="w-4 h-4 text-pink-400" />
                         Partner&apos;s Name
@@ -894,7 +895,7 @@ function DashboardContent() {
                       value={formPartnerName}
                       onChange={(e) => setFormPartnerName(e.target.value)}
                     />
-                    <label className="label">
+                    <label className="label pt-2">
                       <span className="label-text-alt text-base-content/60">
                         This name will appear in your personalized messages
                       </span>
@@ -903,7 +904,7 @@ function DashboardContent() {
 
                   {/* Recipient Role Selection */}
                   <div className="form-control">
-                    <label className="label">
+                    <label className="label pb-2">
                       <span className="label-text font-medium flex items-center gap-2">
                         <Sparkles className="w-4 h-4 text-secondary" />
                         Recipient Role
@@ -914,7 +915,7 @@ function DashboardContent() {
                         <button
                           key={r}
                           onClick={() => setFormRole(r)}
-                          className={`btn btn-lg relative overflow-hidden transition-all duration-300 ${
+                          className={`btn btn-lg relative transition-all duration-300 ${
                             formRole === r
                               ? r === 'feminine'
                                 ? 'btn-secondary shadow-lg shadow-secondary/30'
@@ -924,18 +925,16 @@ function DashboardContent() {
                               : 'btn-outline hover:shadow-md'
                           }`}
                         >
-                          {formRole === r && (
-                            <div className="absolute top-1 right-1">
-                              <Check className="w-4 h-4" />
-                            </div>
-                          )}
-                          <span className="flex items-center gap-2">
+                          <span className="flex items-center gap-1.5">
                             {r === 'neutral' ? '💑 Partner' : r === 'feminine' ? '💖 Her' : '💙 Him'}
                           </span>
+                          {formRole === r && (
+                            <Check className="w-4 h-4 absolute top-2 right-2" />
+                          )}
                         </button>
                       ))}
                     </div>
-                    <label className="label">
+                    <label className="label pt-2">
                       <span className="label-text-alt text-base-content/60">
                         Messages will be crafted specifically for{' '}
                         <span className="font-medium text-base-content">
@@ -946,7 +945,7 @@ function DashboardContent() {
                   </div>
 
                   {/* Save Button */}
-                  <div className="pt-4">
+                  <div className="pt-2">
                     <button
                       onClick={handleSaveProfile}
                       disabled={saving || !formPartnerName.trim()}
@@ -972,7 +971,7 @@ function DashboardContent() {
                       )}
                     </button>
                     {!formPartnerName.trim() && (
-                      <p className="text-xs text-warning mt-2 text-center">
+                      <p className="text-xs text-warning mt-3 text-center">
                         Please enter your partner&apos;s name to continue
                       </p>
                     )}
