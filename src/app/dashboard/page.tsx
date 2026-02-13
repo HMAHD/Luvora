@@ -730,112 +730,253 @@ function DashboardContent() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            {/* Stats Card */}
+            {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="stat bg-base-100 rounded-2xl shadow-sm border border-base-content/5">
-                <div className="stat-figure text-primary">
-                  <Flame className="w-8 h-8" />
-                </div>
-                <div className="stat-title text-xs">Streak</div>
-                <div className="stat-value text-primary">{user?.streak || 0}</div>
-                <div className="stat-desc">days</div>
-              </div>
-              <div className="stat bg-base-100 rounded-2xl shadow-sm border border-base-content/5">
-                <div className="stat-figure text-secondary">
-                  <Heart className="w-8 h-8" />
-                </div>
-                <div className="stat-title text-xs">Partner</div>
-                <div className="stat-value text-lg truncate">{user?.partner_name || 'Not set'}</div>
-              </div>
-              <div className="stat bg-base-100 rounded-2xl shadow-sm border border-base-content/5">
-                <div className="stat-figure text-info">
-                  {userTier === TIER.LEGEND ? <Crown className="w-8 h-8" /> : <Sparkles className="w-8 h-8" />}
-                </div>
-                <div className="stat-title text-xs">Tier</div>
-                <div className="stat-value text-lg">{TIER_NAMES[userTier]}</div>
-                <div className="stat-desc">{userTier === TIER.FREE ? <Link href="/pricing" className="link link-primary">Upgrade</Link> : 'Active'}</div>
-              </div>
-              {/* Love Language Stat (Legend only) */}
-              {userTier >= TIER.LEGEND && (
-                <div className="stat bg-base-100 rounded-2xl shadow-sm border border-base-content/5">
-                  <div className="stat-figure text-pink-400">
-                    <MessageCircleHeart className="w-8 h-8" />
+              {/* Streak Stat */}
+              <div className="card bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-orange-500/20 shadow-lg">
+                <div className="card-body p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shadow-lg shadow-orange-500/30">
+                      <Flame className="w-6 h-6 text-white" />
+                    </div>
                   </div>
-                  <div className="stat-title text-xs">Love Language</div>
-                  <div className="stat-value text-sm truncate">
-                    {user?.love_language ? LOVE_LANGUAGE_NAMES[user.love_language as LoveLanguage] : 'Not set'}
+                  <div>
+                    <p className="text-xs font-medium text-base-content/60 uppercase tracking-wide">Streak</p>
+                    <p className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500 mt-1">
+                      {user?.streak || 0}
+                    </p>
+                    <p className="text-xs text-base-content/50 mt-1">
+                      {user?.streak === 0 ? 'Start today!' : user?.streak === 1 ? 'Keep it up!' : 'On fire!'}
+                    </p>
                   </div>
-                  <div className="stat-desc">
-                    <button onClick={() => setShowLoveLanguageQuiz(true)} className="link link-primary text-xs">
-                      {user?.love_language ? 'Retake Quiz' : 'Take Quiz'}
-                    </button>
+                </div>
+              </div>
+
+              {/* Partner Stat */}
+              <div className="card bg-gradient-to-br from-pink-500/10 to-rose-500/10 border border-pink-500/20 shadow-lg">
+                <div className="card-body p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-lg shadow-pink-500/30">
+                      <Heart className="w-6 h-6 text-white" />
+                    </div>
                   </div>
+                  <div>
+                    <p className="text-xs font-medium text-base-content/60 uppercase tracking-wide">Partner</p>
+                    <p className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-500 mt-1 truncate">
+                      {user?.partner_name || 'Not set'}
+                    </p>
+                    <p className="text-xs text-base-content/50 mt-1">
+                      {user?.partner_name ? 'Your special one' : 'Add their name'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Tier Stat */}
+              <div className={`card border shadow-lg ${
+                userTier === TIER.LEGEND
+                  ? 'bg-gradient-to-br from-yellow-500/10 to-amber-500/10 border-yellow-500/20'
+                  : userTier === TIER.HERO
+                  ? 'bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/20'
+                  : 'bg-gradient-to-br from-gray-500/10 to-slate-500/10 border-gray-500/20'
+              }`}>
+                <div className="card-body p-4 sm:p-6">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-lg ${
+                      userTier === TIER.LEGEND
+                        ? 'bg-gradient-to-br from-yellow-400 to-amber-500 shadow-yellow-500/30'
+                        : userTier === TIER.HERO
+                        ? 'bg-gradient-to-br from-blue-400 to-cyan-500 shadow-blue-500/30'
+                        : 'bg-gradient-to-br from-gray-400 to-slate-500 shadow-gray-500/30'
+                    }`}>
+                      {userTier === TIER.LEGEND ? (
+                        <Crown className="w-6 h-6 text-white" />
+                      ) : (
+                        <Sparkles className="w-6 h-6 text-white" />
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-base-content/60 uppercase tracking-wide">Tier</p>
+                    <p className={`text-xl font-bold mt-1 ${
+                      userTier === TIER.LEGEND ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-500' :
+                      userTier === TIER.HERO ? 'text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-500' :
+                      'text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-slate-500'
+                    }`}>
+                      {TIER_NAMES[userTier]}
+                    </p>
+                    <p className="text-xs text-base-content/50 mt-1">
+                      {userTier === TIER.FREE ? (
+                        <Link href="/pricing" className="link link-primary font-medium">Upgrade now</Link>
+                      ) : (
+                        'Premium active'
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Love Language Stat (Legend only) or Upgrade Prompt */}
+              {userTier >= TIER.LEGEND ? (
+                <div className="card bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 shadow-lg">
+                  <div className="card-body p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                        <MessageCircleHeart className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-base-content/60 uppercase tracking-wide">Love Language</p>
+                      <p className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 mt-1 truncate">
+                        {user?.love_language ? LOVE_LANGUAGE_NAMES[user.love_language as LoveLanguage] : 'Not set'}
+                      </p>
+                      <button
+                        onClick={() => setShowLoveLanguageQuiz(true)}
+                        className="text-xs text-purple-500 hover:text-purple-600 font-medium mt-1 transition-colors"
+                      >
+                        {user?.love_language ? 'Retake Quiz →' : 'Take Quiz →'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="card bg-gradient-to-br from-yellow-500/10 to-amber-500/10 border border-yellow-500/20 shadow-lg hover:shadow-xl transition-shadow cursor-pointer group">
+                  <Link href="/pricing" className="card-body p-4 sm:p-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center shadow-lg shadow-yellow-500/30 group-hover:scale-110 transition-transform">
+                        <Crown className="w-6 h-6 text-white" />
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-base-content/60 uppercase tracking-wide">Legend</p>
+                      <p className="text-sm font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-500 mt-1">
+                        Unlock More
+                      </p>
+                      <p className="text-xs text-yellow-600 dark:text-yellow-500 font-medium mt-1 group-hover:underline">
+                        Upgrade now →
+                      </p>
+                    </div>
+                  </Link>
                 </div>
               )}
             </div>
 
             {/* Relationship Profile */}
-            <div className="card bg-base-100 shadow-sm border border-base-content/5">
-              <div className="card-body">
-                <h2 className="card-title text-lg flex items-center gap-2">
-                  <User className="w-5 h-5 text-primary" />
-                  Relationship Profile
-                </h2>
-                <p className="text-sm text-base-content/60 mb-4">
-                  Personalize your sparks for your special someone
-                </p>
+            <div className="card bg-base-100 shadow-xl border border-base-content/10">
+              <div className="card-body p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <h2 className="card-title text-xl font-bold flex items-center gap-2 mb-2">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+                        <User className="w-5 h-5 text-primary" />
+                      </div>
+                      Relationship Profile
+                    </h2>
+                    <p className="text-sm text-base-content/70 ml-12">
+                      Tell us about your special someone to personalize every spark
+                    </p>
+                  </div>
+                </div>
 
-                <div className="space-y-4">
+                <div className="space-y-5 mt-4">
+                  {/* Partner Name Input */}
                   <div className="form-control">
                     <label className="label">
-                      <span className="label-text">Partner&apos;s Name</span>
+                      <span className="label-text font-medium flex items-center gap-2">
+                        <Heart className="w-4 h-4 text-pink-400" />
+                        Partner&apos;s Name
+                      </span>
                     </label>
                     <input
                       type="text"
                       placeholder="Enter their name or nickname"
-                      className="input input-bordered w-full"
+                      className="input input-bordered input-lg w-full focus:input-primary transition-all"
                       value={formPartnerName}
                       onChange={(e) => setFormPartnerName(e.target.value)}
                     />
-                  </div>
-
-                  <div className="form-control">
                     <label className="label">
-                      <span className="label-text">Recipient Role</span>
-                    </label>
-                    <div className="flex gap-2 flex-wrap">
-                      {(['neutral', 'feminine', 'masculine'] as Role[]).map((r) => (
-                        <button
-                          key={r}
-                          onClick={() => setFormRole(r)}
-                          className={`btn ${formRole === r ? 'btn-primary' : 'btn-outline'}`}
-                        >
-                          {r === 'neutral' ? 'Partner' : r === 'feminine' ? 'Her' : 'Him'}
-                        </button>
-                      ))}
-                    </div>
-                    <label className="label">
-                      <span className="label-text-alt text-base-content/50">
-                        Messages will be tailored for {formRole === 'neutral' ? 'your partner' : formRole === 'feminine' ? 'her' : 'him'}
+                      <span className="label-text-alt text-base-content/60">
+                        This name will appear in your personalized messages
                       </span>
                     </label>
                   </div>
 
-                  <button
-                    onClick={handleSaveProfile}
-                    disabled={saving}
-                    className={`btn w-full ${saved ? 'btn-success' : 'btn-primary'}`}
-                  >
-                    {saving ? (
-                      <span className="loading loading-spinner" />
-                    ) : saved ? (
-                      <>
-                        <Check className="w-4 h-4" /> Saved!
-                      </>
-                    ) : (
-                      'Save Profile'
+                  {/* Recipient Role Selection */}
+                  <div className="form-control">
+                    <label className="label">
+                      <span className="label-text font-medium flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-secondary" />
+                        Recipient Role
+                      </span>
+                    </label>
+                    <div className="grid grid-cols-3 gap-3">
+                      {(['neutral', 'feminine', 'masculine'] as Role[]).map((r) => (
+                        <button
+                          key={r}
+                          onClick={() => setFormRole(r)}
+                          className={`btn btn-lg relative overflow-hidden transition-all duration-300 ${
+                            formRole === r
+                              ? r === 'feminine'
+                                ? 'btn-secondary shadow-lg shadow-secondary/30'
+                                : r === 'masculine'
+                                ? 'btn-primary shadow-lg shadow-primary/30'
+                                : 'btn-accent shadow-lg shadow-accent/30'
+                              : 'btn-outline hover:shadow-md'
+                          }`}
+                        >
+                          {formRole === r && (
+                            <div className="absolute top-1 right-1">
+                              <Check className="w-4 h-4" />
+                            </div>
+                          )}
+                          <span className="flex items-center gap-2">
+                            {r === 'neutral' ? '💑 Partner' : r === 'feminine' ? '💖 Her' : '💙 Him'}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    <label className="label">
+                      <span className="label-text-alt text-base-content/60">
+                        Messages will be crafted specifically for{' '}
+                        <span className="font-medium text-base-content">
+                          {formRole === 'neutral' ? 'your partner' : formRole === 'feminine' ? 'her' : 'him'}
+                        </span>
+                      </span>
+                    </label>
+                  </div>
+
+                  {/* Save Button */}
+                  <div className="pt-4">
+                    <button
+                      onClick={handleSaveProfile}
+                      disabled={saving || !formPartnerName.trim()}
+                      className={`btn btn-lg w-full gap-2 shadow-lg transition-all ${
+                        saved
+                          ? 'btn-success'
+                          : 'btn-primary hover:shadow-xl'
+                      }`}
+                    >
+                      {saving ? (
+                        <>
+                          <span className="loading loading-spinner loading-sm" />
+                          Saving...
+                        </>
+                      ) : saved ? (
+                        <>
+                          <Check className="w-5 h-5" /> Profile Saved!
+                        </>
+                      ) : (
+                        <>
+                          <Heart className="w-5 h-5" /> Save Profile
+                        </>
+                      )}
+                    </button>
+                    {!formPartnerName.trim() && (
+                      <p className="text-xs text-warning mt-2 text-center">
+                        Please enter your partner&apos;s name to continue
+                      </p>
                     )}
-                  </button>
+                  </div>
                 </div>
               </div>
             </div>
