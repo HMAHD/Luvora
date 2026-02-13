@@ -861,7 +861,7 @@ function AdminContent() {
             </div>
 
             {/* Tier Adjustment Tool */}
-            <TierAdjustmentTool adminId={pb.authStore.model?.id || 'admin'} />
+            <TierAdjustmentTool adminId={pb.authStore.record?.id || 'admin'} />
           </motion.div>
         )}
 

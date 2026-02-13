@@ -23,14 +23,14 @@ export async function POST(request: Request) {
 
         pb.authStore.loadFromCookie(cookie);
 
-        if (!pb.authStore.isValid || !pb.authStore.model) {
+        if (!pb.authStore.isValid || !pb.authStore.record) {
             return NextResponse.json(
                 { error: 'Invalid session' },
                 { status: 401 }
             );
         }
 
-        const userId = pb.authStore.model.id;
+        const userId = pb.authStore.record.id;
 
         const testMessage = `💝 Test Spark from Luvora
 
@@ -82,14 +82,14 @@ export async function GET(request: Request) {
 
         pb.authStore.loadFromCookie(cookie);
 
-        if (!pb.authStore.isValid || !pb.authStore.model) {
+        if (!pb.authStore.isValid || !pb.authStore.record) {
             return NextResponse.json({
                 error: 'Invalid session',
                 usage: 'POST /api/test-telegram (with valid session cookie)'
             }, { status: 401 });
         }
 
-        const userId = pb.authStore.model.id;
+        const userId = pb.authStore.record.id;
 
         const testMessage = `💝 Test Spark from Luvora
 

@@ -33,14 +33,14 @@ export async function GET(req: NextRequest) {
         // Load auth from cookie
         pb.authStore.loadFromCookie(authCookie.value);
 
-        if (!pb.authStore.isValid || !pb.authStore.model) {
+        if (!pb.authStore.isValid || !pb.authStore.record) {
             return NextResponse.json(
                 { connected: false, error: 'Invalid session' },
                 { status: 401 }
             );
         }
 
-        const userId = pb.authStore.model.id;
+        const userId = pb.authStore.record.id;
 
         // Get channel config from PocketBase
         try {

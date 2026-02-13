@@ -32,14 +32,14 @@ export async function POST(req: NextRequest) {
         // Load auth from cookie
         pb.authStore.loadFromCookie(authCookie.value);
 
-        if (!pb.authStore.isValid || !pb.authStore.model) {
+        if (!pb.authStore.isValid || !pb.authStore.record) {
             return NextResponse.json(
                 { success: false, error: 'Invalid session' },
                 { status: 401 }
             );
         }
 
-        const userId = pb.authStore.model.id;
+        const userId = pb.authStore.record.id;
 
         // Parse request body
         const body = await req.json();
@@ -97,6 +97,7 @@ export async function POST(req: NextRequest) {
             });
 
             const configData = {
+                enabled: true,
                 botToken: encryptedToken,
                 botUsername: botInfo.username,
                 botName: botInfo.first_name
