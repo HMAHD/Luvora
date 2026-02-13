@@ -302,7 +302,9 @@ async function sendToUser(
                 });
 
                 // Track Sentry metrics
-                trackEvent.automationSent(platform, true);
+                if (platform !== 'discord') {
+                    trackEvent.automationSent(platform, true);
+                }
 
                 console.log(`[Cron] ✓ Sent ${messageType} to ${user.email} via ${platform}`);
                 return true;

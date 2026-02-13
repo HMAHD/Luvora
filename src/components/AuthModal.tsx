@@ -165,14 +165,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                     }}
                                     autoFocus
                                     maxLength={10}
-                                    disabled={status === 'requesting'}
+                                    disabled={status === 'verifying'}
                                 />
                                 <button
                                     type="submit"
-                                    disabled={!otpCode.trim() || status === 'requesting'}
+                                    disabled={!otpCode.trim() || status === 'verifying'}
                                     className="btn btn-primary w-full gap-2 group"
                                 >
-                                    {status === 'requesting' ? (
+                                    {status === 'verifying' ? (
                                         <>
                                             <Loader2 className="w-4 h-4 animate-spin" />
                                             Verifying...

@@ -1,7 +1,7 @@
 
 import PocketBase from 'pocketbase';
 import { getPremiumSpark } from '../lib/algo'; // Relative import for script
-import { sendMessage } from '../lib/messaging';
+import { messagingService } from '../lib/messaging/messaging-service';
 import type { User } from '../lib/types';
 
 // Constants

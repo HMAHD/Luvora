@@ -114,8 +114,9 @@ class MessagingService {
         const userChannels = this.channels.get(userId)!;
 
         // Stop existing channel if running
-        if (userChannels[platform]) {
-            await userChannels[platform]!.stop();
+        const existingChannel = userChannels[platform as keyof UserChannels];
+        if (existingChannel) {
+            await existingChannel.stop();
         }
 
         // Create and start new channel
@@ -213,7 +214,7 @@ class MessagingService {
         await channel.start();
 
         // Store channel instance
-        userChannels[platform] = channel;
+        userChannels[platform as keyof UserChannels] = channel as any;
     }
 
     /**
@@ -223,13 +224,15 @@ class MessagingService {
         console.log(`[MessagingService] Stopping ${platform} channel for user ${userId}`);
 
         const userChannels = this.channels.get(userId);
-        if (!userChannels || !userChannels[platform]) {
+        const channel = userChannels?.[platform as keyof UserChannels];
+
+        if (!userChannels || !channel) {
             console.log(`[MessagingService] Channel not found`);
             return;
         }
 
-        await userChannels[platform]!.stop();
-        delete userChannels[platform];
+        await channel.stop();
+        delete userChannels[platform as keyof UserChannels];
     }
 
     /**
@@ -237,24 +240,32 @@ class MessagingService {
      */
     async sendMessage(
         userId: string,
-        message: OutboundMessage & { platform: MessagingPlatform }
+        message: { platform: MessagingPlatform; content: string }
     ): Promise<void> {
         const userChannels = this.channels.get(userId);
-        const channel = userChannels?.[message.platform];
+        const platform = message.platform;
+        const channel = userChannels?.[platform as keyof UserChannels];
 
         if (!channel) {
-            const error = `${message.platform} channel not initialized for user ${userId}`;
+            const error = `${platform} channel not initialized for user ${userId}`;
             console.error(`[MessagingService] ${error}`);
 
             // Log failed notification
-            await this.logNotification(userId, message.platform, message.content, 'failed', error);
+            await this.logNotification(userId, platform, message.content, 'failed', error);
 
             throw new Error(error);
         }
 
         try {
+            // Build OutboundMessage for the channel
+            const outboundMessage: OutboundMessage = {
+                userId,
+                chatId: userId, // Platform channels will resolve the actual chat ID
+                content: message.content
+            };
+
             // Send message
-            await channel.send(message);
+            await channel.send(outboundMessage);
 
             // Log success
             await this.logNotification(userId, message.platform, message.content, 'sent');
