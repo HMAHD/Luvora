@@ -124,7 +124,7 @@ export async function POST(req: NextRequest) {
             }
 
             // Start the channel
-            await messagingService.startTelegramChannel(userId);
+            await messagingService.startChannel(userId, 'telegram', configData);
 
             return NextResponse.json({
                 success: true,
