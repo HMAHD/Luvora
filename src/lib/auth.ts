@@ -124,41 +124,28 @@ export async function verifyOTP(otpId: string, code: string) {
             email: authData.record?.email
         });
 
-        // CRITICAL: Export auth to cookie for server-side API routes
-        // This syncs the localStorage auth to an HTTP cookie that can be sent to the server
-        if (typeof document !== 'undefined') {
-            // Manually create cookie with proper format for Next.js
+        // CRITICAL: Set auth cookie via server-side API
+        // This ensures proper Next.js cookie configuration (domain, path, SameSite)
+        if (typeof window !== 'undefined') {
             const authStore = pb.authStore;
-            const cookieData = {
-                token: authStore.token,
-                model: authStore.record
-            };
-            const expires = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14 days
-            const cookieValue = `pb_auth=${encodeURIComponent(JSON.stringify(cookieData))}; path=/; expires=${expires.toUTCString()}; SameSite=Lax`;
-            document.cookie = cookieValue;
 
-            // Verify cookie was actually set
-            setTimeout(() => {
-                const allCookies = document.cookie;
-                const hasPbAuth = allCookies.includes('pb_auth');
-
-                console.log('🍪 Cookie Status:', {
-                    set: hasPbAuth ? '✅ SUCCESS' : '❌ FAILED',
-                    token: authStore.token?.substring(0, 20) + '...',
-                    userId: authStore.record?.id,
-                    cookieLength: cookieValue.length,
-                    allCookies: allCookies.substring(0, 100) + '...'
+            // Call server API to set cookie
+            fetch('/api/auth/set-cookie', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({
+                    token: authStore.token,
+                    model: authStore.record
+                })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log('✅ Auth cookie API response:', data);
+                })
+                .catch(err => {
+                    console.error('❌ Failed to set auth cookie:', err);
                 });
-
-                if (!hasPbAuth) {
-                    console.error('❌ COOKIE NOT SET! Possible issues:',
-                        '1. Browser blocking cookies',
-                        '2. Localhost vs domain mismatch',
-                        '3. Cookie size too large',
-                        '4. Browser privacy settings'
-                    );
-                }
-            }, 100);
         }
 
         return authData;
