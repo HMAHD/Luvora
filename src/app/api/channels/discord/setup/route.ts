@@ -14,32 +14,23 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { pb } from '@/lib/pocketbase';
 import { encrypt } from '@/lib/crypto';
 import { messagingService } from '@/lib/messaging/messaging-service';
+import { authenticateRequest } from '@/lib/auth-helpers';
 
 export async function POST(req: NextRequest) {
     try {
-        // Get authenticated user
-        const authCookie = req.cookies.get('pb_auth');
-        if (!authCookie) {
+        // Authenticate request
+        const authResult = await authenticateRequest(req);
+
+        if (!authResult.success) {
             return NextResponse.json(
-                { success: false, error: 'Not authenticated' },
-                { status: 401 }
+                { success: false, error: authResult.error.error },
+                { status: authResult.error.status }
             );
         }
 
-        // Load auth from cookie
-        pb.authStore.loadFromCookie(authCookie.value);
-
-        if (!pb.authStore.isValid || !pb.authStore.record) {
-            return NextResponse.json(
-                { success: false, error: 'Invalid session' },
-                { status: 401 }
-            );
-        }
-
-        const userId = pb.authStore.record.id;
+        const { pb, userId } = authResult.data;
 
         // Parse request body
         const body = await req.json();

@@ -124,6 +124,14 @@ export async function verifyOTP(otpId: string, code: string) {
             email: authData.record?.email
         });
 
+        // CRITICAL: Export auth to cookie for server-side API routes
+        // This syncs the localStorage auth to an HTTP cookie that can be sent to the server
+        if (typeof document !== 'undefined') {
+            const cookieValue = pb.authStore.exportToCookie({ httpOnly: false });
+            document.cookie = cookieValue;
+            console.log('Auth cookie set for API routes');
+        }
+
         return authData;
     } catch (error: unknown) {
         console.error('OTP verification failed:', error);

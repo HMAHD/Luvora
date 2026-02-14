@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { messagingService } from '@/lib/messaging/messaging-service';
-import { pb } from '@/lib/pocketbase';
+import { authenticateRequest } from '@/lib/auth-helpers';
 
 /**
  * Test endpoint to verify user's Telegram bot is working
@@ -10,27 +10,19 @@ import { pb } from '@/lib/pocketbase';
  * Authentication: Requires valid PocketBase session cookie
  */
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
     try {
-        // Get authenticated user from PocketBase cookie
-        const cookie = request.headers.get('cookie');
-        if (!cookie) {
+        // Authenticate request
+        const authResult = await authenticateRequest(req);
+
+        if (!authResult.success) {
             return NextResponse.json(
-                { error: 'Not authenticated' },
-                { status: 401 }
+                { error: authResult.error.error },
+                { status: authResult.error.status }
             );
         }
 
-        pb.authStore.loadFromCookie(cookie);
-
-        if (!pb.authStore.isValid || !pb.authStore.record) {
-            return NextResponse.json(
-                { error: 'Invalid session' },
-                { status: 401 }
-            );
-        }
-
-        const userId = pb.authStore.record.id;
+        const { userId } = authResult.data;
 
         const testMessage = `💝 Test Spark from Luvora
 
@@ -69,27 +61,19 @@ If you see this, your automation is set up properly! 🎉
 }
 
 // GET endpoint for quick browser test
-export async function GET(request: Request) {
+export async function GET(req: NextRequest) {
     try {
-        // Get authenticated user from PocketBase cookie
-        const cookie = request.headers.get('cookie');
-        if (!cookie) {
+        // Authenticate request
+        const authResult = await authenticateRequest(req);
+
+        if (!authResult.success) {
             return NextResponse.json({
-                error: 'Not authenticated',
+                error: authResult.error.error,
                 usage: 'POST /api/test-telegram (with valid session cookie)'
-            }, { status: 401 });
+            }, { status: authResult.error.status });
         }
 
-        pb.authStore.loadFromCookie(cookie);
-
-        if (!pb.authStore.isValid || !pb.authStore.record) {
-            return NextResponse.json({
-                error: 'Invalid session',
-                usage: 'POST /api/test-telegram (with valid session cookie)'
-            }, { status: 401 });
-        }
-
-        const userId = pb.authStore.record.id;
+        const { userId } = authResult.data;
 
         const testMessage = `💝 Test Spark from Luvora
 

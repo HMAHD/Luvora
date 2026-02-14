@@ -16,31 +16,22 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { pb } from '@/lib/pocketbase';
 import { messagingService } from '@/lib/messaging/messaging-service';
+import { authenticateRequest } from '@/lib/auth-helpers';
 
 export async function GET(req: NextRequest) {
     try {
-        // Get authenticated user
-        const authCookie = req.cookies.get('pb_auth');
-        if (!authCookie) {
+        // Authenticate request
+        const authResult = await authenticateRequest(req);
+
+        if (!authResult.success) {
             return NextResponse.json(
-                { connected: false, error: 'Not authenticated' },
-                { status: 401 }
+                { connected: false, error: authResult.error.error },
+                { status: authResult.error.status }
             );
         }
 
-        // Load auth from cookie
-        pb.authStore.loadFromCookie(authCookie.value);
-
-        if (!pb.authStore.isValid || !pb.authStore.record) {
-            return NextResponse.json(
-                { connected: false, error: 'Invalid session' },
-                { status: 401 }
-            );
-        }
-
-        const userId = pb.authStore.record.id;
+        const { pb, userId } = authResult.data;
 
         // Get channel config from PocketBase
         try {
