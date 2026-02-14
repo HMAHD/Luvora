@@ -34,14 +34,6 @@ export async function POST(req: NextRequest) {
             maxAge: 60 * 60 * 24 * 14 // 14 days
         });
 
-        console.log('✅ Server set pb_auth cookie:', {
-            hasToken: !!token,
-            userId: model?.id,
-            userEmail: model?.email,
-            cookieLength: cookieData.length,
-            cookiePreview: cookieData.substring(0, 50) + '...'
-        });
-
         return NextResponse.json({ success: true });
 
     } catch (error) {

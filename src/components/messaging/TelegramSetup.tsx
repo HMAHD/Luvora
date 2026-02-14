@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, CheckCircle, AlertCircle, Loader2, ExternalLink, Copy, Check } from 'lucide-react';
+import { Send, CheckCircle, AlertCircle, Loader2, ExternalLink, Copy, Check, Trash2 } from 'lucide-react';
 
 interface TelegramSetupProps {
     userId: string;
@@ -140,10 +140,38 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
                 throw new Error('Failed to send test message');
             }
 
-            // Show success feedback
             setError('');
         } catch (err) {
             setError('Failed to send test message. Make sure you sent /start to your bot.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleDisconnect = async () => {
+        if (!confirm('Are you sure you want to disconnect your Telegram bot? You will need to set it up again to receive messages.')) {
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const res = await fetch('/api/channels/telegram/disconnect', {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            if (!res.ok) {
+                throw new Error('Failed to disconnect');
+            }
+
+            // Reset to initial state
+            setStep('instructions');
+            setBotToken('');
+            setStatus(null);
+            setError('');
+            onSuccess?.();
+        } catch (err) {
+            setError('Failed to disconnect. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -389,23 +417,33 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
                             </div>
                         </div>
 
-                        <button
-                            onClick={handleTestMessage}
-                            disabled={loading}
-                            className="btn btn-outline btn-block gap-2"
-                        >
-                            {loading ? (
-                                <>
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                    Sending...
-                                </>
-                            ) : (
-                                <>
-                                    <Send className="w-4 h-4" />
-                                    Send Test Message
-                                </>
-                            )}
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={handleTestMessage}
+                                disabled={loading}
+                                className="btn btn-outline flex-1 gap-2"
+                            >
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        Sending...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Send className="w-4 h-4" />
+                                        Test
+                                    </>
+                                )}
+                            </button>
+                            <button
+                                onClick={handleDisconnect}
+                                disabled={loading}
+                                className="btn btn-error btn-outline gap-2"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                Disconnect
+                            </button>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>

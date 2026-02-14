@@ -45,12 +45,11 @@ export async function GET(req: NextRequest) {
                 let isClosed = false;
 
                 const sendEvent = (event: string, data: unknown) => {
-                    if (isClosed) return; // Don't send if stream is closed
+                    if (isClosed) return;
                     try {
                         const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
                         controller.enqueue(encoder.encode(message));
                     } catch (error) {
-                        console.error('[WhatsApp Setup] Error sending event:', error);
                         isClosed = true;
                     }
                 };
@@ -60,8 +59,8 @@ export async function GET(req: NextRequest) {
                     try {
                         controller.close();
                         isClosed = true;
-                    } catch (error) {
-                        console.error('[WhatsApp Setup] Error closing stream:', error);
+                    } catch {
+                        // Ignore close errors
                     }
                 };
 
@@ -73,7 +72,6 @@ export async function GET(req: NextRequest) {
                         ? path.join('/tmp', '.whatsapp-sessions', userId)
                         : path.join(process.cwd(), '.whatsapp-sessions', userId);
 
-                    console.log(`[WhatsApp Setup] Session path: ${sessionPath}, Serverless: ${!!isServerless}`);
 
                     // Create WhatsApp channel with callbacks
                     const channel = new WhatsAppChannel(
@@ -85,18 +83,13 @@ export async function GET(req: NextRequest) {
                         {
                             // QR Code callback
                             onQR: async (qr: string) => {
-                                console.log(`[WhatsApp Setup] QR generated for user ${userId}`);
-
-                                // Convert QR to base64 image
                                 const qrImage = await QRCode.toDataURL(qr);
                                 sendEvent('qr', { qr: qrImage });
                             },
 
-                            // Ready callback (linked successfully)
+                            // Ready callback
                             onReady: async (phoneNumber: string) => {
-                                console.log(`[WhatsApp Setup] Linked successfully: ${phoneNumber}`);
-
-                                try {
+                                try{
                                     // Check if channel already exists
                                     const existing = await pb.collection('messaging_channels').getFullList({
                                         filter: `user="${userId}" && platform="whatsapp"`,
@@ -139,7 +132,6 @@ export async function GET(req: NextRequest) {
                                     closeStream();
 
                                 } catch (error) {
-                                    console.error('[WhatsApp Setup] Error saving to DB:', error);
                                     sendEvent('error', {
                                         message: 'Failed to save WhatsApp configuration'
                                     });
@@ -156,7 +148,6 @@ export async function GET(req: NextRequest) {
                     // Set timeout (5 minutes)
                     setTimeout(async () => {
                         if (!channel.isLinked() && !isClosed) {
-                            console.log(`[WhatsApp Setup] Timeout for user ${userId}`);
                             sendEvent('error', { message: 'Setup timeout. Please try again.' });
                             await channel.stop();
                             closeStream();
@@ -164,16 +155,11 @@ export async function GET(req: NextRequest) {
                     }, 5 * 60 * 1000);
 
                 } catch (error) {
-                    console.error('[WhatsApp Setup] Error:', error);
                     sendEvent('error', {
                         message: error instanceof Error ? error.message : 'Setup failed'
                     });
                     closeStream();
                 }
-            },
-
-            cancel() {
-                console.log('[WhatsApp Setup] Client disconnected');
             }
         });
 

@@ -144,16 +144,13 @@ export async function verifyOTP(otpId: string, code: string) {
 
                 const cookieData = await cookieResponse.json();
 
-                if (cookieResponse.ok && cookieData.success) {
-                    console.log('✅ Auth cookie set successfully');
-                } else {
-                    console.error('❌ Failed to set auth cookie:', cookieData);
+                if (!cookieResponse.ok || !cookieData.success) {
+                    console.error('Failed to set auth cookie');
                     throw new Error('Failed to set authentication cookie. Please try logging in again.');
                 }
             } catch (cookieError) {
-                console.error('❌ Cookie setting error:', cookieError);
-                // Don't fail the entire login, but warn the user
-                console.warn('Warning: Authentication cookie may not be set. API requests might fail.');
+                console.error('Cookie setting error:', cookieError);
+                throw new Error('Authentication failed. Please try again.');
             }
         }
 
