@@ -41,24 +41,39 @@ export async function authenticateRequest(
         // Create a new PocketBase instance for this request
         const pb = new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL || 'https://api.luvora.love');
 
-        // Load auth from cookie
-        // The cookie value is the full cookie string like "pb_auth={...}"
-        // But we need just the value part
-        pb.authStore.loadFromCookie(authCookie.value, 'pb_auth');
+        // Parse the cookie value (it's URL-encoded JSON)
+        let userId: string;
+        let user: Record<string, unknown>;
 
-        // Verify the auth is valid
-        if (!pb.authStore.isValid || !pb.authStore.record) {
+        try {
+            const cookieData = JSON.parse(decodeURIComponent(authCookie.value));
+
+            // Manually set the auth store
+            pb.authStore.save(cookieData.token, cookieData.model);
+
+            // Verify the auth is valid
+            if (!pb.authStore.isValid || !pb.authStore.record) {
+                return {
+                    success: false,
+                    error: {
+                        error: 'Invalid or expired session',
+                        status: 401
+                    }
+                };
+            }
+
+            userId = pb.authStore.record.id;
+            user = pb.authStore.record;
+        } catch (parseError) {
+            console.error('Cookie parse error:', parseError);
             return {
                 success: false,
                 error: {
-                    error: 'Invalid or expired session',
+                    error: 'Malformed authentication cookie',
                     status: 401
                 }
             };
         }
-
-        const userId = pb.authStore.record.id;
-        const user = pb.authStore.record;
 
         return {
             success: true,

@@ -127,9 +127,20 @@ export async function verifyOTP(otpId: string, code: string) {
         // CRITICAL: Export auth to cookie for server-side API routes
         // This syncs the localStorage auth to an HTTP cookie that can be sent to the server
         if (typeof document !== 'undefined') {
-            const cookieValue = pb.authStore.exportToCookie({ httpOnly: false });
+            // Manually create cookie with proper format for Next.js
+            const authStore = pb.authStore;
+            const cookieData = {
+                token: authStore.token,
+                model: authStore.record
+            };
+            const expires = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14 days
+            const cookieValue = `pb_auth=${encodeURIComponent(JSON.stringify(cookieData))}; path=/; expires=${expires.toUTCString()}; SameSite=Lax`;
             document.cookie = cookieValue;
-            console.log('Auth cookie set for API routes');
+            console.log('✅ Auth cookie set:', {
+                hasToken: !!authStore.token,
+                userId: authStore.record?.id,
+                cookieLength: cookieValue.length
+            });
         }
 
         return authData;
