@@ -14,6 +14,7 @@ import { PartnerLink } from '@/components/PartnerLink';
 import { DeveloperIntegrations } from '@/components/DeveloperIntegrations';
 import { TelegramSetup } from '@/components/messaging/TelegramSetup';
 import { WhatsAppSetup } from '@/components/messaging/WhatsAppSetup';
+import { DiscordSetup } from '@/components/messaging/DiscordSetup';
 import { TIER, TIER_NAMES, LOVE_LANGUAGE_NAMES, type LoveLanguage } from '@/lib/types';
 import {
   User,
@@ -332,15 +333,15 @@ function AutomationTabContent({
                     }}
                   />
                 ) : (
-                  <div className="alert alert-warning">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                    </svg>
-                    <div>
-                      <h3 className="font-bold">Discord Integration Coming Soon</h3>
-                      <div className="text-xs">We're currently working on Discord support. Please use Telegram or WhatsApp for now.</div>
-                    </div>
-                  </div>
+                  <DiscordSetup
+                    userId={user?.id || ''}
+                    onSuccess={() => {
+                      setShowMessagingSetup(false);
+                    }}
+                    onError={(error) => {
+                      console.error('Discord setup error:', error);
+                    }}
+                  />
                 )}
               </div>
             </div>
