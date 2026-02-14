@@ -28,7 +28,7 @@ import { pb } from '@/lib/pocketbase';
 import { decrypt } from '@/lib/crypto';
 import { TelegramChannel } from './channels/telegram-channel';
 import { WhatsAppChannel } from './channels/whatsapp-channel';
-import { DiscordChannel } from './channels/discord-channel';
+// Discord is dynamically imported to avoid loading discord.js on every API route
 import type { BaseChannel } from './base-channel';
 import type { MessagingPlatform, OutboundMessage, TelegramConfig, WhatsAppConfig, DiscordConfig } from './types';
 import path from 'path';
@@ -225,6 +225,9 @@ class MessagingService {
                 console.error(`[MessagingService] Failed to decrypt Discord token for user ${userId}:`, error);
                 throw new Error('Failed to decrypt bot token. Check ENCRYPTION_KEY configuration.');
             }
+
+            // Dynamically import Discord to avoid loading discord.js on every API route
+            const { DiscordChannel } = await import('./channels/discord-channel');
 
             channel = new DiscordChannel(
                 {

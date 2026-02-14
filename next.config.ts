@@ -13,6 +13,17 @@ const nextConfig: NextConfig = {
     // Enable compression (Brotli/Gzip handled by Vercel automatically)
     compress: true,
 
+    // Externalize native modules for messaging channels (server-only)
+    serverExternalPackages: [
+        'discord.js',
+        '@discordjs/ws',
+        'zlib-sync',
+        'bufferutil',
+        'utf-8-validate',
+        'whatsapp-web.js',
+        'node-telegram-bot-api'
+    ],
+
     // Optimize bundle size
     experimental: {
         optimizePackageImports: ['lucide-react', 'framer-motion'],
