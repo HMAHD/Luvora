@@ -11,7 +11,7 @@ interface AuthModalProps {
     onClose: () => void;
 }
 
-type AuthState = 'idle' | 'requesting' | 'verifying' | 'success';
+type AuthState = 'idle' | 'requesting' | 'code_sent' | 'verifying' | 'success';
 
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     const [email, setEmail] = useState('');
@@ -48,10 +48,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             }
 
             // For this UI, we assume we move to verification step
-            // Even if otpId is hidden, we show the input. 
+            // Even if otpId is hidden, we show the input.
             // (Note: Real PB requires otpId for verify. If it's not returned, this flow changes).
 
-            setStatus('verifying');
+            setStatus('code_sent');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to send code.');
             setStatus('idle');
@@ -132,10 +132,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
                         <div className="text-center mb-6">
                             <h3 className="text-2xl font-bold font-romantic bg-gradient-to-r from-teal-600 via-emerald-500 to-cyan-600 bg-clip-text text-transparent">
-                                {status === 'verifying' ? 'Check Your Inbox' : 'Unlock Magic'}
+                                {(status === 'code_sent' || status === 'verifying') ? 'Check Your Inbox' : 'Unlock Magic'}
                             </h3>
                             <p className="text-sm text-base-content/60 mt-2">
-                                {status === 'verifying' ? `Code sent to ${email}` : 'Log in to save your special moments'}
+                                {(status === 'code_sent' || status === 'verifying') ? `Code sent to ${email}` : 'Log in to save your special moments'}
                             </p>
                         </div>
 
@@ -150,7 +150,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                                 <CheckCircle className="w-12 h-12 mb-2" />
                                 <span className="font-bold">Welcome Back!</span>
                             </div>
-                        ) : status === 'verifying' ? (
+                        ) : (status === 'code_sent' || status === 'verifying') ? (
                             <form onSubmit={handleVerify} className="flex flex-col gap-4">
                                 <input
                                     type="text"
