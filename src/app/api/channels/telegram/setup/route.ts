@@ -19,11 +19,15 @@ import { messagingService } from '@/lib/messaging/messaging-service';
 import { authenticateRequest } from '@/lib/auth-helpers';
 
 export async function POST(req: NextRequest) {
+    console.log('\n🔵 [Telegram Setup] New request received');
+
     try {
         // Authenticate request
+        console.log('🔐 [Telegram Setup] Authenticating request...');
         const authResult = await authenticateRequest(req);
 
         if (!authResult.success) {
+            console.error('❌ [Telegram Setup] Authentication failed:', authResult.error);
             return NextResponse.json(
                 { success: false, error: authResult.error.error },
                 { status: authResult.error.status }
@@ -31,6 +35,7 @@ export async function POST(req: NextRequest) {
         }
 
         const { pb, userId } = authResult.data;
+        console.log('✅ [Telegram Setup] Authenticated user:', userId);
 
         // Parse request body
         const body = await req.json();

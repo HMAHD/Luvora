@@ -126,26 +126,35 @@ export async function verifyOTP(otpId: string, code: string) {
 
         // CRITICAL: Set auth cookie via server-side API
         // This ensures proper Next.js cookie configuration (domain, path, SameSite)
+        // MUST await this to ensure cookie is set before returning
         if (typeof window !== 'undefined') {
             const authStore = pb.authStore;
 
-            // Call server API to set cookie
-            fetch('/api/auth/set-cookie', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include',
-                body: JSON.stringify({
-                    token: authStore.token,
-                    model: authStore.record
-                })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    console.log('✅ Auth cookie API response:', data);
-                })
-                .catch(err => {
-                    console.error('❌ Failed to set auth cookie:', err);
+            try {
+                // IMPORTANT: Wait for cookie to be set before returning
+                const cookieResponse = await fetch('/api/auth/set-cookie', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        token: authStore.token,
+                        model: authStore.record
+                    })
                 });
+
+                const cookieData = await cookieResponse.json();
+
+                if (cookieResponse.ok && cookieData.success) {
+                    console.log('✅ Auth cookie set successfully');
+                } else {
+                    console.error('❌ Failed to set auth cookie:', cookieData);
+                    throw new Error('Failed to set authentication cookie. Please try logging in again.');
+                }
+            } catch (cookieError) {
+                console.error('❌ Cookie setting error:', cookieError);
+                // Don't fail the entire login, but warn the user
+                console.warn('Warning: Authentication cookie may not be set. API requests might fail.');
+            }
         }
 
         return authData;

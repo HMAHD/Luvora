@@ -20,7 +20,8 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Create cookie data
+        // Create cookie data (JSON stringified)
+        // Next.js cookies().set() handles URL encoding automatically
         const cookieData = JSON.stringify({ token, model });
 
         // Set cookie using Next.js cookies API (server-side)
@@ -36,7 +37,9 @@ export async function POST(req: NextRequest) {
         console.log('✅ Server set pb_auth cookie:', {
             hasToken: !!token,
             userId: model?.id,
-            cookieLength: cookieData.length
+            userEmail: model?.email,
+            cookieLength: cookieData.length,
+            cookiePreview: cookieData.substring(0, 50) + '...'
         });
 
         return NextResponse.json({ success: true });

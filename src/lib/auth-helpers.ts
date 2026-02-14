@@ -50,12 +50,26 @@ export async function authenticateRequest(
         // Create a new PocketBase instance for this request
         const pb = new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL || 'https://api.luvora.love');
 
-        // Parse the cookie value (it's URL-encoded JSON)
+        // Parse the cookie value
+        // Next.js cookies().get() automatically decodes, so we may need to try both ways
         let userId: string;
         let user: Record<string, unknown>;
 
         try {
-            const cookieData = JSON.parse(decodeURIComponent(authCookie.value));
+            let cookieData;
+            try {
+                // First try: assume Next.js already decoded it
+                cookieData = JSON.parse(authCookie.value);
+            } catch {
+                // Second try: manually decode if needed
+                cookieData = JSON.parse(decodeURIComponent(authCookie.value));
+            }
+
+            console.log('📋 Parsed cookie data:', {
+                hasToken: !!cookieData.token,
+                hasModel: !!cookieData.model,
+                userId: cookieData.model?.id
+            });
 
             // Manually set the auth store
             pb.authStore.save(cookieData.token, cookieData.model);
