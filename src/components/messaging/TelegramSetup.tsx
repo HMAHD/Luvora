@@ -218,42 +218,64 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
                         exit={{ opacity: 0, y: -10 }}
                         className="space-y-4"
                     >
-                        <div className="card bg-base-200/50 p-4">
-                            <h3 className="font-semibold mb-3 flex items-center gap-2">
-                                <span className="badge badge-primary badge-sm">Step 2</span>
-                                Enter Bot Token
-                            </h3>
-
-                            <div className="form-control">
-                                <label className="label">
-                                    <span className="label-text text-xs">Paste your bot token from @BotFather</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
-                                    className={`input input-bordered font-mono text-sm ${error ? 'input-error' : ''}`}
-                                    value={botToken}
-                                    onChange={(e) => {
-                                        setBotToken(e.target.value);
-                                        setError('');
-                                    }}
-                                    disabled={loading}
-                                />
-                                {error && (
-                                    <label className="label">
-                                        <span className="label-text-alt text-error flex items-center gap-1">
-                                            <AlertCircle className="w-3 h-3" />
-                                            {error}
-                                        </span>
-                                    </label>
-                                )}
+                        <div className="space-y-4">
+                            {/* Header */}
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                    <span className="text-primary font-bold text-lg">2</span>
+                                </div>
+                                <div>
+                                    <h3 className="font-semibold text-base">Enter Bot Token</h3>
+                                    <p className="text-xs text-base-content/60">Paste the token you got from @BotFather</p>
+                                </div>
                             </div>
 
-                            <div className="alert alert-warning mt-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                                </svg>
-                                <span className="text-xs">Keep your token secret! Never share it publicly.</span>
+                            {/* Token Input Card */}
+                            <div className="card bg-base-100 border border-base-content/10 shadow-sm">
+                                <div className="card-body p-4 space-y-3">
+                                    <div className="form-control">
+                                        <label className="label pb-1">
+                                            <span className="label-text font-medium text-sm">Bot Token</span>
+                                        </label>
+                                        <input
+                                            type="password"
+                                            placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
+                                            className={`input input-bordered w-full font-mono text-xs ${error ? 'input-error focus:input-error' : 'focus:input-primary'}`}
+                                            value={botToken}
+                                            onChange={(e) => {
+                                                setBotToken(e.target.value);
+                                                setError('');
+                                            }}
+                                            disabled={loading}
+                                            autoFocus
+                                        />
+                                        <label className="label pt-1">
+                                            <span className="label-text-alt text-base-content/50">Your token is encrypted and stored securely</span>
+                                        </label>
+                                    </div>
+
+                                    {/* Security Note */}
+                                    <div className="flex items-start gap-2 p-3 rounded-lg bg-warning/10 border border-warning/20">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                        </svg>
+                                        <div className="text-xs text-warning-content/90">
+                                            <span className="font-semibold block mb-1">Keep this token private</span>
+                                            <span className="opacity-80">Never share your bot token publicly or with anyone</span>
+                                        </div>
+                                    </div>
+
+                                    {/* Error Alert */}
+                                    {error && (
+                                        <div className="alert alert-error shadow-sm">
+                                            <AlertCircle className="w-5 h-5" />
+                                            <div className="text-sm">
+                                                <p className="font-semibold">Connection Failed</p>
+                                                <p className="opacity-90">{error}</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
