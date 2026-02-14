@@ -16,6 +16,7 @@
     "@vercel/og": "^0.8.6",
     "daisyui": "^5.5.14",
     "date-fns": "^4.1.0",
+    "discord.js": "^14.25.1",
     "framer-motion": "^12.29.2",
     "html-to-image": "^1.11.13",
     "lru-cache": "^11.2.5",

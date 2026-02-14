@@ -4,26 +4,26 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, CheckCircle, AlertCircle, Loader2, ExternalLink, Copy, Check } from 'lucide-react';
 
-interface TelegramSetupProps {
+interface DiscordSetupProps {
     userId: string;
     onSuccess?: () => void;
     onError?: (error: string) => void;
 }
 
-interface TelegramStatus {
+interface DiscordStatus {
     connected: boolean;
     enabled?: boolean;
     botUsername?: string;
-    telegramUserId?: string;
+    discordUserId?: string;
     linked?: boolean;
 }
 
-export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps) {
+export function DiscordSetup({ userId, onSuccess, onError }: DiscordSetupProps) {
     const [step, setStep] = useState<'instructions' | 'token' | 'linking' | 'success'>('instructions');
     const [botToken, setBotToken] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const [status, setStatus] = useState<TelegramStatus | null>(null);
+    const [status, setStatus] = useState<DiscordStatus | null>(null);
     const [copied, setCopied] = useState(false);
 
     // Fetch current status on mount
@@ -33,7 +33,7 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
 
     const fetchStatus = async () => {
         try {
-            const res = await fetch('/api/channels/telegram/status');
+            const res = await fetch('/api/channels/discord/status');
             if (res.ok) {
                 const data = await res.json();
                 setStatus(data);
@@ -48,9 +48,9 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
     };
 
     const validateToken = (token: string): boolean => {
-        // Telegram bot tokens format: <bot_id>:<random_string>
-        // Example: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz
-        const tokenRegex = /^\d{8,10}:[A-Za-z0-9_-]{35,}$/;
+        // Discord bot tokens format: base64 string with two periods
+        // Format: [24+ chars].[6+ chars].[27+ chars]
+        const tokenRegex = /^[A-Za-z0-9_-]{24,}\.[A-Za-z0-9_-]{6,}\.[A-Za-z0-9_-]{27,}$/;
         return tokenRegex.test(token.trim());
     };
 
@@ -66,7 +66,7 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
         setError('');
 
         try {
-            const res = await fetch('/api/channels/telegram/setup', {
+            const res = await fetch('/api/channels/discord/setup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -76,13 +76,15 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
             const data = await res.json();
 
             if (!res.ok) {
-                let errorMessage = data.error || 'Failed to setup Telegram bot';
+                let errorMessage = data.error || 'Failed to setup Discord bot';
 
                 // Provide helpful error messages
                 if (errorMessage.includes('ENCRYPTION_KEY')) {
                     errorMessage = 'Server configuration error. Please contact support.';
                 } else if (errorMessage.includes('Invalid bot token')) {
-                    errorMessage = 'Invalid bot token. Please check the token from @BotFather.';
+                    errorMessage = 'Invalid bot token. Please check the token from Discord Developer Portal.';
+                } else if (errorMessage.includes('bot account')) {
+                    errorMessage = 'Token must be for a bot account, not a user account.';
                 }
 
                 throw new Error(errorMessage);
@@ -108,7 +110,7 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
     const startLinkingPoll = () => {
         const pollInterval = setInterval(async () => {
             try {
-                const res = await fetch('/api/channels/telegram/status');
+                const res = await fetch('/api/channels/discord/status');
                 if (res.ok) {
                     const data = await res.json();
                     setStatus(data);
@@ -131,7 +133,7 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
     const handleTestMessage = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/test-telegram', {
+            const res = await fetch('/api/test-discord', {
                 method: 'POST',
                 credentials: 'include'
             });
@@ -172,7 +174,7 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <div className="text-sm">
-                                <p className="font-semibold">Create Your Own Telegram Bot</p>
+                                <p className="font-semibold">Create Your Own Discord Bot</p>
                                 <p className="opacity-75">You'll receive messages through your personal bot</p>
                             </div>
                         </div>
@@ -180,23 +182,24 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
                         <div className="card bg-base-200/50 p-4">
                             <h3 className="font-semibold mb-3 flex items-center gap-2">
                                 <span className="badge badge-primary badge-sm">Step 1</span>
-                                Create Bot via @BotFather
+                                Create Bot via Developer Portal
                             </h3>
                             <ol className="list-decimal list-inside space-y-2 text-sm opacity-80">
-                                <li>Open Telegram and search for <code className="kbd kbd-sm">@BotFather</code></li>
-                                <li>Send the command <code className="kbd kbd-sm">/newbot</code></li>
-                                <li>Choose a name for your bot (e.g., "My Luvora Bot")</li>
-                                <li>Choose a username ending in "bot" (e.g., "myluvora_bot")</li>
-                                <li>Copy the bot token that @BotFather gives you</li>
+                                <li>Go to <a href="https://discord.com/developers/applications" target="_blank" rel="noopener noreferrer" className="link">Discord Developer Portal</a></li>
+                                <li>Click "New Application" and give it a name</li>
+                                <li>Go to the "Bot" section in the left sidebar</li>
+                                <li>Click "Reset Token" and copy the new token</li>
+                                <li>Enable "Message Content Intent" under Privileged Gateway Intents</li>
+                                <li>Click "Save Changes"</li>
                             </ol>
                             <a
-                                href="https://t.me/BotFather"
+                                href="https://discord.com/developers/applications"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="btn btn-primary btn-sm mt-3 gap-2"
                             >
                                 <ExternalLink className="w-4 h-4" />
-                                Open @BotFather
+                                Open Developer Portal
                             </a>
                         </div>
 
@@ -226,11 +229,11 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
 
                             <div className="form-control">
                                 <label className="label">
-                                    <span className="label-text text-xs">Paste your bot token from @BotFather</span>
+                                    <span className="label-text text-xs">Paste your bot token from Developer Portal</span>
                                 </label>
                                 <input
                                     type="text"
-                                    placeholder="123456789:ABCdefGHIjklMNOpqrsTUVwxyz"
+                                    placeholder="YOUR_BOT_TOKEN_HERE (from Discord Developer Portal)"
                                     className={`input input-bordered font-mono text-sm ${error ? 'input-error' : ''}`}
                                     value={botToken}
                                     onChange={(e) => {
@@ -307,16 +310,16 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
                             </div>
 
                             <div className="bg-base-300 rounded-lg p-4 space-y-3">
-                                <p className="text-sm font-medium">Complete these steps in Telegram:</p>
+                                <p className="text-sm font-medium">Complete these steps in Discord:</p>
                                 <ol className="list-decimal list-inside space-y-2 text-sm opacity-80">
-                                    <li>Search for <code className="kbd kbd-sm">@{status?.botUsername || 'your_bot'}</code> in Telegram</li>
-                                    <li>Open the chat with your bot</li>
-                                    <li>Send the command <code className="kbd kbd-sm">/start</code></li>
+                                    <li>Open Discord</li>
+                                    <li>Search for your bot: <code className="kbd kbd-sm">{status?.botUsername || 'your_bot'}</code></li>
+                                    <li>Send the bot a direct message with: <code className="kbd kbd-sm">/start</code></li>
                                 </ol>
 
                                 {status?.botUsername && (
                                     <button
-                                        onClick={() => copyToClipboard(`@${status.botUsername}`)}
+                                        onClick={() => copyToClipboard(status.botUsername!)}
                                         className="btn btn-sm btn-block gap-2"
                                     >
                                         {copied ? (
@@ -327,7 +330,7 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
                                         ) : (
                                             <>
                                                 <Copy className="w-4 h-4" />
-                                                Copy @{status.botUsername}
+                                                Copy {status.botUsername}
                                             </>
                                         )}
                                     </button>
@@ -349,9 +352,9 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
                         <div className="alert alert-success">
                             <CheckCircle className="w-6 h-6" />
                             <div>
-                                <p className="font-semibold">Telegram Connected!</p>
+                                <p className="font-semibold">Discord Connected!</p>
                                 <p className="text-sm opacity-75">
-                                    You'll receive your daily sparks via <span className="font-mono">@{status?.botUsername}</span>
+                                    You'll receive your daily sparks via {status?.botUsername}
                                 </p>
                             </div>
                         </div>
@@ -359,7 +362,7 @@ export function TelegramSetup({ userId, onSuccess, onError }: TelegramSetupProps
                         <div className="card bg-base-200/50 p-4">
                             <div className="flex items-center justify-between mb-2">
                                 <span className="text-sm font-medium">Bot Username</span>
-                                <code className="kbd kbd-sm">@{status?.botUsername}</code>
+                                <code className="kbd kbd-sm">{status?.botUsername}</code>
                             </div>
                             <div className="flex items-center justify-between">
                                 <span className="text-sm font-medium">Status</span>

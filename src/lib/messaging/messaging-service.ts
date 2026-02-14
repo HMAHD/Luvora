@@ -28,8 +28,9 @@ import { pb } from '@/lib/pocketbase';
 import { decrypt } from '@/lib/crypto';
 import { TelegramChannel } from './channels/telegram-channel';
 import { WhatsAppChannel } from './channels/whatsapp-channel';
+import { DiscordChannel } from './channels/discord-channel';
 import type { BaseChannel } from './base-channel';
-import type { MessagingPlatform, OutboundMessage, TelegramConfig, WhatsAppConfig } from './types';
+import type { MessagingPlatform, OutboundMessage, TelegramConfig, WhatsAppConfig, DiscordConfig } from './types';
 import path from 'path';
 
 type ChannelInstance = BaseChannel & {
@@ -104,7 +105,7 @@ class MessagingService {
     async startChannel(
         userId: string,
         platform: MessagingPlatform,
-        config: TelegramConfig | WhatsAppConfig
+        config: TelegramConfig | WhatsAppConfig | DiscordConfig
     ): Promise<void> {
         console.log(`[MessagingService] Starting ${platform} channel for user ${userId}`);
 
@@ -127,7 +128,13 @@ class MessagingService {
             const telegramConfig = config as TelegramConfig;
 
             // Decrypt bot token
-            const botToken = decrypt(telegramConfig.botToken);
+            let botToken: string;
+            try {
+                botToken = decrypt(telegramConfig.botToken);
+            } catch (error) {
+                console.error(`[MessagingService] Failed to decrypt bot token for user ${userId}:`, error);
+                throw new Error('Failed to decrypt bot token. Check ENCRYPTION_KEY configuration.');
+            }
 
             channel = new TelegramChannel(
                 {
@@ -202,6 +209,57 @@ class MessagingService {
                             }
                         } catch (error) {
                             console.error('[MessagingService] Failed to update WhatsApp config:', error);
+                        }
+                    }
+                }
+            );
+
+        } else if (platform === 'discord') {
+            const discordConfig = config as DiscordConfig;
+
+            // Decrypt bot token
+            let botToken: string;
+            try {
+                botToken = decrypt(discordConfig.botToken);
+            } catch (error) {
+                console.error(`[MessagingService] Failed to decrypt Discord token for user ${userId}:`, error);
+                throw new Error('Failed to decrypt bot token. Check ENCRYPTION_KEY configuration.');
+            }
+
+            channel = new DiscordChannel(
+                {
+                    enabled: discordConfig.enabled,
+                    botToken,
+                    botUsername: discordConfig.botUsername,
+                    discordUserId: discordConfig.discordUserId
+                },
+                userId,
+                {
+                    onUserIdReceived: async (discordUserId: string, username: string) => {
+                        console.log(`[MessagingService] Discord linked: ${discordUserId} (@${username})`);
+
+                        // Update config in PocketBase
+                        try {
+                            const channels = await pb.collection('messaging_channels').getFullList({
+                                filter: `user="${userId}" && platform="discord"`,
+                                $autoCancel: false
+                            });
+
+                            if (channels.length > 0) {
+                                await pb.collection('messaging_channels').update(
+                                    channels[0].id,
+                                    {
+                                        config: {
+                                            ...discordConfig,
+                                            discordUserId,
+                                            botUsername: username
+                                        }
+                                    },
+                                    { $autoCancel: false }
+                                );
+                            }
+                        } catch (error) {
+                            console.error('[MessagingService] Failed to update Discord config:', error);
                         }
                     }
                 }

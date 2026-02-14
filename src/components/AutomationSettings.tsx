@@ -21,12 +21,13 @@ import { TIER, LOVE_LANGUAGE_NAMES, EMOTIONAL_TONE_NAMES } from '@/lib/types';
 import type { LoveLanguage, EmotionalTone } from '@/lib/types';
 import { TelegramSetup } from './messaging/TelegramSetup';
 import { WhatsAppSetup } from './messaging/WhatsAppSetup';
+import { DiscordSetup } from './messaging/DiscordSetup';
 
 export function AutomationSettings({ onClose }: { onClose: () => void }) {
     const { user, pb } = useAuth();
 
     // Messaging platform selection
-    const [selectedPlatform, setSelectedPlatform] = useState<'telegram' | 'whatsapp'>('telegram');
+    const [selectedPlatform, setSelectedPlatform] = useState<'telegram' | 'whatsapp' | 'discord'>('telegram');
     const [showMessagingSetup, setShowMessagingSetup] = useState(false);
 
     // Delivery times
@@ -117,18 +118,24 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
 
                             {!showMessagingSetup ? (
                                 <>
-                                    <div className="flex gap-2 mb-3">
+                                    <div className="grid grid-cols-3 gap-2 mb-3">
                                         <button
                                             onClick={() => setSelectedPlatform('telegram')}
-                                            className={`btn flex-1 ${selectedPlatform === 'telegram' ? 'btn-primary' : 'btn-outline'}`}
+                                            className={`btn btn-sm ${selectedPlatform === 'telegram' ? 'btn-primary' : 'btn-outline'}`}
                                         >
                                             Telegram
                                         </button>
                                         <button
                                             onClick={() => setSelectedPlatform('whatsapp')}
-                                            className={`btn flex-1 ${selectedPlatform === 'whatsapp' ? 'btn-primary' : 'btn-outline'}`}
+                                            className={`btn btn-sm ${selectedPlatform === 'whatsapp' ? 'btn-primary' : 'btn-outline'}`}
                                         >
                                             WhatsApp
+                                        </button>
+                                        <button
+                                            onClick={() => setSelectedPlatform('discord')}
+                                            className={`btn btn-sm ${selectedPlatform === 'discord' ? 'btn-primary' : 'btn-outline'}`}
+                                        >
+                                            Discord
                                         </button>
                                     </div>
 
@@ -137,7 +144,7 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
                                         className="btn btn-primary btn-block btn-sm gap-2"
                                     >
                                         <Send className="w-4 h-4" />
-                                        Set up {selectedPlatform === 'telegram' ? 'Telegram' : 'WhatsApp'}
+                                        Set up {selectedPlatform === 'telegram' ? 'Telegram' : selectedPlatform === 'whatsapp' ? 'WhatsApp' : 'Discord'}
                                     </button>
 
                                     <div className="alert alert-info mt-3">
@@ -147,7 +154,9 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
                                         <p className="text-xs">
                                             {selectedPlatform === 'telegram'
                                                 ? 'Create your own Telegram bot to receive messages'
-                                                : 'Link your WhatsApp to receive messages'}
+                                                : selectedPlatform === 'whatsapp'
+                                                ? 'Link your WhatsApp to receive messages'
+                                                : 'Create your own Discord bot to receive messages'}
                                         </p>
                                     </div>
                                 </>
@@ -155,7 +164,7 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
                                 <div className="space-y-3">
                                     <div className="flex items-center justify-between">
                                         <span className="text-sm font-medium">
-                                            {selectedPlatform === 'telegram' ? 'Telegram' : 'WhatsApp'} Setup
+                                            {selectedPlatform === 'telegram' ? 'Telegram' : selectedPlatform === 'whatsapp' ? 'WhatsApp' : 'Discord'} Setup
                                         </span>
                                         <button
                                             onClick={() => setShowMessagingSetup(false)}
@@ -175,7 +184,7 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
                                                 console.error('Telegram setup error:', error);
                                             }}
                                         />
-                                    ) : (
+                                    ) : selectedPlatform === 'whatsapp' ? (
                                         <WhatsAppSetup
                                             userId={user?.id || ''}
                                             onSuccess={() => {
@@ -183,6 +192,16 @@ export function AutomationSettings({ onClose }: { onClose: () => void }) {
                                             }}
                                             onError={(error) => {
                                                 console.error('WhatsApp setup error:', error);
+                                            }}
+                                        />
+                                    ) : (
+                                        <DiscordSetup
+                                            userId={user?.id || ''}
+                                            onSuccess={() => {
+                                                setShowMessagingSetup(false);
+                                            }}
+                                            onError={(error) => {
+                                                console.error('Discord setup error:', error);
                                             }}
                                         />
                                     )}

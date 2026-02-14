@@ -49,9 +49,19 @@ export class WhatsAppChannel extends BaseChannel {
     }
 
     private ensureSessionDir(): void {
-        const dir = path.dirname(this.sessionPath);
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir, { recursive: true });
+        try {
+            const dir = path.dirname(this.sessionPath);
+            if (!fs.existsSync(dir)) {
+                fs.mkdirSync(dir, { recursive: true });
+                this.log(`Created session directory: ${dir}`);
+            }
+        } catch (error) {
+            this.logError('Failed to create session directory', error as Error);
+            throw new ChannelError(
+                `Failed to create session directory: ${(error as Error).message}`,
+                'whatsapp',
+                'SESSION_DIR_ERROR'
+            );
         }
     }
 
@@ -64,7 +74,10 @@ export class WhatsAppChannel extends BaseChannel {
         try {
             this.log(`Starting WhatsApp client for user ${this.userId}`);
 
-            // Create WhatsApp client
+            // Detect serverless environment
+            const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+            // Create WhatsApp client with serverless-optimized config
             this.client = new Client({
                 authStrategy: new LocalAuth({
                     dataPath: this.sessionPath
@@ -78,10 +91,21 @@ export class WhatsAppChannel extends BaseChannel {
                         '--disable-accelerated-2d-canvas',
                         '--no-first-run',
                         '--no-zygote',
-                        '--disable-gpu'
-                    ]
+                        '--disable-gpu',
+                        '--single-process', // Required for serverless
+                        '--disable-extensions',
+                        '--disable-background-timer-throttling',
+                        '--disable-backgrounding-occluded-windows',
+                        '--disable-renderer-backgrounding'
+                    ],
+                    // Use Vercel's Chrome binary if available
+                    ...(isServerless && {
+                        executablePath: process.env.CHROME_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable'
+                    })
                 }
             });
+
+            this.log(`WhatsApp client created (serverless: ${!!isServerless})`);
 
             this.setupHandlers();
 

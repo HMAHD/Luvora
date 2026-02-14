@@ -1,11 +1,11 @@
 /**
- * Telegram Bot Setup API
+ * Discord Bot Setup API
  *
- * POST /api/channels/telegram/setup
+ * POST /api/channels/discord/setup
  *
- * Allows users to connect their own Telegram bot by providing the bot token.
+ * Allows users to connect their own Discord bot by providing the bot token.
  * Steps:
- * 1. Validate bot token with Telegram API
+ * 1. Validate bot token with Discord API
  * 2. Encrypt and save to PocketBase
  * 3. Start the bot channel
  *
@@ -52,12 +52,14 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Validate token with Telegram API
+        // Validate token with Discord API
         let botInfo;
         try {
-            const response = await fetch(
-                `https://api.telegram.org/bot${botToken}/getMe`
-            );
+            const response = await fetch('https://discord.com/api/v10/users/@me', {
+                headers: {
+                    Authorization: `Bot ${botToken}`
+                }
+            });
 
             if (!response.ok) {
                 return NextResponse.json(
@@ -66,19 +68,18 @@ export async function POST(req: NextRequest) {
                 );
             }
 
-            const data = await response.json();
+            botInfo = await response.json();
 
-            if (!data.ok) {
+            // Verify it's a bot account
+            if (!botInfo.bot) {
                 return NextResponse.json(
-                    { success: false, error: 'Bot token validation failed' },
+                    { success: false, error: 'Token must be for a bot account' },
                     { status: 400 }
                 );
             }
 
-            botInfo = data.result;
-
         } catch (error) {
-            console.error('Telegram API error:', error);
+            console.error('Discord API error:', error);
             return NextResponse.json(
                 { success: false, error: 'Failed to validate bot token' },
                 { status: 500 }
@@ -102,17 +103,16 @@ export async function POST(req: NextRequest) {
 
         // Save to PocketBase
         try {
-            // Check if user already has a Telegram channel
+            // Check if user already has a Discord channel
             const existing = await pb.collection('messaging_channels').getFullList({
-                filter: `user="${userId}" && platform="telegram"`,
+                filter: `user="${userId}" && platform="discord"`,
                 $autoCancel: false
             });
 
             const configData = {
                 enabled: true,
                 botToken: encryptedToken,
-                botUsername: botInfo.username,
-                botName: botInfo.first_name
+                botUsername: botInfo.username
             };
 
             if (existing.length > 0) {
@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
                 // Create new
                 await pb.collection('messaging_channels').create({
                     user: userId,
-                    platform: 'telegram',
+                    platform: 'discord',
                     enabled: true,
                     config: configData
                 }, {
@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
 
             // Start the channel - catch errors to prevent 500 response
             try {
-                await messagingService.startChannel(userId, 'telegram', configData);
+                await messagingService.startChannel(userId, 'discord', configData);
             } catch (channelError) {
                 console.error('Channel start error (non-fatal):', channelError);
                 // Channel will retry via reconnection logic
@@ -147,7 +147,7 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({
                 success: true,
                 botUsername: botInfo.username,
-                botName: botInfo.first_name
+                botId: botInfo.id
             });
 
         } catch (error) {

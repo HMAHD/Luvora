@@ -58,7 +58,13 @@ export async function GET(req: NextRequest) {
 
                 try {
                     // Session path for this user
-                    const sessionPath = path.join(process.cwd(), '.whatsapp-sessions', userId);
+                    // Use /tmp for serverless environments (Vercel, AWS Lambda, etc.)
+                    const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+                    const sessionPath = isServerless
+                        ? path.join('/tmp', '.whatsapp-sessions', userId)
+                        : path.join(process.cwd(), '.whatsapp-sessions', userId);
+
+                    console.log(`[WhatsApp Setup] Session path: ${sessionPath}, Serverless: ${!!isServerless}`);
 
                     // Create WhatsApp channel with callbacks
                     const channel = new WhatsAppChannel(
