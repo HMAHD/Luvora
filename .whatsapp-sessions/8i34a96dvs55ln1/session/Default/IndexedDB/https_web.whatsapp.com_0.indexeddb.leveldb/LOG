@@ -1,0 +1,32 @@
+2026/02/14-16:13:18.830 338ec Creating DB /Users/akash/Documents/Luvora/.whatsapp-sessions/8i34a96dvs55ln1/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb since it was missing.
+2026/02/14-16:13:18.836 338ec Reusing MANIFEST /Users/akash/Documents/Luvora/.whatsapp-sessions/8i34a96dvs55ln1/session/Default/IndexedDB/https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2026/02/14-16:13:49.177 338ed Level-0 table #5: started
+2026/02/14-16:13:49.226 338ed Level-0 table #5: 1013664 bytes OK
+2026/02/14-16:13:49.231 338ed Delete type=0 #3
+2026/02/14-16:13:52.043 338ed Level-0 table #7: started
+2026/02/14-16:13:52.091 338ed Level-0 table #7: 1034309 bytes OK
+2026/02/14-16:13:52.098 338ed Delete type=0 #4
+2026/02/14-16:13:52.105 338ed Compacting 1@1 + 1@2 files
+2026/02/14-16:13:52.161 338ed Generated table #8@1: 23971 keys, 965223 bytes
+2026/02/14-16:13:52.161 338ed Compacted 1@1 + 1@2 files => 965223 bytes
+2026/02/14-16:13:52.165 338ed compacted to: files[ 0 0 1 0 0 0 0 ]
+2026/02/14-16:13:52.165 338ed Delete type=2 #7
+2026/02/14-16:13:53.890 338ed Level-0 table #10: started
+2026/02/14-16:13:53.923 338ed Level-0 table #10: 1354996 bytes OK
+2026/02/14-16:13:53.929 338ed Delete type=0 #6
+2026/02/14-16:13:53.931 338ed Compacting 1@1 + 1@2 files
+2026/02/14-16:13:54.029 338ed Generated table #11@1: 49405 keys, 2215999 bytes
+2026/02/14-16:13:54.037 338ed Generated table #12@1: 2000 keys, 103645 bytes
+2026/02/14-16:13:54.037 338ed Compacted 1@1 + 1@2 files => 2319644 bytes
+2026/02/14-16:13:54.039 338ed compacted to: files[ 0 0 2 0 0 0 0 ]
+2026/02/14-16:13:54.041 338ed Delete type=2 #5
+2026/02/14-16:14:04.354 338ed Level-0 table #14: started
+2026/02/14-16:14:04.393 338ed Level-0 table #14: 1055621 bytes OK
+2026/02/14-16:14:04.402 338ed Delete type=2 #10
+2026/02/14-16:14:04.402 338ed Delete type=2 #8
+2026/02/14-16:14:04.402 338ed Delete type=0 #9
+2026/02/14-16:14:04.411 338ec Compacting 1@1 + 2@2 files
+2026/02/14-16:14:04.532 338ec Generated table #15@1: 32000 keys, 2196508 bytes
+2026/02/14-16:14:04.556 338ec Generated table #16@1: 8238 keys, 350823 bytes
+2026/02/14-16:14:04.556 338ec Compacted 1@1 + 2@2 files => 2547331 bytes
+2026/02/14-16:14:04.560 338ec compacted to: files[ 0 0 2 0 0 0 0 ]

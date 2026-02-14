@@ -42,9 +42,27 @@ export async function GET(req: NextRequest) {
         const encoder = new TextEncoder();
         const stream = new ReadableStream({
             async start(controller) {
+                let isClosed = false;
+
                 const sendEvent = (event: string, data: unknown) => {
-                    const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
-                    controller.enqueue(encoder.encode(message));
+                    if (isClosed) return; // Don't send if stream is closed
+                    try {
+                        const message = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+                        controller.enqueue(encoder.encode(message));
+                    } catch (error) {
+                        console.error('[WhatsApp Setup] Error sending event:', error);
+                        isClosed = true;
+                    }
+                };
+
+                const closeStream = () => {
+                    if (isClosed) return;
+                    try {
+                        controller.close();
+                        isClosed = true;
+                    } catch (error) {
+                        console.error('[WhatsApp Setup] Error closing stream:', error);
+                    }
                 };
 
                 try {
@@ -111,13 +129,14 @@ export async function GET(req: NextRequest) {
                                         );
                                     }
 
+                                    // Send success event BEFORE closing
                                     sendEvent('ready', { phoneNumber });
 
                                     // Stop the channel after successful setup
                                     await channel.stop();
 
                                     // Close stream
-                                    controller.close();
+                                    closeStream();
 
                                 } catch (error) {
                                     console.error('[WhatsApp Setup] Error saving to DB:', error);
@@ -125,7 +144,7 @@ export async function GET(req: NextRequest) {
                                         message: 'Failed to save WhatsApp configuration'
                                     });
                                     await channel.stop();
-                                    controller.close();
+                                    closeStream();
                                 }
                             }
                         }
@@ -136,11 +155,11 @@ export async function GET(req: NextRequest) {
 
                     // Set timeout (5 minutes)
                     setTimeout(async () => {
-                        if (!channel.isLinked()) {
+                        if (!channel.isLinked() && !isClosed) {
                             console.log(`[WhatsApp Setup] Timeout for user ${userId}`);
                             sendEvent('error', { message: 'Setup timeout. Please try again.' });
                             await channel.stop();
-                            controller.close();
+                            closeStream();
                         }
                     }, 5 * 60 * 1000);
 
@@ -149,7 +168,7 @@ export async function GET(req: NextRequest) {
                     sendEvent('error', {
                         message: error instanceof Error ? error.message : 'Setup failed'
                     });
-                    controller.close();
+                    closeStream();
                 }
             },
 
