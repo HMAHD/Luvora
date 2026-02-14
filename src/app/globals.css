@@ -309,77 +309,76 @@ h1, h2, h3, .text-2xl, .text-3xl, .text-4xl {
   z-index: -1;
 }
 
-/* Legend Tier: Electric Border Effect with SVG Turbulence */
+/* Legend Tier: Optimized Premium Border Effect */
 
-/* Background glow - soft ambient light */
+/* Single unified glow layer - optimized for performance */
 .legend-bg-glow {
   position: absolute;
-  inset: -20px;
+  inset: -12px;
   border-radius: 2rem;
   background: radial-gradient(
     ellipse at center,
-    rgba(251, 191, 36, 0.15) 0%,
-    rgba(245, 158, 11, 0.08) 40%,
-    transparent 70%
+    rgba(251, 191, 36, 0.2) 0%,
+    rgba(245, 158, 11, 0.1) 50%,
+    transparent 80%
   );
-  filter: blur(20px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Outer glow layer - intense animated glow */
-.legend-glow-outer {
-  position: absolute;
-  inset: -4px;
-  border-radius: 26px;
-  background: linear-gradient(
-    135deg,
-    rgba(251, 191, 36, 0.4),
-    rgba(245, 158, 11, 0.3),
-    rgba(252, 211, 77, 0.4),
-    rgba(245, 158, 11, 0.3)
-  );
-  background-size: 200% 200%;
-  filter: blur(12px);
   opacity: 0.8;
   pointer-events: none;
-  z-index: 1;
-  animation: legend-glow-shift 4s ease-in-out infinite;
+  z-index: 0;
+  animation: legend-glow-pulse 3s ease-in-out infinite;
+  will-change: opacity;
 }
 
-/* Inner glow layer - sharper edge glow */
-.legend-glow-inner {
+/* Rotating gradient border - GPU accelerated */
+.legend-glow-outer {
   position: absolute;
   inset: -2px;
-  border-radius: 24px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(251, 191, 36, 0.6) 20%,
-    rgba(252, 211, 77, 0.8) 50%,
-    rgba(251, 191, 36, 0.6) 80%,
-    transparent 100%
+  border-radius: 26px;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--gradient-angle),
+    #fbbf24,
+    #fcd34d,
+    #f59e0b,
+    #fbbf24
   );
-  background-size: 200% 100%;
-  filter: blur(6px);
-  opacity: 0.7;
   pointer-events: none;
-  z-index: 2;
-  animation: legend-inner-sweep 3s ease-in-out infinite;
+  z-index: 1;
+  animation: gradient-rotate 4s linear infinite;
+  will-change: transform;
 }
 
-/* Electric border - uses SVG turbulence filter */
+/* Subtle inner glow - no blur for performance */
+.legend-glow-inner {
+  position: absolute;
+  inset: 0;
+  border-radius: 24px;
+  box-shadow:
+    0 0 16px 2px rgba(251, 191, 36, 0.4),
+    inset 0 0 16px 2px rgba(251, 191, 36, 0.2);
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.9;
+}
+
+/* Shimmer overlay - lightweight alternative to electric effect */
 .legend-electric-border {
   position: absolute;
   inset: 0;
   border-radius: 24px;
-  border: 2px solid #fbbf24;
-  filter: url(#electric-turbulence);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    transparent 40%,
+    rgba(252, 211, 77, 0.3) 50%,
+    transparent 60%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
   pointer-events: none;
   z-index: 3;
-  box-shadow:
-    0 0 8px 1px rgba(251, 191, 36, 0.6),
-    inset 0 0 8px 1px rgba(251, 191, 36, 0.3);
+  animation: legend-shimmer-sweep 3s ease-in-out infinite;
+  will-change: background-position;
 }
 
 /* Card wrapper - contains the card with proper z-index */
@@ -389,26 +388,22 @@ h1, h2, h3, .text-2xl, .text-3xl, .text-4xl {
   border-radius: 24px;
 }
 
-/* Glow animations */
-@keyframes legend-glow-shift {
+/* Optimized glow animations - use transform/opacity only for GPU acceleration */
+@keyframes legend-glow-pulse {
   0%, 100% {
-    background-position: 0% 0%;
     opacity: 0.7;
   }
   50% {
-    background-position: 100% 100%;
-    opacity: 0.9;
+    opacity: 1;
   }
 }
 
-@keyframes legend-inner-sweep {
+@keyframes legend-shimmer-sweep {
   0%, 100% {
-    background-position: -100% 0%;
-    opacity: 0.5;
+    background-position: -100% 50%;
   }
   50% {
-    background-position: 200% 0%;
-    opacity: 0.8;
+    background-position: 200% 50%;
   }
 }
 

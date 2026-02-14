@@ -18,32 +18,6 @@ import { trackEvent } from '@/lib/metrics';
 
 type Role = 'neutral' | 'masculine' | 'feminine';
 
-// SVG Filter for Electric Effect
-function ElectricFilter() {
-  return (
-    <svg className="absolute w-0 h-0 overflow-hidden" aria-hidden="true">
-      <defs>
-        <filter id="electric-turbulence" x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="1" result="noise1">
-            <animate attributeName="seed" values="1;100;1" dur="4s" repeatCount="indefinite" />
-          </feTurbulence>
-          <feOffset result="noise1-offset">
-            <animate attributeName="dy" values="0;200;0" dur="6s" repeatCount="indefinite" />
-          </feOffset>
-          <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="2" result="noise2">
-            <animate attributeName="seed" values="2;50;2" dur="3s" repeatCount="indefinite" />
-          </feTurbulence>
-          <feOffset in="noise2" result="noise2-offset">
-            <animate attributeName="dx" values="0;150;0" dur="5s" repeatCount="indefinite" />
-          </feOffset>
-          <feComposite in="noise1-offset" in2="noise2-offset" operator="arithmetic" k1="0.5" k2="0.5" k3="0" k4="0" result="combined-noise" />
-          <feDisplacementMap in="SourceGraphic" in2="combined-noise" scale="6" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </defs>
-    </svg>
-  );
-}
-
 // Default fallback spark while loading
 const FALLBACK_SPARK: DailySpark = {
   date: new Date().toISOString().split('T')[0],
@@ -353,21 +327,18 @@ export function SparkCard() {
       {isShareOpen && <ShareCard onClose={() => setIsShareOpen(false)} userTier={userTier} />}
       {isAutoSettingsOpen && <AutomationSettings onClose={() => setIsAutoSettingsOpen(false)} />}
 
-      {/* SVG Filter for Legend Electric Effect */}
-      {isLegend && <ElectricFilter />}
-
       {/* TIER-BASED CARD WRAPPER */}
       <div className="relative w-full max-w-md">
-        {/* Legend: Electric Border with SVG Turbulence */}
+        {/* Legend: Optimized Premium Border with Rotating Gradient */}
         {isLegend && (
           <>
-            {/* Background glow */}
+            {/* Background ambient glow */}
             <div className="legend-bg-glow" />
-            {/* Outer glow layer */}
+            {/* Rotating gradient border */}
             <div className="legend-glow-outer" />
-            {/* Inner glow layer */}
+            {/* Inner glow effect */}
             <div className="legend-glow-inner" />
-            {/* Electric border with filter */}
+            {/* Shimmer sweep overlay */}
             <div className="legend-electric-border" />
           </>
         )}
