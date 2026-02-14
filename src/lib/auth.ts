@@ -136,11 +136,29 @@ export async function verifyOTP(otpId: string, code: string) {
             const expires = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14 days
             const cookieValue = `pb_auth=${encodeURIComponent(JSON.stringify(cookieData))}; path=/; expires=${expires.toUTCString()}; SameSite=Lax`;
             document.cookie = cookieValue;
-            console.log('✅ Auth cookie set:', {
-                hasToken: !!authStore.token,
-                userId: authStore.record?.id,
-                cookieLength: cookieValue.length
-            });
+
+            // Verify cookie was actually set
+            setTimeout(() => {
+                const allCookies = document.cookie;
+                const hasPbAuth = allCookies.includes('pb_auth');
+
+                console.log('🍪 Cookie Status:', {
+                    set: hasPbAuth ? '✅ SUCCESS' : '❌ FAILED',
+                    token: authStore.token?.substring(0, 20) + '...',
+                    userId: authStore.record?.id,
+                    cookieLength: cookieValue.length,
+                    allCookies: allCookies.substring(0, 100) + '...'
+                });
+
+                if (!hasPbAuth) {
+                    console.error('❌ COOKIE NOT SET! Possible issues:',
+                        '1. Browser blocking cookies',
+                        '2. Localhost vs domain mismatch',
+                        '3. Cookie size too large',
+                        '4. Browser privacy settings'
+                    );
+                }
+            }, 100);
         }
 
         return authData;

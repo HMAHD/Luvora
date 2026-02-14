@@ -25,10 +25,19 @@ export async function authenticateRequest(
     req: NextRequest
 ): Promise<{ success: true; data: AuthResult } | { success: false; error: AuthError }> {
     try {
+        // Debug: Log all cookies received
+        const allCookies = req.cookies.getAll();
+        console.log('🔍 Server received cookies:', {
+            count: allCookies.length,
+            names: allCookies.map(c => c.name),
+            hasPbAuth: allCookies.some(c => c.name === 'pb_auth')
+        });
+
         // Get the pb_auth cookie
         const authCookie = req.cookies.get('pb_auth');
 
         if (!authCookie?.value) {
+            console.error('❌ No pb_auth cookie found. All cookies:', allCookies.map(c => c.name));
             return {
                 success: false,
                 error: {
