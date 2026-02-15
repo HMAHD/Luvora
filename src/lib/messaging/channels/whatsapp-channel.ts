@@ -18,6 +18,9 @@ import { Client, LocalAuth } from 'whatsapp-web.js';
 import { BaseChannel } from '../base-channel';
 import type { WhatsAppConfig, OutboundMessage } from '../types';
 import { ChannelError } from '../types';
+import { DatabaseSessionStore } from '../database-session-store';
+import { SessionArchiver } from '../session-archiver';
+import { ConnectionManager } from '../connection-manager';
 import fs from 'fs';
 import path from 'path';
 
@@ -33,6 +36,8 @@ export class WhatsAppChannel extends BaseChannel {
     private phoneNumber: string | null = null;
     private callbacks: WhatsAppChannelCallbacks;
     private sessionPath: string;
+    private sessionStore: DatabaseSessionStore;
+    private sessionRestored = false;
 
     constructor(
         config: WhatsAppConfig,
@@ -43,6 +48,7 @@ export class WhatsAppChannel extends BaseChannel {
         this.sessionPath = config.sessionPath;
         this.phoneNumber = config.phoneNumber || null;
         this.callbacks = callbacks;
+        this.sessionStore = new DatabaseSessionStore();
 
         // Ensure session directory exists
         this.ensureSessionDir();
@@ -72,7 +78,20 @@ export class WhatsAppChannel extends BaseChannel {
         }
 
         try {
+            // Check connection limits
+            const connectionManager = ConnectionManager.getInstance();
+            if (!connectionManager.canCreateConnection(this.userId, 'whatsapp')) {
+                throw new ChannelError(
+                    'Maximum WhatsApp connections reached. Please try again later.',
+                    'whatsapp',
+                    'CONNECTION_LIMIT_REACHED'
+                );
+            }
+
             this.log(`Starting WhatsApp client for user ${this.userId}`);
+
+            // Try to restore session from database BEFORE initializing client
+            await this.restoreSessionFromDatabase();
 
             // Detect serverless environment
             const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
@@ -113,8 +132,16 @@ export class WhatsAppChannel extends BaseChannel {
             await this.client.initialize();
             this.running = true;
 
+            // Register connection with manager
+            const connectionManager = ConnectionManager.getInstance();
+            connectionManager.registerConnection(this.userId, 'whatsapp');
+
         } catch (error) {
             this.logError('Failed to start', error as Error);
+
+            // Record failure in connection manager
+            ConnectionManager.getInstance().recordFailure();
+
             throw new ChannelError(
                 `Failed to start: ${(error as Error).message}`,
                 'whatsapp',
@@ -138,6 +165,9 @@ export class WhatsAppChannel extends BaseChannel {
             this.client = null;
         }
 
+        // Unregister from connection manager
+        ConnectionManager.getInstance().unregisterConnection(this.userId, 'whatsapp');
+
         this.log('Stopped');
     }
 
@@ -160,10 +190,17 @@ export class WhatsAppChannel extends BaseChannel {
 
             await this.client.sendMessage(chatId, message.content);
 
+            // Update activity in connection manager
+            ConnectionManager.getInstance().updateActivity(this.userId, 'whatsapp');
+
             this.log(`Message sent to ${chatId}`);
 
         } catch (error) {
             this.logError('Failed to send message', error as Error);
+
+            // Mark connection as unhealthy on repeated failures
+            ConnectionManager.getInstance().markUnhealthy(this.userId, 'whatsapp');
+
             throw new ChannelError(
                 `Failed to send message: ${(error as Error).message}`,
                 'whatsapp',
@@ -203,6 +240,12 @@ export class WhatsAppChannel extends BaseChannel {
                 if (info && info.wid) {
                     this.phoneNumber = info.wid.user;
                     this.log(`Phone number: ${this.phoneNumber}`);
+
+                    // Archive session to database for persistence
+                    // This runs in background, don't await to avoid blocking
+                    this.archiveSessionToDatabase().catch(error => {
+                        this.logError('Background session archive failed', error as Error);
+                    });
 
                     // Notify ready
                     if (this.callbacks.onReady) {
@@ -249,5 +292,86 @@ export class WhatsAppChannel extends BaseChannel {
     hasSession(): boolean {
         const sessionFile = path.join(this.sessionPath, 'Default', 'IndexedDB');
         return fs.existsSync(sessionFile);
+    }
+
+    /**
+     * Restore session from database
+     * Called before client initialization to restore previously saved session
+     */
+    private async restoreSessionFromDatabase(): Promise<void> {
+        try {
+            // Check if session exists in database
+            const hasDbSession = await this.sessionStore.hasSession(this.userId);
+
+            if (!hasDbSession) {
+                this.log('No session found in database');
+                return;
+            }
+
+            // Check if local session already exists (skip restore if it does)
+            if (SessionArchiver.hasValidSession(this.sessionPath)) {
+                this.log('Local session already exists, skipping restore');
+                this.sessionRestored = true;
+                return;
+            }
+
+            this.log('Restoring session from database...');
+
+            // Load compressed session from database
+            const sessionData = await this.sessionStore.loadSession(this.userId);
+
+            if (!sessionData) {
+                this.log('Session data not found in database');
+                return;
+            }
+
+            // Restore session to local path
+            await SessionArchiver.restoreSession(sessionData, this.sessionPath);
+
+            this.sessionRestored = true;
+            this.log('Session restored from database successfully');
+
+        } catch (error) {
+            this.logError('Failed to restore session from database', error as Error);
+            // Continue anyway - will trigger QR code flow if restore fails
+        }
+    }
+
+    /**
+     * Archive session to database
+     * Called after successful authentication to save session for future use
+     */
+    private async archiveSessionToDatabase(): Promise<void> {
+        try {
+            // Only archive if we have a valid local session
+            if (!SessionArchiver.hasValidSession(this.sessionPath)) {
+                this.log('No valid local session to archive');
+                return;
+            }
+
+            this.log('Archiving session to database...');
+
+            // Archive and compress session directory
+            const archive = await SessionArchiver.archiveSession(this.sessionPath);
+
+            // Save to database
+            await this.sessionStore.saveSession(
+                this.userId,
+                archive.tarballBase64,
+                this.phoneNumber || undefined,
+                {
+                    archivedAt: new Date().toISOString(),
+                    originalSize: archive.originalSizeBytes,
+                    compressedSize: archive.sizeBytes,
+                    compressionRatio: archive.compressionRatio
+                }
+            );
+
+            this.log(`Session archived to database (${(archive.sizeBytes / 1024 / 1024).toFixed(2)} MB)`);
+
+        } catch (error) {
+            this.logError('Failed to archive session to database', error as Error);
+            // Don't throw - session still works locally
+        }
     }
 }
