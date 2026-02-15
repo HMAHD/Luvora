@@ -132,8 +132,7 @@ export class WhatsAppChannel extends BaseChannel {
             await this.client.initialize();
             this.running = true;
 
-            // Register connection with manager
-            const connectionManager = ConnectionManager.getInstance();
+            // Register connection with manager (reuse connectionManager from above)
             connectionManager.registerConnection(this.userId, 'whatsapp');
 
         } catch (error) {

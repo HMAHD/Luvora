@@ -268,8 +268,10 @@ class MessagingService {
     ): Promise<void> {
         console.log(`[MessagingService] Starting ${platform} channel for user ${userId}`);
 
-        // Check connection limits before starting
+        // Get ConnectionManager instance (used throughout this method)
         const connectionManager = ConnectionManager.getInstance();
+
+        // Check connection limits before starting
         if (!connectionManager.canCreateConnection(userId, platform)) {
             const error = `Maximum ${platform} connections reached. Please try again later.`;
             console.error(`[MessagingService] ${error}`);
