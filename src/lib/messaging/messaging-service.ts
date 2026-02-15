@@ -34,6 +34,8 @@ import type { BaseChannel } from './base-channel';
 import type { MessagingPlatform, OutboundMessage, TelegramConfig, WhatsAppConfig, DiscordConfig } from './types';
 import path from 'path';
 import { TIER } from '@/lib/types';
+import { createPlatformRateLimiters, type RateLimiter } from './rate-limiter';
+import { MessagingMetrics } from './messaging-metrics';
 
 type ChannelInstance = BaseChannel & {
     isLinked?: () => boolean;
@@ -52,6 +54,16 @@ class MessagingService {
     private readonly MAX_START_RETRIES = 3;
     private readonly RETRY_DELAY_MS = 5000; // 5 seconds
     private cleanupTimer?: NodeJS.Timeout;
+    private rateLimiters: Record<MessagingPlatform, RateLimiter>;
+    private metrics: MessagingMetrics;
+
+    constructor() {
+        // Initialize rate limiters for each platform
+        this.rateLimiters = createPlatformRateLimiters();
+
+        // Initialize metrics tracking
+        this.metrics = new MessagingMetrics();
+    }
 
     /**
      * Start periodic cleanup of inactive channels
@@ -193,20 +205,41 @@ class MessagingService {
 
             console.log(`[MessagingService] Found ${channels.length} enabled channels`);
 
-            // Initialize each channel
-            for (const channelRecord of channels) {
-                try {
-                    await this.startChannel(
-                        channelRecord.user,
-                        channelRecord.platform as MessagingPlatform,
-                        channelRecord.config
-                    );
-                } catch (error) {
-                    console.error(
-                        `[MessagingService] Failed to start ${channelRecord.platform} for user ${channelRecord.user}:`,
-                        error
-                    );
-                }
+            // Initialize all channels in parallel with graceful degradation
+            // Use Promise.allSettled to allow partial success - don't let one failing channel break all others
+            const startPromises = channels.map(channelRecord =>
+                this.startChannel(
+                    channelRecord.user,
+                    channelRecord.platform as MessagingPlatform,
+                    channelRecord.config
+                ).then(() => ({
+                    userId: channelRecord.user,
+                    platform: channelRecord.platform,
+                    success: true
+                })).catch(error => ({
+                    userId: channelRecord.user,
+                    platform: channelRecord.platform,
+                    success: false,
+                    error: error instanceof Error ? error.message : String(error)
+                }))
+            );
+
+            const results = await Promise.all(startPromises);
+
+            // Report results
+            const successful = results.filter(r => r.success);
+            const failed = results.filter(r => !r.success);
+
+            console.log(
+                `[MessagingService] Initialization results: ${successful.length}/${channels.length} channels started successfully`
+            );
+
+            if (failed.length > 0) {
+                console.warn(
+                    `[MessagingService] ${failed.length} channels failed to start:`,
+                    failed.map(f => `${f.platform}@${f.userId}: ${f.error}`).join(', ')
+                );
+                // Don't throw - partial success is acceptable for graceful degradation
             }
 
             this.initialized = true;
@@ -218,7 +251,10 @@ class MessagingService {
 
         } catch (error) {
             console.error('[MessagingService] Initialization failed:', error);
-            throw error;
+            // Don't throw - allow app to start even if messaging service fails
+            // Individual channels can still be configured later via API
+            // This implements graceful degradation
+            this.initialized = false;
         }
     }
 
@@ -536,21 +572,45 @@ class MessagingService {
                 content: message.content
             };
 
-            // Send message with retry logic (3 attempts)
-            await this.retryWithBackoff(
-                () => channel.send(outboundMessage),
-                `Sending ${platform} message for user ${userId}`,
-                3 // Retry 3 times for message sending
+            // Apply rate limiting before sending
+            const rateLimiter = this.rateLimiters[platform];
+            console.log(
+                `[MessagingService] Rate limiter status for ${platform}:`,
+                rateLimiter.getStatus()
             );
+
+            // Send message with rate limiting and retry logic
+            const startTime = Date.now();
+
+            await rateLimiter.execute(async () => {
+                await this.retryWithBackoff(
+                    () => channel.send(outboundMessage),
+                    `Sending ${platform} message for user ${userId}`,
+                    3 // Retry 3 times for message sending
+                );
+            });
+
+            const latencyMs = Date.now() - startTime;
+
+            // Track successful message
+            this.metrics.trackMessageSent(platform, latencyMs);
 
             // Log success
             await this.logNotification(userId, message.platform, message.content, 'sent');
 
-            console.log(`[MessagingService] Message sent via ${message.platform} for user ${userId}`);
+            console.log(
+                `[MessagingService] Message sent via ${message.platform} for user ${userId} ` +
+                `(latency: ${latencyMs}ms)`
+            );
 
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            const errorType = error instanceof Error ? error.name : 'UnknownError';
+
             console.error(`[MessagingService] Failed to send message:`, error);
+
+            // Track failed message
+            this.metrics.trackMessageFailed(platform, errorType);
 
             // Log failure
             await this.logNotification(
@@ -647,6 +707,31 @@ class MessagingService {
     }
 
     /**
+     * Get metrics for all messaging platforms
+     */
+    getMetrics() {
+        // Update channel counts in metrics
+        for (const [platform] of [['telegram'], ['whatsapp'], ['discord']] as [MessagingPlatform][]) {
+            let active = 0;
+            let total = 0;
+
+            for (const [, userChannels] of this.channels.entries()) {
+                const channel = userChannels[platform as keyof UserChannels];
+                if (channel) {
+                    total++;
+                    if (channel.running) {
+                        active++;
+                    }
+                }
+            }
+
+            this.metrics.updateChannelCounts(platform, active, total);
+        }
+
+        return this.metrics.getAllMetrics();
+    }
+
+    /**
      * Get health status of all messaging channels
      */
     getHealthStatus(): {
@@ -718,6 +803,12 @@ class MessagingService {
             this.cleanupTimer = undefined;
             console.log('[MessagingService] Stopped periodic cleanup');
         }
+
+        // Clear rate limiter queues
+        Object.values(this.rateLimiters).forEach(limiter => {
+            limiter.clearQueue();
+        });
+        console.log('[MessagingService] Cleared rate limiter queues');
 
         for (const [userId, userChannels] of this.channels.entries()) {
             for (const platform of Object.keys(userChannels) as MessagingPlatform[]) {

@@ -13,7 +13,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { gzipSync, gunzipSync } from 'zlib';
+import { brotliCompressSync, brotliDecompressSync, constants } from 'zlib';
 import { execSync } from 'child_process';
 
 export interface SessionArchive {
@@ -49,9 +49,14 @@ export class SessionArchiver {
                     stdio: 'pipe'
                 });
 
-                // Read tarball and compress with gzip
+                // Read tarball and compress with Brotli (40% better than gzip)
                 const tarball = fs.readFileSync(tarballPath);
-                const compressed = gzipSync(tarball, { level: 9 }); // Maximum compression
+                const compressed = brotliCompressSync(tarball, {
+                    params: {
+                        [constants.BROTLI_PARAM_QUALITY]: 11, // Maximum compression
+                        [constants.BROTLI_PARAM_MODE]: constants.BROTLI_MODE_GENERIC // Binary data
+                    }
+                });
 
                 // Convert to base64 for storage
                 const tarballBase64 = compressed.toString('base64');
@@ -105,9 +110,19 @@ export class SessionArchiver {
                 fs.rmSync(targetPath, { recursive: true, force: true });
             }
 
-            // Decode and decompress
+            // Decode and decompress (supports both Brotli and legacy gzip)
             const compressed = Buffer.from(tarballBase64, 'base64');
-            const tarball = gunzipSync(compressed);
+            let tarball: Buffer;
+
+            try {
+                // Try Brotli decompression first (new format)
+                tarball = brotliDecompressSync(compressed);
+            } catch (error) {
+                // Fall back to gzip for legacy archives
+                console.warn('[SessionArchiver] Brotli decompression failed, trying gzip fallback');
+                const { gunzipSync } = require('zlib');
+                tarball = gunzipSync(compressed);
+            }
 
             // Write tarball to temporary file
             const tarballPath = path.join('/tmp', `whatsapp-restore-${Date.now()}.tar`);
