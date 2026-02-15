@@ -150,12 +150,16 @@ export class SessionArchiver {
             }
 
             // Check for essential WhatsApp Web.js session files
-            const requiredPaths = [
-                path.join(sessionPath, 'Default'),
-                path.join(sessionPath, 'Default', 'IndexedDB')
+            // The structure can be either:
+            // 1. Direct: sessionPath/Default/IndexedDB
+            // 2. Nested: sessionPath/session/Default/IndexedDB
+            const possiblePaths = [
+                [path.join(sessionPath, 'Default'), path.join(sessionPath, 'Default', 'IndexedDB')],
+                [path.join(sessionPath, 'session', 'Default'), path.join(sessionPath, 'session', 'Default', 'IndexedDB')]
             ];
 
-            return requiredPaths.every(p => fs.existsSync(p));
+            // Check if any of the possible structures exist
+            return possiblePaths.some(paths => paths.every(p => fs.existsSync(p)));
         } catch {
             return false;
         }

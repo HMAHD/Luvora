@@ -290,8 +290,10 @@ export class WhatsAppChannel extends BaseChannel {
      * Check if session exists (already scanned QR before)
      */
     hasSession(): boolean {
-        const sessionFile = path.join(this.sessionPath, 'Default', 'IndexedDB');
-        return fs.existsSync(sessionFile);
+        // Check both possible session structures
+        const directPath = path.join(this.sessionPath, 'Default', 'IndexedDB');
+        const nestedPath = path.join(this.sessionPath, 'session', 'Default', 'IndexedDB');
+        return fs.existsSync(directPath) || fs.existsSync(nestedPath);
     }
 
     /**
