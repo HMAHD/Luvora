@@ -28,10 +28,12 @@ import { pb } from '@/lib/pocketbase';
 import { decrypt } from '@/lib/crypto';
 import { TelegramChannel } from './channels/telegram-channel';
 import { WhatsAppChannel } from './channels/whatsapp-channel';
+import { ConnectionManager } from './connection-manager';
 // Discord is dynamically imported to avoid loading discord.js on every API route
 import type { BaseChannel } from './base-channel';
 import type { MessagingPlatform, OutboundMessage, TelegramConfig, WhatsAppConfig, DiscordConfig } from './types';
 import path from 'path';
+import { TIER } from '@/lib/types';
 
 type ChannelInstance = BaseChannel & {
     isLinked?: () => boolean;
@@ -47,6 +49,87 @@ interface UserChannels {
 class MessagingService {
     private channels: Map<string, UserChannels> = new Map();
     private initialized = false;
+    private readonly MAX_START_RETRIES = 3;
+    private readonly RETRY_DELAY_MS = 5000; // 5 seconds
+    private cleanupTimer?: NodeJS.Timeout;
+
+    /**
+     * Start periodic cleanup of inactive channels
+     * Runs every hour to check for disabled channels and clean up memory
+     */
+    private startPeriodicCleanup(): void {
+        const CLEANUP_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+
+        this.cleanupTimer = setInterval(async () => {
+            console.log('[MessagingService] Running periodic cleanup...');
+
+            for (const [userId, userChannels] of this.channels.entries()) {
+                try {
+                    // Check if user still has enabled channels
+                    const activeChannels = await pb.collection('messaging_channels').getFullList({
+                        filter: `user="${userId}" && enabled=true`,
+                        $autoCancel: false
+                    });
+
+                    // Build a set of platforms that should be active
+                    const activePlatforms = new Set(
+                        activeChannels.map(ch => ch.platform as MessagingPlatform)
+                    );
+
+                    // Stop channels that are running but no longer enabled
+                    for (const platform of Object.keys(userChannels) as MessagingPlatform[]) {
+                        if (!activePlatforms.has(platform)) {
+                            console.log(
+                                `[MessagingService] Cleanup: Stopping disabled ${platform} channel for user ${userId}`
+                            );
+                            await this.stopChannel(userId, platform);
+                        }
+                    }
+
+                } catch (error) {
+                    console.error(
+                        `[MessagingService] Cleanup error for user ${userId}:`,
+                        error
+                    );
+                }
+            }
+
+            console.log('[MessagingService] Periodic cleanup complete');
+        }, CLEANUP_INTERVAL_MS);
+
+        console.log('[MessagingService] Periodic cleanup scheduled (every hour)');
+    }
+
+    /**
+     * Retry helper with exponential backoff
+     */
+    private async retryWithBackoff<T>(
+        operation: () => Promise<T>,
+        operationName: string,
+        maxRetries: number = this.MAX_START_RETRIES
+    ): Promise<T> {
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            try {
+                return await operation();
+            } catch (error) {
+                if (attempt === maxRetries) {
+                    console.error(`[MessagingService] ${operationName} failed after ${maxRetries} attempts:`, error);
+                    throw error;
+                }
+
+                const delay = this.RETRY_DELAY_MS * Math.pow(1.5, attempt - 1); // Exponential backoff
+                console.warn(
+                    `[MessagingService] ${operationName} attempt ${attempt}/${maxRetries} failed. ` +
+                    `Retrying in ${delay}ms...`,
+                    error instanceof Error ? error.message : error
+                );
+
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+
+        throw new Error(`${operationName} failed after ${maxRetries} attempts`);
+    }
 
     /**
      * Initialize all enabled channels from PocketBase
@@ -60,11 +143,47 @@ class MessagingService {
         console.log('[MessagingService] Initializing...');
 
         try {
+            // Validate admin credentials
+            const adminEmail = process.env.POCKETBASE_ADMIN_EMAIL;
+            const adminPassword = process.env.POCKETBASE_ADMIN_PASSWORD;
+
+            if (!adminEmail || !adminPassword) {
+                throw new Error(
+                    'Missing required environment variables: POCKETBASE_ADMIN_EMAIL and POCKETBASE_ADMIN_PASSWORD. ' +
+                    'Set these in .env.local to enable messaging service initialization.'
+                );
+            }
+
+            // Validate encryption key early
+            const encryptionKey = process.env.ENCRYPTION_KEY;
+            if (!encryptionKey || encryptionKey.length < 64) {
+                throw new Error(
+                    'Invalid ENCRYPTION_KEY. Must be at least 64 characters (32 bytes in hex). ' +
+                    'Generate with: node -e "console.log(crypto.randomBytes(32).toString(\'hex\'))"'
+                );
+            }
+
+            // Test encryption/decryption to ensure key is valid
+            try {
+                const { encrypt, decrypt } = await import('@/lib/crypto');
+                const testData = 'encryption_test_' + Date.now();
+                const encrypted = encrypt(testData);
+                const decrypted = decrypt(encrypted);
+
+                if (decrypted !== testData) {
+                    throw new Error('Encryption round-trip test failed: decrypted data does not match original');
+                }
+
+                console.log('[MessagingService] Encryption key validated successfully');
+            } catch (error) {
+                throw new Error(
+                    `Encryption validation failed: ${error instanceof Error ? error.message : 'Unknown error'}. ` +
+                    'Check that ENCRYPTION_KEY is correctly set in .env.local'
+                );
+            }
+
             // Authenticate as admin to fetch all channels
-            await pb.admins.authWithPassword(
-                process.env.POCKETBASE_ADMIN_EMAIL || '',
-                process.env.POCKETBASE_ADMIN_PASSWORD || ''
-            );
+            await pb.admins.authWithPassword(adminEmail, adminPassword);
 
             // Fetch all enabled channels
             const channels = await pb.collection('messaging_channels').getFullList({
@@ -91,6 +210,10 @@ class MessagingService {
             }
 
             this.initialized = true;
+
+            // Start periodic cleanup to prevent memory leaks
+            this.startPeriodicCleanup();
+
             console.log('[MessagingService] Initialization complete');
 
         } catch (error) {
@@ -109,6 +232,45 @@ class MessagingService {
     ): Promise<void> {
         console.log(`[MessagingService] Starting ${platform} channel for user ${userId}`);
 
+        // Check connection limits before starting
+        const connectionManager = ConnectionManager.getInstance();
+        if (!connectionManager.canCreateConnection(userId, platform)) {
+            const error = `Maximum ${platform} connections reached. Please try again later.`;
+            console.error(`[MessagingService] ${error}`);
+            throw new Error(error);
+        }
+
+        // Enforce single-channel restriction for Elite and Legend users
+        try {
+            const userRecord = await pb.collection('users').getOne(userId, { $autoCancel: false });
+            const userTier = userRecord.tier as number;
+
+            // Elite (tier 1) and Legend (tier 2) users can only have ONE active channel
+            if (userTier >= TIER.HERO) {
+                const userChannels = this.channels.get(userId);
+                const existingPlatforms = userChannels
+                    ? (Object.keys(userChannels) as MessagingPlatform[]).filter(
+                        p => userChannels[p as keyof UserChannels]
+                    )
+                    : [];
+
+                // If user already has a different platform connected, prevent adding a new one
+                if (existingPlatforms.length > 0 && !existingPlatforms.includes(platform)) {
+                    const connectedPlatform = existingPlatforms[0];
+                    const error = `You can only connect one messaging channel at a time. Please disconnect ${connectedPlatform} first before connecting ${platform}.`;
+                    console.error(`[MessagingService] ${error}`);
+                    throw new Error(error);
+                }
+            }
+        } catch (error) {
+            // If it's our single-channel error, re-throw it
+            if (error instanceof Error && error.message.includes('only connect one messaging channel')) {
+                throw error;
+            }
+            // Otherwise, log but don't block (user might not exist, etc.)
+            console.warn(`[MessagingService] Could not check user tier for ${userId}:`, error);
+        }
+
         // Get or create user channels map
         if (!this.channels.has(userId)) {
             this.channels.set(userId, {});
@@ -119,6 +281,7 @@ class MessagingService {
         const existingChannel = userChannels[platform as keyof UserChannels];
         if (existingChannel) {
             await existingChannel.stop();
+            connectionManager.unregisterConnection(userId, platform);
         }
 
         // Create and start new channel
@@ -272,16 +435,37 @@ class MessagingService {
             throw new Error(`Unsupported platform: ${platform}`);
         }
 
-        // Start the channel
-        await channel.start();
+        // Start the channel with retry logic and error handling
+        try {
+            await this.retryWithBackoff(
+                () => channel.start(),
+                `Starting ${platform} channel for user ${userId}`
+            );
 
-        // Store channel instance
-        if (platform === 'telegram') {
-            userChannels.telegram = channel;
-        } else if (platform === 'whatsapp') {
-            userChannels.whatsapp = channel;
-        } else if (platform === 'discord') {
-            userChannels.discord = channel;
+            // Register connection with ConnectionManager
+            connectionManager.registerConnection(userId, platform);
+
+            // Store channel instance
+            if (platform === 'telegram') {
+                userChannels.telegram = channel;
+            } else if (platform === 'whatsapp') {
+                userChannels.whatsapp = channel;
+            } else if (platform === 'discord') {
+                userChannels.discord = channel;
+            }
+
+            console.log(`[MessagingService] Successfully started ${platform} channel for user ${userId}`);
+
+        } catch (error) {
+            // Ensure channel is properly cleaned up on failure
+            try {
+                await channel.stop();
+            } catch (stopError) {
+                console.error(`[MessagingService] Error stopping failed channel:`, stopError);
+            }
+
+            console.error(`[MessagingService] Failed to start ${platform} channel for user ${userId}:`, error);
+            throw error;
         }
     }
 
@@ -301,6 +485,10 @@ class MessagingService {
 
         await channel.stop();
 
+        // Unregister connection from ConnectionManager
+        const connectionManager = ConnectionManager.getInstance();
+        connectionManager.unregisterConnection(userId, platform);
+
         // Remove channel from map
         if (platform === 'telegram') {
             delete userChannels.telegram;
@@ -309,6 +497,14 @@ class MessagingService {
         } else if (platform === 'discord') {
             delete userChannels.discord;
         }
+
+        // Clean up empty user channel maps to prevent memory leaks
+        if (Object.keys(userChannels).length === 0) {
+            this.channels.delete(userId);
+            console.log(`[MessagingService] Cleaned up empty channel map for user ${userId}`);
+        }
+
+        console.log(`[MessagingService] Successfully stopped ${platform} channel for user ${userId}`);
     }
 
     /**
@@ -340,8 +536,12 @@ class MessagingService {
                 content: message.content
             };
 
-            // Send message
-            await channel.send(outboundMessage);
+            // Send message with retry logic (3 attempts)
+            await this.retryWithBackoff(
+                () => channel.send(outboundMessage),
+                `Sending ${platform} message for user ${userId}`,
+                3 // Retry 3 times for message sending
+            );
 
             // Log success
             await this.logNotification(userId, message.platform, message.content, 'sent');
@@ -447,10 +647,77 @@ class MessagingService {
     }
 
     /**
+     * Get health status of all messaging channels
+     */
+    getHealthStatus(): {
+        initialized: boolean;
+        totalChannels: number;
+        totalUsers: number;
+        platformBreakdown: {
+            telegram: { total: number; healthy: number; unhealthy: number };
+            whatsapp: { total: number; healthy: number; unhealthy: number };
+            discord: { total: number; healthy: number; unhealthy: number };
+        };
+        connectionLimits: {
+            telegram: { current: number; max: number; available: number };
+            whatsapp: { current: number; max: number; available: number };
+            discord: { current: number; max: number; available: number };
+        };
+        issues: string[];
+    } {
+        const connectionManager = ConnectionManager.getInstance();
+
+        const health = {
+            initialized: this.initialized,
+            totalChannels: 0,
+            totalUsers: this.channels.size,
+            platformBreakdown: {
+                telegram: { total: 0, healthy: 0, unhealthy: 0 },
+                whatsapp: { total: 0, healthy: 0, unhealthy: 0 },
+                discord: { total: 0, healthy: 0, unhealthy: 0 }
+            },
+            connectionLimits: {
+                telegram: connectionManager.getConnectionStats('telegram'),
+                whatsapp: connectionManager.getConnectionStats('whatsapp'),
+                discord: connectionManager.getConnectionStats('discord')
+            },
+            issues: [] as string[]
+        };
+
+        for (const [userId, userChannels] of this.channels.entries()) {
+            for (const platform of Object.keys(userChannels) as MessagingPlatform[]) {
+                const channel = userChannels[platform as keyof UserChannels];
+                if (channel) {
+                    health.totalChannels++;
+                    health.platformBreakdown[platform].total++;
+
+                    // Check if channel is healthy (connected and running)
+                    const isHealthy = channel.running;
+                    if (isHealthy) {
+                        health.platformBreakdown[platform].healthy++;
+                    } else {
+                        health.platformBreakdown[platform].unhealthy++;
+                        health.issues.push(`${platform} channel for user ${userId} is not running`);
+                    }
+                }
+            }
+        }
+
+        return health;
+    }
+
+    /**
      * Shutdown all channels
      */
     async shutdown(): Promise<void> {
         console.log('[MessagingService] Shutting down...');
+
+        // Stop periodic cleanup
+        if (this.cleanupTimer) {
+            clearInterval(this.cleanupTimer);
+            this.cleanupTimer = undefined;
+            console.log('[MessagingService] Stopped periodic cleanup');
+        }
 
         for (const [userId, userChannels] of this.channels.entries()) {
             for (const platform of Object.keys(userChannels) as MessagingPlatform[]) {
