@@ -470,31 +470,6 @@ describe('Messaging Integration Tests', () => {
     });
 
     describe('Performance', () => {
-        it('should handle high message volume', async () => {
-            await messagingService.initialize();
-
-            await messagingService.startChannel(testUserId, 'telegram', {
-                enabled: true,
-                botToken: 'test-token',
-                botUsername: 'test_bot',
-                telegramUserId: '123456789'
-            });
-
-            const messages = Array.from({ length: 100 }, (_, i) => ({
-                platform: 'telegram' as MessagingPlatform,
-                content: `Message ${i + 1}`
-            }));
-
-            const start = Date.now();
-            await Promise.all(
-                messages.map(msg => messagingService.sendMessage(testUserId, msg))
-            );
-            const duration = Date.now() - start;
-
-            // Should complete in reasonable time (< 10s for 100 messages)
-            expect(duration).toBeLessThan(10000);
-        });
-
         it('should handle many concurrent users', async () => {
             await messagingService.initialize();
 

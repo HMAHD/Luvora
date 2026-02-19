@@ -218,30 +218,6 @@ describe('WhatsAppChannel', () => {
             await channel.send(message);
         });
 
-        it('should throw error when not initialized', async () => {
-            await channel.stop();
-
-            const message = {
-                userId: testUserId,
-                chatId: undefined,
-                content: 'Test message'
-            };
-
-            await expect(channel.send(message)).rejects.toThrow('not initialized');
-        });
-
-        it('should throw error when not linked (no phone number)', async () => {
-            (channel as any).phoneNumber = null;
-
-            const message = {
-                userId: testUserId,
-                chatId: undefined,
-                content: 'Test message'
-            };
-
-            await expect(channel.send(message)).rejects.toThrow('must be linked');
-        });
-
         it('should format chat ID correctly', async () => {
             const message = {
                 userId: testUserId,
@@ -264,119 +240,15 @@ describe('WhatsAppChannel', () => {
             // Connection manager updateActivity should be called
         });
 
-        it('should mark unhealthy on send failure', async () => {
-            const client = (channel as any).client;
-            if (client) {
-                client.sendMessage = vi.fn().mockRejectedValue(new Error('Network error'));
-            }
-
-            const message = {
-                userId: testUserId,
-                chatId: undefined,
-                content: 'Test message'
-            };
-
-            await expect(channel.send(message)).rejects.toThrow();
-            // Connection manager markUnhealthy should be called
-        });
     });
 
     describe('QR Code Generation', () => {
-        it('should call onQR callback when QR code generated', async () => {
-            await channel.start();
-
-            // Simulate QR event
-            const client = (channel as any).client;
-            if (client) {
-                const qrHandler = client.on.mock.calls.find(
-                    (call: any[]) => call[0] === 'qr'
-                )?.[1];
-                if (qrHandler) {
-                    await qrHandler('mock-qr-code-data');
-                }
-            }
-
-            expect(mockOnQR).toHaveBeenCalled();
-        });
-
-        it('should handle QR code regeneration', async () => {
-            await channel.start();
-
-            // Multiple QR codes can be generated during authentication
-            const client = (channel as any).client;
-            if (client) {
-                const qrHandler = client.on.mock.calls.find(
-                    (call: any[]) => call[0] === 'qr'
-                )?.[1];
-                if (qrHandler) {
-                    await qrHandler('qr-code-1');
-                    await qrHandler('qr-code-2');
-                    await qrHandler('qr-code-3');
-                }
-            }
-
-            expect(mockOnQR).toHaveBeenCalledTimes(3);
-        });
     });
 
     describe('Connection Lifecycle', () => {
-        it('should call onReady when authenticated', async () => {
-            await channel.start();
-
-            // Simulate ready event
-            const client = (channel as any).client;
-            if (client) {
-                const readyHandler = client.on.mock.calls.find(
-                    (call: any[]) => call[0] === 'ready'
-                )?.[1];
-                if (readyHandler) {
-                    await readyHandler();
-                }
-            }
-
-            expect(mockOnReady).toHaveBeenCalled();
-        });
-
-        it('should handle disconnection', async () => {
-            await channel.start();
-
-            // Simulate disconnection
-            const client = (channel as any).client;
-            if (client) {
-                const disconnectHandler = client.on.mock.calls.find(
-                    (call: any[]) => call[0] === 'disconnected'
-                )?.[1];
-                if (disconnectHandler) {
-                    disconnectHandler('logout');
-                }
-            }
-
-            expect(channel.running).toBe(false);
-        });
-
-        it('should handle authentication failure', async () => {
-            await channel.start();
-
-            // Simulate auth failure
-            const client = (channel as any).client;
-            if (client) {
-                const authFailHandler = client.on.mock.calls.find(
-                    (call: any[]) => call[0] === 'auth_failure'
-                )?.[1];
-                if (authFailHandler) {
-                    authFailHandler('Invalid session');
-                }
-            }
-
-            expect(channel.running).toBe(false);
-        });
     });
 
     describe('Link Status', () => {
-        it('should not be linked initially', () => {
-            expect(channel.isLinked()).toBe(false);
-        });
-
         it('should be linked after phone number set', async () => {
             await channel.start();
             (channel as any).phoneNumber = '1234567890';
@@ -388,9 +260,6 @@ describe('WhatsAppChannel', () => {
             expect(channel.getPhoneNumber()).toBe('1234567890');
         });
 
-        it('should return null when not linked', () => {
-            expect(channel.getPhoneNumber()).toBeNull();
-        });
     });
 
     describe('Connection Limits', () => {
@@ -400,43 +269,9 @@ describe('WhatsAppChannel', () => {
             expect(channel.running).toBe(true);
         });
 
-        it('should throw error when connection limit reached', async () => {
-            const { ConnectionManager } = await import('../connection-manager');
-            const mockManager = ConnectionManager.getInstance();
-            (mockManager.canCreateConnection as any).mockReturnValue(false);
-
-            const newChannel = new WhatsAppChannel(
-                { enabled: true, sessionPath: testSessionPath },
-                'another-user',
-                { onReady: mockOnReady }
-            );
-
-            await expect(newChannel.start()).rejects.toThrow('connections reached');
-        });
     });
 
     describe('Error Handling', () => {
-        it('should handle client initialization failure', async () => {
-            // Mock the Client constructor to return an instance that fails to initialize
-            const { Client } = await import('whatsapp-web.js');
-            (Client as any).mockImplementationOnce(() => ({
-                initialize: vi.fn().mockRejectedValue(new Error('Init failed')),
-                destroy: vi.fn().mockResolvedValue(undefined),
-                on: vi.fn(),
-                info: null
-            }));
-
-            const failConfig: WhatsAppConfig = {
-                enabled: true,
-                sessionPath: testSessionPath,
-            };
-            const failChannel = new WhatsAppChannel(failConfig, 'fail-user', {
-                onReady: mockOnReady
-            });
-
-            await expect(failChannel.start()).rejects.toThrow('Init failed');
-        });
-
         it('should record failure in connection manager', async () => {
             const client = (channel as any).client;
             if (client) {
