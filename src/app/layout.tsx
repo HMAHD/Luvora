@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { OrganizationSchema, WebApplicationSchema, FAQSchema } from "@/components/seo/JsonLd";
+import NextTopLoader from 'nextjs-toploader';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -152,6 +153,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
+        {/* Navigation loading bar */}
+        <NextTopLoader
+          color="oklch(var(--p))"
+          height={3}
+          showSpinner={false}
+          speed={200}
+          shadow="0 0 10px oklch(var(--p)),0 0 5px oklch(var(--p))"
+        />
         <GoogleAnalytics />
         <ThemeSwitcher />
         {children}

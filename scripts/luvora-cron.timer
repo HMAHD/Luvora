@@ -1,0 +1,18 @@
+# Systemd Timer for Luvora Spark Delivery
+# Runs every minute
+# Installation: See luvora-cron.service for full setup instructions
+
+[Unit]
+Description=Luvora Spark Delivery Timer (runs every minute)
+Requires=luvora-cron.service
+
+[Timer]
+# Run every minute
+OnCalendar=*:0/1
+# Start immediately if system was down during scheduled time
+Persistent=true
+# Accuracy (allow up to 1s delay for load balancing)
+AccuracySec=1s
+
+[Install]
+WantedBy=timers.target

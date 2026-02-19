@@ -9,7 +9,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { UpgradeModal } from './UpgradeModal';
 import { ShareCard } from './ShareCard';
-import { AutomationSettings } from './AutomationSettings';
 import { RoleSelector } from './RoleSelector';
 import { incrementGlobalStats } from '@/actions/stats';
 import { trackUserActivity } from '@/actions/engagement';
@@ -81,7 +80,6 @@ export function SparkCard() {
   const [sparkLoading, setSparkLoading] = useState(true);
   const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
   const [isShareOpen, setIsShareOpen] = useState(false);
-  const [isAutoSettingsOpen, setIsAutoSettingsOpen] = useState(false);
 
   // Track tier changes for "Level Up" glow effect
   const prevTierRef = useRef(userTier);
@@ -303,9 +301,9 @@ export function SparkCard() {
 
         {userTier === TIER.HERO && (
           <div className="flex flex-col items-center gap-2">
-            <button onClick={() => setIsAutoSettingsOpen(true)} className="btn btn-ghost btn-xs opacity-60 hover:opacity-100">
+            <a href="/dashboard?tab=automation" className="btn btn-ghost btn-xs opacity-60 hover:opacity-100">
               <Zap className="w-3 h-3 mr-1" /> Configure Automation
-            </button>
+            </a>
             <button onClick={handleUpgradeClick} className="btn btn-ghost btn-xs text-warning/70 hover:text-warning">
               <Crown className="w-3 h-3 mr-1" /> Unlock 1-of-1 Exclusivity
             </button>
@@ -313,9 +311,9 @@ export function SparkCard() {
         )}
 
         {isLegend && (
-          <button onClick={() => setIsAutoSettingsOpen(true)} className="btn btn-ghost btn-xs opacity-50 hover:opacity-100 mt-2">
+          <a href="/dashboard?tab=automation" className="btn btn-ghost btn-xs opacity-50 hover:opacity-100 mt-2">
             <Zap className="w-3 h-3 mr-1" /> Configure Automation
-          </button>
+          </a>
         )}
       </div>
     </div>
@@ -325,7 +323,6 @@ export function SparkCard() {
     <div className="flex flex-col items-center w-full px-4 relative">
       <UpgradeModal isOpen={isUpgradeOpen} onClose={() => setIsUpgradeOpen(false)} />
       {isShareOpen && <ShareCard onClose={() => setIsShareOpen(false)} userTier={userTier} />}
-      {isAutoSettingsOpen && <AutomationSettings onClose={() => setIsAutoSettingsOpen(false)} />}
 
       {/* TIER-BASED CARD WRAPPER */}
       <div className="relative w-full max-w-md">

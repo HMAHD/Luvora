@@ -103,6 +103,44 @@ jobs:
 
             pm2 save
 
+            # Setup automated spark delivery cron job
+            echo "⏰ Setting up spark delivery cron job..."
+
+            # Create log directory for cron
+            sudo mkdir -p /var/log/luvora
+            sudo chown $(whoami):$(whoami) /var/log/luvora
+
+            # Make cron script executable
+            chmod +x "$REPO_DIR/scripts/cron-deliver.sh"
+
+            # Load environment variables for cron setup
+            if [ -f "$REPO_DIR/.env.local" ]; then
+              export $(cat "$REPO_DIR/.env.local" | grep -E "^(CRON_SECRET)" | xargs)
+            fi
+
+            # Set default APP_URL for production
+            CRON_APP_URL="http://localhost:3002"
+            CRON_SECRET="${CRON_SECRET:-Luvora}"
+
+            # Create cron entry
+            CRON_ENTRY="* * * * * APP_URL=$CRON_APP_URL CRON_SECRET=$CRON_SECRET $REPO_DIR/scripts/cron-deliver.sh >> /var/log/luvora/cron.log 2>&1"
+
+            # Remove old cron entry if exists and add new one
+            (crontab -l 2>/dev/null | grep -v "cron-deliver.sh" | grep -v "Luvora Spark Delivery"; \
+             echo "# Luvora Spark Delivery - Auto-configured by GitHub Actions"; \
+             echo "$CRON_ENTRY") | crontab -
+
+            echo "✅ Cron job configured - runs every minute"
+            echo "   Check logs: tail -f /var/log/luvora/cron.log"
+
+            # Test cron endpoint to verify it works
+            CRON_TEST=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer $CRON_SECRET" "$CRON_APP_URL/api/cron/deliver" | tail -n1)
+            if [ "$CRON_TEST" = "200" ]; then
+              echo "✅ Cron endpoint verified working"
+            else
+              echo "⚠️  Warning: Cron endpoint returned HTTP $CRON_TEST (may work after app starts)"
+            fi
+
             echo "✅ Deployment completed successfully!"
 
       - name: Health check

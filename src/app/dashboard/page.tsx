@@ -33,6 +33,9 @@ import {
   MessageCircleHeart,
   Sun,
   Moon,
+  Home,
+  Shield,
+  LogOut,
 } from 'lucide-react';
 import Link from 'next/link';
 import { getDailySpark } from '@/lib/algo';
@@ -62,6 +65,10 @@ function AutomationTabContent({
   const [partnerBirthday, setPartnerBirthday] = useState(user?.partner_birthday || '');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [channelsLoading, setChannelsLoading] = useState(true);
+  const [showDisconnectModal, setShowDisconnectModal] = useState(false);
+  const [disconnecting, setDisconnecting] = useState(false);
+  const [toastMessage, setToastMessage] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [connectedChannels, setConnectedChannels] = useState<{
     telegram?: { botUsername: string; chatId: string };
     whatsapp?: { phoneNumber: string };
@@ -70,8 +77,29 @@ function AutomationTabContent({
 
   const isLegend = userTier >= TIER.LEGEND;
 
-  // Fetch connected channels
+  // Constants for timeouts
+  const TOAST_TIMEOUT = 3000;
+  const SAVED_TIMEOUT = 2000;
+
+  // Platform color mapping - centralized to avoid duplication and ensure consistency
+  const platformColors = {
+    telegram: { primary: 'primary', bg: 'bg-primary/5', border: 'border-primary', text: 'text-primary', btn: 'btn-primary' },
+    whatsapp: { primary: 'success', bg: 'bg-success/5', border: 'border-success', text: 'text-success', btn: 'btn-success' },
+    discord: { primary: 'secondary', bg: 'bg-secondary/5', border: 'border-secondary', text: 'text-secondary', btn: 'btn-secondary' }
+  };
+
+  // Get current platform colors
+  const currentColors = platformColors[selectedPlatform];
+
+  // Show toast notification - timeout cleanup handled by useEffect
+  const showToast = (type: 'success' | 'error', message: string) => {
+    setToastMessage({ type, message });
+  };
+
+  // Fetch connected channels with mount check to prevent memory leaks
   const fetchChannels = async () => {
+    let isMounted = true;
+    setChannelsLoading(true);
     try {
       const [telegramRes, whatsappRes, discordRes] = await Promise.all([
         fetch('/api/channels/telegram/status', { credentials: 'include' }),
@@ -102,15 +130,51 @@ function AutomationTabContent({
         }
       }
 
-      setConnectedChannels(channels);
+      // Only update state if component is still mounted
+      if (isMounted) {
+        setConnectedChannels(channels);
+        // Auto-select the connected platform to prevent mismatched UI
+        if (channels.telegram) setSelectedPlatform('telegram');
+        else if (channels.whatsapp) setSelectedPlatform('whatsapp');
+        else if (channels.discord) setSelectedPlatform('discord');
+      }
     } catch (error) {
       console.error('Failed to fetch channel status:', error);
+    } finally {
+      if (isMounted) {
+        setChannelsLoading(false);
+      }
     }
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
   };
 
   useEffect(() => {
-    fetchChannels();
+    const cleanup = fetchChannels();
+    return () => {
+      if (cleanup instanceof Promise) {
+        cleanup.then(fn => fn && fn());
+      }
+    };
   }, []);
+
+  // Cleanup toast timeouts on unmount
+  useEffect(() => {
+    let toastTimeoutId: NodeJS.Timeout | null = null;
+
+    if (toastMessage) {
+      toastTimeoutId = setTimeout(() => setToastMessage(null), TOAST_TIMEOUT);
+    }
+
+    return () => {
+      if (toastTimeoutId) {
+        clearTimeout(toastTimeoutId);
+      }
+    };
+  }, [toastMessage, TOAST_TIMEOUT]);
 
   const handleSave = async () => {
     if (!user?.id) return;
@@ -136,7 +200,7 @@ function AutomationTabContent({
       await pb.collection('users').update(user.id, updateData);
       await pb.collection('users').authRefresh();
       setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      setTimeout(() => setSaved(false), SAVED_TIMEOUT);
     } catch (err) {
       console.error('Failed to save automation:', err);
     } finally {
@@ -165,206 +229,335 @@ function AutomationTabContent({
 
           {!showMessagingSetup ? (
             <div className="space-y-4">
-              {/* Platform Selection Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                {/* Telegram Option */}
-                <button
-                  onClick={() => setSelectedPlatform('telegram')}
-                  className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
-                    connectedChannels.telegram || selectedPlatform === 'telegram'
-                      ? 'border-primary bg-primary/5 shadow-lg shadow-primary/20'
-                      : 'border-base-content/10 bg-base-100 hover:border-primary/30 hover:shadow-md'
-                  }`}
-                >
-                  <div className="p-5 flex flex-col items-center text-center space-y-3">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
-                      connectedChannels.telegram || selectedPlatform === 'telegram'
-                        ? 'bg-primary/20'
-                        : 'bg-base-200 group-hover:bg-primary/10'
-                    }`}>
-                      <svg className={`w-7 h-7 transition-colors ${
-                        connectedChannels.telegram || selectedPlatform === 'telegram'
-                          ? 'text-primary'
-                          : 'text-base-content/60 group-hover:text-primary'
-                      }`} viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className={`font-bold text-base ${
-                        connectedChannels.telegram || selectedPlatform === 'telegram'
-                          ? 'text-primary'
-                          : 'text-base-content'
-                      }`}>Telegram</h3>
-                      <p className="text-xs text-base-content/60 mt-1">
-                        {connectedChannels.telegram ? `@${connectedChannels.telegram.botUsername}` : 'Bot-based delivery'}
-                      </p>
-                    </div>
-                    {connectedChannels.telegram ? (
-                      <div className="absolute top-2 right-2">
-                        <div className="badge badge-primary badge-sm gap-1">
-                          <Check className="w-3 h-3" />
-                          Connected
-                        </div>
-                      </div>
-                    ) : selectedPlatform === 'telegram' && (
-                      <div className="absolute top-2 right-2">
-                        <div className="badge badge-primary badge-sm">Selected</div>
-                      </div>
-                    )}
-                  </div>
-                </button>
-
-                {/* WhatsApp Option */}
-                <button
-                  onClick={() => setSelectedPlatform('whatsapp')}
-                  className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
-                    connectedChannels.whatsapp || selectedPlatform === 'whatsapp'
-                      ? 'border-success bg-success/5 shadow-lg shadow-success/20'
-                      : 'border-base-content/10 bg-base-100 hover:border-success/30 hover:shadow-md'
-                  }`}
-                >
-                  <div className="p-5 flex flex-col items-center text-center space-y-3">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
-                      connectedChannels.whatsapp || selectedPlatform === 'whatsapp'
-                        ? 'bg-success/20'
-                        : 'bg-base-200 group-hover:bg-success/10'
-                    }`}>
-                      <svg className={`w-7 h-7 transition-colors ${
-                        connectedChannels.whatsapp || selectedPlatform === 'whatsapp'
-                          ? 'text-success'
-                          : 'text-base-content/60 group-hover:text-success'
-                      }`} viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className={`font-bold text-base ${
-                        connectedChannels.whatsapp || selectedPlatform === 'whatsapp'
-                          ? 'text-success'
-                          : 'text-base-content'
-                      }`}>WhatsApp</h3>
-                      <p className="text-xs text-base-content/60 mt-1">
-                        {connectedChannels.whatsapp ? connectedChannels.whatsapp.phoneNumber : 'QR code linking'}
-                      </p>
-                    </div>
-                    {connectedChannels.whatsapp ? (
-                      <div className="absolute top-2 right-2">
-                        <div className="badge badge-success badge-sm gap-1">
-                          <Check className="w-3 h-3" />
-                          Connected
-                        </div>
-                      </div>
-                    ) : selectedPlatform === 'whatsapp' && (
-                      <div className="absolute top-2 right-2">
-                        <div className="badge badge-success badge-sm">Selected</div>
-                      </div>
-                    )}
-                  </div>
-                </button>
-
-                {/* Discord Option */}
-                <button
-                  onClick={() => setSelectedPlatform('discord')}
-                  className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
-                    connectedChannels.discord || selectedPlatform === 'discord'
-                      ? 'border-secondary bg-secondary/5 shadow-lg shadow-secondary/20'
-                      : 'border-base-content/10 bg-base-100 hover:border-secondary/30 hover:shadow-md'
-                  }`}
-                >
-                  <div className="p-5 flex flex-col items-center text-center space-y-3">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
-                      connectedChannels.discord || selectedPlatform === 'discord'
-                        ? 'bg-secondary/20'
-                        : 'bg-base-200 group-hover:bg-secondary/10'
-                    }`}>
-                      <svg className={`w-7 h-7 transition-colors ${
-                        connectedChannels.discord || selectedPlatform === 'discord'
-                          ? 'text-secondary'
-                          : 'text-base-content/60 group-hover:text-secondary'
-                      }`} viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className={`font-bold text-base ${
-                        connectedChannels.discord || selectedPlatform === 'discord'
-                          ? 'text-secondary'
-                          : 'text-base-content'
-                      }`}>Discord</h3>
-                      <p className="text-xs text-base-content/60 mt-1">
-                        {connectedChannels.discord ? connectedChannels.discord.username : 'DM notifications'}
-                      </p>
-                    </div>
-                    {connectedChannels.discord ? (
-                      <div className="absolute top-2 right-2">
-                        <div className="badge badge-secondary badge-sm gap-1">
-                          <Check className="w-3 h-3" />
-                          Connected
-                        </div>
-                      </div>
-                    ) : selectedPlatform === 'discord' && (
-                      <div className="absolute top-2 right-2">
-                        <div className="badge badge-secondary badge-sm">Selected</div>
-                      </div>
-                    )}
-                  </div>
-                </button>
-              </div>
-
-              {/* Info Alert */}
-              <div className={`alert shadow-md border-l-4 ${
-                selectedPlatform === 'telegram' ? 'border-primary bg-primary/5' :
-                selectedPlatform === 'whatsapp' ? 'border-success bg-success/5' :
-                'border-secondary bg-secondary/5'
-              }`}>
-                <div className="flex items-start gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className={`stroke-current shrink-0 w-6 h-6 ${
-                    selectedPlatform === 'telegram' ? 'text-primary' :
-                    selectedPlatform === 'whatsapp' ? 'text-success' :
-                    'text-secondary'
-                  }`}>
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-base-content">
-                      {selectedPlatform === 'telegram' && 'Create your own Telegram bot using @BotFather'}
-                      {selectedPlatform === 'whatsapp' && 'Link your personal WhatsApp account via QR code'}
-                      {selectedPlatform === 'discord' && 'Connect your Discord account for direct messages'}
-                    </p>
-                    <p className="text-xs text-base-content/60 mt-1">
-                      {selectedPlatform === 'telegram' && 'Your bot token is securely encrypted and stored'}
-                      {selectedPlatform === 'whatsapp' && 'Session persists - no need to rescan each time'}
-                      {selectedPlatform === 'discord' && 'Receive sparks privately in your Discord DMs'}
-                    </p>
-                  </div>
+              {/* Show loading skeleton while fetching channel status */}
+              {channelsLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="skeleton h-32 rounded-2xl"></div>
+                  ))}
                 </div>
-              </div>
+              ) : (
+                <>
+                  {/* Check if any channel is connected for single-channel restriction */}
+                  {Object.keys(connectedChannels).length > 0 ? (
+                // Show ONLY the connected channel
+                <div className="grid grid-cols-1 gap-3">
+                  {/* Only show the connected channel card */}
+                  {connectedChannels.telegram && (
+                    <div
+                      className="group relative overflow-hidden rounded-2xl border-2 border-primary bg-primary/5 shadow-lg shadow-primary/20"
+                    >
+                      <div className="p-5 flex flex-col items-center text-center space-y-3">
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
+                          connectedChannels.telegram || selectedPlatform === 'telegram'
+                            ? 'bg-primary/20'
+                            : 'bg-base-200 group-hover:bg-primary/10'
+                        }`}>
+                          <svg className={`w-7 h-7 transition-colors ${
+                            connectedChannels.telegram || selectedPlatform === 'telegram'
+                              ? 'text-primary'
+                              : 'text-base-content/60 group-hover:text-primary'
+                          }`} viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className={`font-bold text-base ${
+                            connectedChannels.telegram || selectedPlatform === 'telegram'
+                              ? 'text-primary'
+                              : 'text-base-content'
+                          }`}>Telegram</h3>
+                          <p className="text-xs text-base-content/60 mt-1">
+                            {connectedChannels.telegram ? `@${connectedChannels.telegram.botUsername}` : 'Bot-based delivery'}
+                          </p>
+                        </div>
+                        {connectedChannels.telegram ? (
+                          <div className="absolute top-2 right-2">
+                            <div className="badge badge-primary badge-sm gap-1">
+                              <Check className="w-3 h-3" />
+                              Connected
+                            </div>
+                          </div>
+                        ) : selectedPlatform === 'telegram' && (
+                          <div className="absolute top-2 right-2">
+                            <div className="badge badge-primary badge-sm">Selected</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {connectedChannels.whatsapp && (
+                    <button
+                      onClick={() => setSelectedPlatform('whatsapp')}
+                      className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
+                        connectedChannels.whatsapp || selectedPlatform === 'whatsapp'
+                          ? 'border-success bg-success/5 shadow-lg shadow-success/20'
+                          : 'border-base-content/10 bg-base-100 hover:border-success/30 hover:shadow-md'
+                      }`}
+                    >
+                      <div className="p-5 flex flex-col items-center text-center space-y-3">
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
+                          connectedChannels.whatsapp || selectedPlatform === 'whatsapp'
+                            ? 'bg-success/20'
+                            : 'bg-base-200 group-hover:bg-success/10'
+                        }`}>
+                          <svg className={`w-7 h-7 transition-colors ${
+                            connectedChannels.whatsapp || selectedPlatform === 'whatsapp'
+                              ? 'text-success'
+                              : 'text-base-content/60 group-hover:text-success'
+                          }`} viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className={`font-bold text-base ${
+                            connectedChannels.whatsapp || selectedPlatform === 'whatsapp'
+                              ? 'text-success'
+                              : 'text-base-content'
+                          }`}>WhatsApp</h3>
+                          <p className="text-xs text-base-content/60 mt-1">
+                            {connectedChannels.whatsapp ? connectedChannels.whatsapp.phoneNumber : 'QR code linking'}
+                          </p>
+                        </div>
+                        {connectedChannels.whatsapp ? (
+                          <div className="absolute top-2 right-2">
+                            <div className="badge badge-success badge-sm gap-1">
+                              <Check className="w-3 h-3" />
+                              Connected
+                            </div>
+                          </div>
+                        ) : selectedPlatform === 'whatsapp' && (
+                          <div className="absolute top-2 right-2">
+                            <div className="badge badge-success badge-sm">Selected</div>
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  )}
+                  {connectedChannels.discord && (
+                    <button
+                      onClick={() => setSelectedPlatform('discord')}
+                      className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
+                        connectedChannels.discord || selectedPlatform === 'discord'
+                          ? 'border-secondary bg-secondary/5 shadow-lg shadow-secondary/20'
+                          : 'border-base-content/10 bg-base-100 hover:border-secondary/30 hover:shadow-md'
+                      }`}
+                    >
+                      <div className="p-5 flex flex-col items-center text-center space-y-3">
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
+                          connectedChannels.discord || selectedPlatform === 'discord'
+                            ? 'bg-secondary/20'
+                            : 'bg-base-200 group-hover:bg-secondary/10'
+                        }`}>
+                          <svg className={`w-7 h-7 transition-colors ${
+                            connectedChannels.discord || selectedPlatform === 'discord'
+                              ? 'text-secondary'
+                              : 'text-base-content/60 group-hover:text-secondary'
+                          }`} viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className={`font-bold text-base ${
+                            connectedChannels.discord || selectedPlatform === 'discord'
+                              ? 'text-secondary'
+                              : 'text-base-content'
+                          }`}>Discord</h3>
+                          <p className="text-xs text-base-content/60 mt-1">
+                            {connectedChannels.discord ? connectedChannels.discord.username : 'DM notifications'}
+                          </p>
+                        </div>
+                        {connectedChannels.discord ? (
+                          <div className="absolute top-2 right-2">
+                            <div className="badge badge-secondary badge-sm gap-1">
+                              <Check className="w-3 h-3" />
+                              Connected
+                            </div>
+                          </div>
+                        ) : selectedPlatform === 'discord' && (
+                          <div className="absolute top-2 right-2">
+                            <div className="badge badge-secondary badge-sm">Selected</div>
+                          </div>
+                        )}
+                      </div>
+                    </button>
+                  )}
+                </div>
+              ) : (
+                // Show all 3 channel options when nothing is connected
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Telegram Option */}
+                  <button
+                    onClick={() => setSelectedPlatform('telegram')}
+                    className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
+                      selectedPlatform === 'telegram'
+                        ? 'border-primary bg-primary/5 shadow-lg shadow-primary/20'
+                        : 'border-base-content/10 bg-base-100 hover:border-primary/30 hover:shadow-md'
+                    }`}
+                  >
+                    <div className="p-5 flex flex-col items-center text-center space-y-3">
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
+                        selectedPlatform === 'telegram'
+                          ? 'bg-sky-100'
+                          : 'bg-sky-50 group-hover:bg-sky-100'
+                      }`}>
+                        <svg className={`w-8 h-8 transition-colors ${
+                          selectedPlatform === 'telegram'
+                            ? 'text-sky-500'
+                            : 'text-sky-400 group-hover:text-sky-500'
+                        }`} viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.139-5.062 3.345-.479.329-.913.489-1.302.481-.428-.008-1.252-.241-1.865-.44-.752-.244-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className={`font-bold text-base ${
+                          selectedPlatform === 'telegram'
+                            ? 'text-primary'
+                            : 'text-base-content'
+                        }`}>Telegram</h3>
+                        <p className="text-xs text-base-content/60 mt-1">Bot-based delivery</p>
+                      </div>
+                      {selectedPlatform === 'telegram' && (
+                        <div className="absolute top-2 right-2">
+                          <div className="badge badge-primary badge-sm">Selected</div>
+                        </div>
+                      )}
+                    </div>
+                  </button>
 
-              {/* Setup Button */}
-              <button
-                onClick={() => setShowMessagingSetup(true)}
-                className={`btn btn-block gap-2 shadow-lg ${
-                  (connectedChannels.telegram && selectedPlatform === 'telegram') ||
-                  (connectedChannels.whatsapp && selectedPlatform === 'whatsapp') ||
-                  (connectedChannels.discord && selectedPlatform === 'discord')
-                    ? 'btn-outline'
-                    : selectedPlatform === 'telegram' ? 'btn-primary' :
-                      selectedPlatform === 'whatsapp' ? 'btn-success' :
-                      'btn-secondary'
-                }`}
-              >
-                <Settings className="w-5 h-5" />
-                {(connectedChannels.telegram && selectedPlatform === 'telegram') ||
-                 (connectedChannels.whatsapp && selectedPlatform === 'whatsapp') ||
-                 (connectedChannels.discord && selectedPlatform === 'discord')
-                  ? `Manage ${selectedPlatform === 'telegram' ? 'Telegram Bot' :
-                              selectedPlatform === 'whatsapp' ? 'WhatsApp Connection' :
-                              'Discord Integration'}`
-                  : `Configure ${selectedPlatform === 'telegram' ? 'Telegram Bot' :
-                                 selectedPlatform === 'whatsapp' ? 'WhatsApp Connection' :
-                                 'Discord Integration'}`}
-              </button>
+                  {/* WhatsApp Option */}
+                  <button
+                    onClick={() => setSelectedPlatform('whatsapp')}
+                    className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
+                      selectedPlatform === 'whatsapp'
+                        ? 'border-success bg-success/5 shadow-lg shadow-success/20'
+                        : 'border-base-content/10 bg-base-100 hover:border-success/30 hover:shadow-md'
+                    }`}
+                  >
+                    <div className="p-5 flex flex-col items-center text-center space-y-3">
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
+                        selectedPlatform === 'whatsapp'
+                          ? 'bg-green-100'
+                          : 'bg-green-50 group-hover:bg-green-100'
+                      }`}>
+                        <svg className={`w-8 h-8 transition-colors ${
+                          selectedPlatform === 'whatsapp'
+                            ? 'text-green-600'
+                            : 'text-green-500 group-hover:text-green-600'
+                        }`} viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className={`font-bold text-base ${
+                          selectedPlatform === 'whatsapp'
+                            ? 'text-success'
+                            : 'text-base-content'
+                        }`}>WhatsApp</h3>
+                        <p className="text-xs text-base-content/60 mt-1">QR code linking</p>
+                      </div>
+                      {selectedPlatform === 'whatsapp' && (
+                        <div className="absolute top-2 right-2">
+                          <div className="badge badge-success badge-sm">Selected</div>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Discord Option */}
+                  <button
+                    onClick={() => setSelectedPlatform('discord')}
+                    className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
+                      selectedPlatform === 'discord'
+                        ? 'border-secondary bg-secondary/5 shadow-lg shadow-secondary/20'
+                        : 'border-base-content/10 bg-base-100 hover:border-secondary/30 hover:shadow-md'
+                    }`}
+                  >
+                    <div className="p-5 flex flex-col items-center text-center space-y-3">
+                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
+                        selectedPlatform === 'discord'
+                          ? 'bg-indigo-100'
+                          : 'bg-indigo-50 group-hover:bg-indigo-100'
+                      }`}>
+                        <svg className={`w-8 h-8 transition-colors ${
+                          selectedPlatform === 'discord'
+                            ? 'text-indigo-500'
+                            : 'text-indigo-400 group-hover:text-indigo-500'
+                        }`} viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 className={`font-bold text-base ${
+                          selectedPlatform === 'discord'
+                            ? 'text-secondary'
+                            : 'text-base-content'
+                        }`}>Discord</h3>
+                        <p className="text-xs text-base-content/60 mt-1">DM notifications</p>
+                      </div>
+                      {selectedPlatform === 'discord' && (
+                        <div className="absolute top-2 right-2">
+                          <div className="badge badge-secondary badge-sm">Selected</div>
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                </div>
+              )}
+
+              {/* Show info alert and setup button only when NO channels are connected */}
+              {Object.keys(connectedChannels).length === 0 && (
+                <>
+                  {/* Info Alert - with smooth transitions to prevent flickering */}
+                  <div className={`rounded-lg shadow-md border-l-4 p-4 transition-all duration-300 ease-in-out ${currentColors.border} ${currentColors.bg}`}>
+                    <div className="flex items-start gap-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" className={`stroke-current shrink-0 w-6 h-6 transition-colors duration-300 ${currentColors.text}`}>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-base-content">
+                          {selectedPlatform === 'telegram' && 'Create your own Telegram bot using @BotFather'}
+                          {selectedPlatform === 'whatsapp' && 'Link your personal WhatsApp account via QR code'}
+                          {selectedPlatform === 'discord' && 'Connect your Discord account for direct messages'}
+                        </p>
+                        <p className="text-xs text-base-content/60 mt-1">
+                          {selectedPlatform === 'telegram' && 'Your bot token is securely encrypted and stored'}
+                          {selectedPlatform === 'whatsapp' && 'Session persists - no need to rescan each time'}
+                          {selectedPlatform === 'discord' && 'Receive sparks privately in your Discord DMs'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Setup Button - with smooth transitions */}
+                  <button
+                    onClick={() => setShowMessagingSetup(true)}
+                    className={`btn btn-block gap-2 shadow-lg transition-all duration-300 ${currentColors.btn}`}
+                  >
+                    <Settings className="w-5 h-5" />
+                    {`Configure ${selectedPlatform === 'telegram' ? 'Telegram Bot' :
+                                   selectedPlatform === 'whatsapp' ? 'WhatsApp Connection' :
+                                   'Discord Integration'}`}
+                  </button>
+                </>
+              )}
+
+              {/* Show disconnect button when a channel IS connected */}
+              {Object.keys(connectedChannels).length > 0 && (
+                <button
+                  onClick={() => setShowDisconnectModal(true)}
+                  className="btn btn-outline btn-error btn-block gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" />
+                  </svg>
+                  Disconnect {connectedChannels.telegram ? 'Telegram' :
+                             connectedChannels.whatsapp ? 'WhatsApp' :
+                             'Discord'}
+                </button>
+              )}
+                </>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
@@ -372,23 +565,23 @@ function AutomationTabContent({
               <div className="flex items-center justify-between pb-4 border-b border-base-content/10">
                 <div className="flex items-center gap-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    selectedPlatform === 'telegram' ? 'bg-primary/10' :
-                    selectedPlatform === 'whatsapp' ? 'bg-success/10' :
-                    'bg-secondary/10'
+                    selectedPlatform === 'telegram' ? 'bg-sky-100' :
+                    selectedPlatform === 'whatsapp' ? 'bg-green-100' :
+                    'bg-indigo-100'
                   }`}>
                     {selectedPlatform === 'telegram' && (
-                      <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                      <svg className="w-6 h-6 text-sky-500" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.139-5.062 3.345-.479.329-.913.489-1.302.481-.428-.008-1.252-.241-1.865-.44-.752-.244-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
                       </svg>
                     )}
                     {selectedPlatform === 'whatsapp' && (
-                      <svg className="w-5 h-5 text-success" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                      <svg className="w-6 h-6 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
                       </svg>
                     )}
                     {selectedPlatform === 'discord' && (
-                      <svg className="w-5 h-5 text-secondary" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                      <svg className="w-6 h-6 text-indigo-500" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
                       </svg>
                     )}
                   </div>
@@ -662,6 +855,106 @@ function AutomationTabContent({
           'Save Schedule Settings'
         )}
       </button>
+
+      {/* Disconnect Confirmation Modal */}
+      {showDisconnectModal && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Disconnect Channel</h3>
+            <p className="py-4">
+              Are you sure you want to disconnect your{' '}
+              <strong>
+                {connectedChannels.telegram ? 'Telegram' :
+                 connectedChannels.whatsapp ? 'WhatsApp' :
+                 'Discord'}
+              </strong>{' '}
+              channel? You can reconnect anytime.
+            </p>
+            <div className="modal-action">
+              <button
+                onClick={() => setShowDisconnectModal(false)}
+                className="btn btn-ghost"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  setDisconnecting(true);
+                  const platformName = connectedChannels.telegram ? 'Telegram' :
+                                      connectedChannels.whatsapp ? 'WhatsApp' : 'Discord';
+                  try {
+                    const platform = connectedChannels.telegram ? 'telegram' :
+                                   connectedChannels.whatsapp ? 'whatsapp' : 'discord';
+                    const response = await fetch(`/api/channels/${platform}/disconnect`, {
+                      method: 'POST',
+                      credentials: 'include'
+                    });
+
+                    if (response.ok) {
+                      showToast('success', `${platformName} disconnected successfully`);
+                      await fetchChannels();
+                      // Reset to telegram as default after disconnect
+                      setSelectedPlatform('telegram');
+                    } else {
+                      const errorData = await response.json().catch(() => ({}));
+                      showToast('error', errorData.error || 'Failed to disconnect channel');
+                    }
+                  } catch (error) {
+                    console.error('Disconnect error:', error);
+                    showToast('error', error instanceof Error ? error.message : 'Network error. Please try again.');
+                  } finally {
+                    setDisconnecting(false);
+                    setShowDisconnectModal(false);
+                  }
+                }}
+                className="btn btn-error"
+                disabled={disconnecting}
+              >
+                {disconnecting ? (
+                  <>
+                    <span className="loading loading-spinner loading-sm"></span>
+                    Disconnecting...
+                  </>
+                ) : (
+                  'Disconnect'
+                )}
+              </button>
+            </div>
+          </div>
+          <div
+            className="modal-backdrop"
+            onClick={() => !disconnecting && setShowDisconnectModal(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape' && !disconnecting) {
+                setShowDisconnectModal(false);
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Close modal"
+          ></div>
+        </div>
+      )}
+
+      {/* Toast Notification */}
+      {toastMessage && (
+        <div className="toast toast-top toast-end z-50">
+          <div className={`alert ${toastMessage.type === 'success' ? 'alert-success' : 'alert-error'} shadow-lg`}>
+            <div>
+              {toastMessage.type === 'success' ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              )}
+              <span>{toastMessage.message}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -782,8 +1075,49 @@ function DashboardContent() {
               />
             )}
             <TierBadge tier={userTier} size="md" />
-            <div className="w-10 h-10 rounded-full bg-primary text-primary-content flex items-center justify-center">
-              <span className="text-sm font-bold">{user?.email?.charAt(0).toUpperCase()}</span>
+
+            {/* User Menu Dropdown */}
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                role="button"
+                className="btn btn-circle btn-ghost bg-base-100 border border-base-content/15 hover:bg-base-200 hover:border-base-content/25 shadow-md transition-all duration-200"
+              >
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-content flex items-center justify-center">
+                  <span className="text-xs font-bold">{user?.email?.charAt(0).toUpperCase()}</span>
+                </div>
+              </div>
+            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow-lg border border-base-content/10 mt-2">
+              <li className="menu-title px-2 py-1">
+                <span className="text-xs truncate">{user?.email}</span>
+              </li>
+              <li>
+                <Link href="/" className="flex items-center gap-2">
+                  <Home className="w-4 h-4" />
+                  Home
+                </Link>
+              </li>
+              {user?.is_admin && (
+                <li>
+                  <Link href="/admin" className="flex items-center gap-2">
+                    <Shield className="w-4 h-4" />
+                    Admin Panel
+                  </Link>
+                </li>
+              )}
+              <li>
+                <button
+                  onClick={() => {
+                    pb.authStore.clear();
+                    window.location.reload();
+                  }}
+                  className="flex items-center gap-2 text-error"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </button>
+              </li>
+            </ul>
             </div>
           </div>
         </div>

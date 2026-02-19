@@ -18,9 +18,12 @@ export const runtime = 'nodejs';
  */
 export async function GET(request: NextRequest) {
     try {
+        console.log('[API /api/messaging/channels] Request received');
+
         // Get user ID from PocketBase auth
         const authHeader = request.headers.get('authorization');
         if (!authHeader) {
+            console.log('[API /api/messaging/channels] No auth header');
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
@@ -32,6 +35,7 @@ export async function GET(request: NextRequest) {
         pb.authStore.save(token);
 
         if (!pb.authStore.isValid || !pb.authStore.model) {
+            console.log('[API /api/messaging/channels] Invalid token');
             return NextResponse.json(
                 { error: 'Invalid or expired token' },
                 { status: 401 }
@@ -40,12 +44,14 @@ export async function GET(request: NextRequest) {
 
         const userId = pb.authStore.model.id;
         const userTier = pb.authStore.model.tier as number;
+        console.log('[API /api/messaging/channels] User ID:', userId, 'Tier:', userTier);
 
         // Get user's messaging channel configurations from database
         const channelConfigs = await pb.collection('messaging_channels').getFullList({
             filter: `user="${userId}"`,
             $autoCancel: false
         });
+        console.log('[API /api/messaging/channels] Found', channelConfigs.length, 'channel configs:', channelConfigs);
 
         // Check which channels are actually running in MessagingService
         const channels = ['telegram', 'whatsapp', 'discord'].map(platform => {
@@ -78,7 +84,7 @@ export async function GET(request: NextRequest) {
             ? connectedChannels.length === 0
             : true; // Free tier has no restriction (yet)
 
-        return NextResponse.json({
+        const response = {
             userId,
             userTier,
             hasSingleChannelRestriction,
@@ -88,7 +94,10 @@ export async function GET(request: NextRequest) {
             message: hasSingleChannelRestriction && connectedChannels.length > 0
                 ? `You can only connect one messaging channel at a time. Disconnect ${connectedChannels[0].platform} to connect a different channel.`
                 : null
-        });
+        };
+
+        console.log('[API /api/messaging/channels] Response:', JSON.stringify(response, null, 2));
+        return NextResponse.json(response);
 
     } catch (error) {
         console.error('[API /api/messaging/channels] Error:', error);

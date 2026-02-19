@@ -35,6 +35,8 @@ import {
   Github,
   Mail,
   Bug,
+  Home,
+  LogOut,
   Cloud,
   FileText,
 } from 'lucide-react';
@@ -110,7 +112,7 @@ interface Message {
 const INITIAL_PRICING: PricingConfig = DEFAULT_PRICING;
 
 function AdminContent() {
-  const { pb } = useAuth();
+  const { user, pb } = useAuth();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'analytics' | 'users' | 'content' | 'blog' | 'broadcasts' | 'partners' | 'settings'>('dashboard');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -441,10 +443,54 @@ function AdminContent() {
               <p className="text-sm text-base-content/60">Business overview & management</p>
             </div>
           </div>
-          <button onClick={refreshAll} className="btn btn-ghost btn-sm gap-2" disabled={loading}>
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh
-          </button>
+          <div className="flex items-center gap-3">
+            <button onClick={refreshAll} className="btn btn-ghost btn-sm gap-2" disabled={loading}>
+              <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+              Refresh
+            </button>
+
+            {/* User Menu Dropdown */}
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                role="button"
+                className="btn btn-circle btn-ghost bg-base-100 border border-base-content/15 hover:bg-base-200 hover:border-base-content/25 shadow-md transition-all duration-200"
+              >
+                <div className="w-8 h-8 rounded-full bg-warning text-warning-content flex items-center justify-center">
+                  <span className="text-xs font-bold">{user?.email?.charAt(0).toUpperCase()}</span>
+                </div>
+              </div>
+            <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-50 w-52 p-2 shadow-lg border border-base-content/10 mt-2">
+              <li className="menu-title px-2 py-1">
+                <span className="text-xs truncate">{user?.email}</span>
+              </li>
+              <li>
+                <Link href="/" className="flex items-center gap-2">
+                  <Home className="w-4 h-4" />
+                  Home
+                </Link>
+              </li>
+              <li>
+                <Link href="/dashboard" className="flex items-center gap-2">
+                  <Settings className="w-4 h-4" />
+                  Dashboard
+                </Link>
+              </li>
+              <li>
+                <button
+                  onClick={() => {
+                    pb.authStore.clear();
+                    window.location.reload();
+                  }}
+                  className="flex items-center gap-2 text-error"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sign Out
+                </button>
+              </li>
+            </ul>
+            </div>
+          </div>
         </div>
       </header>
 
