@@ -39,11 +39,16 @@ export async function POST(request: NextRequest) {
     try {
         const update: TelegramUpdate = await request.json();
 
-        // Verify the request is from Telegram (optional but recommended)
+        // Verify the request is from Telegram
         const secretToken = request.headers.get('X-Telegram-Bot-Api-Secret-Token');
         const expectedToken = process.env.TELEGRAM_WEBHOOK_SECRET;
 
-        if (expectedToken && secretToken !== expectedToken) {
+        if (!expectedToken) {
+            console.error('TELEGRAM_WEBHOOK_SECRET not configured');
+            return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
+        }
+
+        if (secretToken !== expectedToken) {
             console.warn('Invalid Telegram webhook secret token');
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
@@ -92,9 +97,10 @@ async function handleMessage(message: TelegramUpdate['message']) {
     if (text === '/status') {
         // Check subscription status
         try {
+            const safeChatId = String(chatId).replace(/["\\\n\r]/g, '');
             const subscription = await pb
                 .collection('subscriptions')
-                .getFirstListItem(`telegram_chat_id="${chatId}" && status="active"`);
+                .getFirstListItem(`telegram_chat_id="${safeChatId}" && status="active"`);
 
             if (subscription) {
                 await sendTelegramMessage(

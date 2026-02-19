@@ -34,12 +34,10 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [socialProof, setSocialProof] = useState({ today: 0, total: 0 });
 
-    // Social proof numbers
+    // Social proof numbers (static to maintain trust)
     useEffect(() => {
         if (isOpen) {
-            const baseToday = 23 + Math.floor(Math.random() * 15);
-            const baseTotal = 4200 + Math.floor(Math.random() * 300);
-            setSocialProof({ today: baseToday, total: baseTotal });
+            setSocialProof({ today: 31, total: 4350 });
         }
     }, [isOpen]);
 

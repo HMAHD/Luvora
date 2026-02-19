@@ -10,7 +10,7 @@
 
 # Configuration
 APP_URL="${APP_URL:-http://localhost:3000}"
-CRON_SECRET="${CRON_SECRET:-Luvora}"
+CRON_SECRET="${CRON_SECRET:?ERROR: CRON_SECRET environment variable is required}"
 LOG_DIR="/var/log/luvora"
 MAX_RETRIES=3
 RETRY_DELAY=5

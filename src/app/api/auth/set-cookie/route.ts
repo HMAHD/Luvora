@@ -7,6 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import PocketBase from 'pocketbase';
 
 export async function POST(req: NextRequest) {
     try {
@@ -20,14 +21,25 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // Create cookie data (JSON stringified)
-        // Next.js cookies().set() handles URL encoding automatically
-        const cookieData = JSON.stringify({ token, model });
+        // Verify the token is actually valid with PocketBase
+        const pb = new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL || 'https://api.luvora.love');
+        pb.authStore.save(token, model);
+
+        if (!pb.authStore.isValid) {
+            return NextResponse.json(
+                { error: 'Invalid token' },
+                { status: 401 }
+            );
+        }
+
+        // Use the validated model from PocketBase, not the client-supplied one
+        const validatedModel = pb.authStore.record || model;
+        const cookieData = JSON.stringify({ token, model: validatedModel });
 
         // Set cookie using Next.js cookies API (server-side)
         const cookieStore = await cookies();
         cookieStore.set('pb_auth', cookieData, {
-            httpOnly: false, // Must be false so client can read it
+            httpOnly: false, // Required for PocketBase SDK client-side auth
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/',

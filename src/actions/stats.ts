@@ -25,8 +25,8 @@ export async function incrementGlobalStats() {
     try {
         // Attempt Admin Auth (Mocked Structure - User needs to fill env)
         await adminPb.admins.authWithPassword(
-            process.env.POCKETBASE_ADMIN_EMAIL || 'admin@luvora.love',
-            process.env.POCKETBASE_ADMIN_PASSWORD || 'secure_password'
+            process.env.POCKETBASE_ADMIN_EMAIL || '',
+            process.env.POCKETBASE_ADMIN_PASSWORD || ''
         );
 
         const today = new Date().toISOString().split('T')[0];

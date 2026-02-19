@@ -60,7 +60,7 @@ fi
 # Configuration
 APP_URL="${NEXT_PUBLIC_POCKETBASE_URL:-http://localhost:3000}"
 APP_URL=$(echo "$APP_URL" | sed 's|:8090|:3000|')  # Replace PocketBase port with Next.js port
-CRON_SECRET="${CRON_SECRET:-Luvora}"
+CRON_SECRET="${CRON_SECRET:?ERROR: CRON_SECRET must be set in .env.local}"
 LOG_DIR="/var/log/luvora"
 
 echo ""

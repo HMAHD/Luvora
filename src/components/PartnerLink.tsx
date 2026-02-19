@@ -166,7 +166,7 @@ export function PartnerLink({ onPartnerLinked }: PartnerLinkProps) {
         try {
             // Find the invite
             const invites = await pb.collection('partner_links').getList(1, 1, {
-                filter: `invite_code = "${joinCode.trim().toUpperCase()}" && status = "pending"`
+                filter: `invite_code = "${joinCode.trim().toUpperCase().replace(/["\\\n\r]/g, '')}" && status = "pending"`
             });
 
             if (invites.items.length === 0) {

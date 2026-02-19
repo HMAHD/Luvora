@@ -42,11 +42,16 @@ interface UserRecord {
 type MessageType = 'morning' | 'evening' | 'anniversary' | 'birthday';
 
 export async function GET(request: Request) {
-    // Verify cron secret for security
+    // Verify cron secret for security - fail closed if not configured
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    if (!cronSecret) {
+        console.error('[Cron] CRON_SECRET not configured - refusing to run');
+        return NextResponse.json({ error: 'Server misconfigured' }, { status: 500 });
+    }
+
+    if (authHeader !== `Bearer ${cronSecret}`) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -354,10 +359,12 @@ async function getDailySparkForUser(
             if (user.tier >= 2) {
                 filter = `tier <= 2`;
                 if (user.love_language) {
-                    filter += ` && (love_language = "${user.love_language}" || love_language = "")`;
+                    const safeLang = String(user.love_language).replace(/["\\\n\r]/g, '');
+                    filter += ` && (love_language = "${safeLang}" || love_language = "")`;
                 }
                 if (user.preferred_tone) {
-                    filter += ` && (tone = "${user.preferred_tone}" || tone = "")`;
+                    const safeTone = String(user.preferred_tone).replace(/["\\\n\r]/g, '');
+                    filter += ` && (tone = "${safeTone}" || tone = "")`;
                 }
             } else {
                 filter = `tier <= 1`;

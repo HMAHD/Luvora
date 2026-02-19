@@ -31,9 +31,17 @@ export function Footer() {
             }
         }
 
+        function handleEscapeKey(event: KeyboardEvent) {
+            if (event.key === 'Escape') setIsOpen(false);
+        }
+
         if (isOpen) {
             document.addEventListener('mousedown', handleClickOutside);
-            return () => document.removeEventListener('mousedown', handleClickOutside);
+            document.addEventListener('keydown', handleEscapeKey);
+            return () => {
+                document.removeEventListener('mousedown', handleClickOutside);
+                document.removeEventListener('keydown', handleEscapeKey);
+            };
         }
     }, [isOpen]);
 

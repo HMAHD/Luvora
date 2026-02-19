@@ -15,7 +15,7 @@ Type=oneshot
 User=your-user
 WorkingDirectory=/path/to/Luvora
 Environment="APP_URL=http://localhost:3000"
-Environment="CRON_SECRET=Luvora"
+EnvironmentFile=/etc/luvora/cron.env
 ExecStart=/path/to/Luvora/scripts/cron-deliver.sh
 
 # Logging

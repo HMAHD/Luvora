@@ -126,7 +126,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                         transition={{ type: "spring", stiffness: 400, damping: 30 }}
                         className="relative bg-base-100 border border-base-content/10 w-full max-w-sm overflow-hidden rounded-3xl shadow-2xl p-6"
                     >
-                        <button onClick={onClose} className="absolute top-4 right-4 btn btn-circle btn-ghost btn-xs opacity-50">
+                        <button onClick={onClose} className="absolute top-4 right-4 btn btn-circle btn-ghost btn-xs opacity-50" aria-label="Close">
                             <X className="w-4 h-4" />
                         </button>
 

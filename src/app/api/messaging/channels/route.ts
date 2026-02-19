@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { pb } from '@/lib/pocketbase';
+import PocketBase from 'pocketbase';
 import { messagingService } from '@/lib/messaging/messaging-service';
 import { TIER } from '@/lib/types';
 
@@ -8,55 +8,43 @@ export const runtime = 'nodejs';
 
 /**
  * Get user's connected messaging channels
- *
- * Returns:
- * - List of connected channels (telegram, whatsapp, discord)
- * - Whether each channel is running/healthy
- * - Single-channel restriction status for the user
- *
- * Used by frontend to show connected state and provide switching guidance
  */
 export async function GET(request: NextRequest) {
     try {
-        console.log('[API /api/messaging/channels] Request received');
-
         // Get user ID from PocketBase auth
         const authHeader = request.headers.get('authorization');
         if (!authHeader) {
-            console.log('[API /api/messaging/channels] No auth header');
             return NextResponse.json(
                 { error: 'Unauthorized' },
                 { status: 401 }
             );
         }
 
-        // Extract token and validate
+        // Create a new PocketBase instance per request to avoid auth state pollution
+        const requestPb = new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL || 'https://api.luvora.love');
         const token = authHeader.replace('Bearer ', '');
-        pb.authStore.save(token);
+        requestPb.authStore.save(token);
 
-        if (!pb.authStore.isValid || !pb.authStore.model) {
-            console.log('[API /api/messaging/channels] Invalid token');
+        if (!requestPb.authStore.isValid || !requestPb.authStore.model) {
             return NextResponse.json(
                 { error: 'Invalid or expired token' },
                 { status: 401 }
             );
         }
 
-        const userId = pb.authStore.model.id;
-        const userTier = pb.authStore.model.tier as number;
-        console.log('[API /api/messaging/channels] User ID:', userId, 'Tier:', userTier);
+        const userId = requestPb.authStore.model.id;
+        const userTier = requestPb.authStore.model.tier as number;
 
         // Get user's messaging channel configurations from database
-        const channelConfigs = await pb.collection('messaging_channels').getFullList({
+        const channelConfigs = await requestPb.collection('messaging_channels').getFullList({
             filter: `user="${userId}"`,
             $autoCancel: false
         });
-        console.log('[API /api/messaging/channels] Found', channelConfigs.length, 'channel configs:', channelConfigs);
 
         // Check which channels are actually running in MessagingService
-        const channels = ['telegram', 'whatsapp', 'discord'].map(platform => {
+        const channels = (['telegram', 'whatsapp', 'discord'] as const).map(platform => {
             const config = channelConfigs.find(c => c.platform === platform);
-            const isRunning = messagingService.isChannelRunning(userId, platform as any);
+            const isRunning = messagingService.isChannelRunning(userId, platform);
             const channel = messagingService.getChannel(userId, platform as any);
 
             return {
@@ -96,17 +84,13 @@ export async function GET(request: NextRequest) {
                 : null
         };
 
-        console.log('[API /api/messaging/channels] Response:', JSON.stringify(response, null, 2));
         return NextResponse.json(response);
 
     } catch (error) {
         console.error('[API /api/messaging/channels] Error:', error);
 
         return NextResponse.json(
-            {
-                error: 'Failed to fetch channel status',
-                details: error instanceof Error ? error.message : 'Unknown error'
-            },
+            { error: 'Failed to fetch channel status' },
             { status: 500 }
         );
     }

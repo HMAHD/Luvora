@@ -1,9 +1,44 @@
 'use server';
 
 import PocketBase from 'pocketbase';
+import { cookies } from 'next/headers';
 import { TIER, TIER_NAMES, type TierLevel } from '@/lib/types';
 
 const PB_URL = process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090';
+
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',').filter(Boolean);
+
+/** Verify the caller is an authenticated admin user */
+async function verifyAdmin(): Promise<string> {
+    const cookieStore = await cookies();
+    const authCookie = cookieStore.get('pb_auth');
+    if (!authCookie?.value) throw new Error('Not authenticated');
+
+    let cookieData;
+    try {
+        cookieData = JSON.parse(authCookie.value);
+    } catch {
+        cookieData = JSON.parse(decodeURIComponent(authCookie.value));
+    }
+
+    const pb = new PocketBase(PB_URL);
+    pb.authStore.save(cookieData.token, cookieData.model);
+
+    if (!pb.authStore.isValid || !pb.authStore.record) {
+        throw new Error('Invalid session');
+    }
+
+    const email = pb.authStore.record.email;
+    const isAdmin = pb.authStore.record.is_admin || ADMIN_EMAILS.includes(email);
+    if (!isAdmin) throw new Error('Admin access required');
+
+    return pb.authStore.record.id;
+}
+
+/** Sanitize a value for use in PocketBase filter strings */
+function sanitizeFilterValue(value: string): string {
+    return value.replace(/["\\\n\r]/g, '');
+}
 
 export interface UserSearchResult {
     id: string;
@@ -17,13 +52,16 @@ export interface UserSearchResult {
  */
 export async function searchUserByEmail(email: string): Promise<UserSearchResult | null> {
     try {
+        await verifyAdmin();
+
         const adminPb = new PocketBase(PB_URL);
         await adminPb.admins.authWithPassword(
             process.env.POCKETBASE_ADMIN_EMAIL || '',
             process.env.POCKETBASE_ADMIN_PASSWORD || ''
         );
 
-        const user = await adminPb.collection('users').getFirstListItem(`email="${email.trim()}"`);
+        const sanitizedEmail = sanitizeFilterValue(email.trim());
+        const user = await adminPb.collection('users').getFirstListItem(`email="${sanitizedEmail}"`);
 
         return {
             id: user.id,
@@ -73,10 +111,12 @@ export async function changeUserTier(
     userId: string,
     newTier: TierLevel,
     reason: TierChangeReason,
-    adminId: string,
+    _adminId: string,
     metadata?: Record<string, unknown>
 ): Promise<ChangeTierResult> {
     try {
+        const callerAdminId = await verifyAdmin();
+
         const adminPb = new PocketBase(PB_URL);
         await adminPb.admins.authWithPassword(
             process.env.POCKETBASE_ADMIN_EMAIL || '',
@@ -108,7 +148,7 @@ export async function changeUserTier(
                 previous_tier: previousTier,
                 new_tier: newTier,
                 reason,
-                changed_by: adminId,
+                changed_by: callerAdminId,
                 metadata: metadata ? JSON.stringify(metadata) : null,
             });
         } catch (auditError) {
@@ -139,14 +179,17 @@ export async function changeUserTier(
  */
 export async function getUserTierHistory(userId: string): Promise<TierAuditLog[]> {
     try {
+        await verifyAdmin();
+
         const adminPb = new PocketBase(PB_URL);
         await adminPb.admins.authWithPassword(
             process.env.POCKETBASE_ADMIN_EMAIL || '',
             process.env.POCKETBASE_ADMIN_PASSWORD || ''
         );
 
+        const sanitizedUserId = sanitizeFilterValue(userId);
         const logs = await adminPb.collection('tier_audit_logs').getFullList({
-            filter: `user_id = "${userId}"`,
+            filter: `user_id = "${sanitizedUserId}"`,
             sort: '-created',
         });
 
@@ -162,6 +205,8 @@ export async function getUserTierHistory(userId: string): Promise<TierAuditLog[]
  */
 export async function getRecentTierChanges(limit = 50): Promise<TierAuditLog[]> {
     try {
+        await verifyAdmin();
+
         const adminPb = new PocketBase(PB_URL);
         await adminPb.admins.authWithPassword(
             process.env.POCKETBASE_ADMIN_EMAIL || '',
@@ -185,8 +230,10 @@ export async function batchUpgradeUsers(
     emails: string[],
     targetTier: TierLevel,
     reason: TierChangeReason,
-    adminId: string
+    _adminId: string
 ): Promise<{ upgraded: number; notFound: number; errors: string[] }> {
+    await verifyAdmin();
+
     const adminPb = new PocketBase(PB_URL);
     await adminPb.admins.authWithPassword(
         process.env.POCKETBASE_ADMIN_EMAIL || '',
@@ -199,7 +246,8 @@ export async function batchUpgradeUsers(
 
     for (const email of emails) {
         try {
-            const user = await adminPb.collection('users').getFirstListItem(`email="${email}"`);
+            const sanitizedEmail = sanitizeFilterValue(email);
+            const user = await adminPb.collection('users').getFirstListItem(`email="${sanitizedEmail}"`);
             const result = await changeUserTier(user.id, targetTier, reason, adminId);
 
             if (result.success) {

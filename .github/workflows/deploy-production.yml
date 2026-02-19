@@ -113,17 +113,23 @@ jobs:
             # Make cron script executable
             chmod +x "$REPO_DIR/scripts/cron-deliver.sh"
 
-            # Load environment variables for cron setup
+            # Store cron secret in a secure file instead of crontab
+            sudo mkdir -p /etc/luvora
             if [ -f "$REPO_DIR/.env.local" ]; then
-              export $(cat "$REPO_DIR/.env.local" | grep -E "^(CRON_SECRET)" | xargs)
+              CRON_SECRET=$(grep -E "^CRON_SECRET=" "$REPO_DIR/.env.local" | cut -d= -f2-)
             fi
 
-            # Set default APP_URL for production
-            CRON_APP_URL="http://localhost:3002"
-            CRON_SECRET="${CRON_SECRET:-Luvora}"
+            if [ -z "$CRON_SECRET" ]; then
+              echo "⚠️  Warning: CRON_SECRET not found in .env.local - cron job will not work"
+            else
+              echo "APP_URL=http://localhost:3002" | sudo tee /etc/luvora/cron.env > /dev/null
+              echo "CRON_SECRET=$CRON_SECRET" | sudo tee -a /etc/luvora/cron.env > /dev/null
+              sudo chmod 600 /etc/luvora/cron.env
+              sudo chown $(whoami):$(whoami) /etc/luvora/cron.env
+            fi
 
-            # Create cron entry
-            CRON_ENTRY="* * * * * APP_URL=$CRON_APP_URL CRON_SECRET=$CRON_SECRET $REPO_DIR/scripts/cron-deliver.sh >> /var/log/luvora/cron.log 2>&1"
+            # Create cron entry that sources secrets from file
+            CRON_ENTRY="* * * * * . /etc/luvora/cron.env && $REPO_DIR/scripts/cron-deliver.sh >> /var/log/luvora/cron.log 2>&1"
 
             # Remove old cron entry if exists and add new one
             (crontab -l 2>/dev/null | grep -v "cron-deliver.sh" | grep -v "Luvora Spark Delivery"; \
@@ -132,14 +138,6 @@ jobs:
 
             echo "✅ Cron job configured - runs every minute"
             echo "   Check logs: tail -f /var/log/luvora/cron.log"
-
-            # Test cron endpoint to verify it works
-            CRON_TEST=$(curl -s -w "\n%{http_code}" -H "Authorization: Bearer $CRON_SECRET" "$CRON_APP_URL/api/cron/deliver" | tail -n1)
-            if [ "$CRON_TEST" = "200" ]; then
-              echo "✅ Cron endpoint verified working"
-            else
-              echo "⚠️  Warning: Cron endpoint returned HTTP $CRON_TEST (may work after app starts)"
-            fi
 
             echo "✅ Deployment completed successfully!"
 

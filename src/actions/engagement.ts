@@ -1,15 +1,74 @@
 'use server';
 
 import PocketBase from 'pocketbase';
+import { cookies } from 'next/headers';
+
+const PB_URL = process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090';
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',').filter(Boolean);
 
 // Initialize PocketBase with admin auth
 async function getAdminPb() {
-  const adminPb = new PocketBase(process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090');
+  const adminPb = new PocketBase(PB_URL);
   await adminPb.admins.authWithPassword(
     process.env.POCKETBASE_ADMIN_EMAIL || '',
     process.env.POCKETBASE_ADMIN_PASSWORD || ''
   );
   return adminPb;
+}
+
+/** Verify the caller is an authenticated user, return their ID */
+async function verifyAuthenticatedUser(): Promise<string> {
+  const cookieStore = await cookies();
+  const authCookie = cookieStore.get('pb_auth');
+  if (!authCookie?.value) throw new Error('Not authenticated');
+
+  let cookieData;
+  try {
+    cookieData = JSON.parse(authCookie.value);
+  } catch {
+    cookieData = JSON.parse(decodeURIComponent(authCookie.value));
+  }
+
+  const pb = new PocketBase(PB_URL);
+  pb.authStore.save(cookieData.token, cookieData.model);
+
+  if (!pb.authStore.isValid || !pb.authStore.record) {
+    throw new Error('Invalid session');
+  }
+
+  return pb.authStore.record.id;
+}
+
+/** Verify the caller is an authenticated admin */
+async function verifyAdmin(): Promise<string> {
+  const cookieStore = await cookies();
+  const authCookie = cookieStore.get('pb_auth');
+  if (!authCookie?.value) throw new Error('Not authenticated');
+
+  let cookieData;
+  try {
+    cookieData = JSON.parse(authCookie.value);
+  } catch {
+    cookieData = JSON.parse(decodeURIComponent(authCookie.value));
+  }
+
+  const pb = new PocketBase(PB_URL);
+  pb.authStore.save(cookieData.token, cookieData.model);
+
+  if (!pb.authStore.isValid || !pb.authStore.record) {
+    throw new Error('Invalid session');
+  }
+
+  const email = pb.authStore.record.email;
+  const isAdmin = pb.authStore.record.is_admin || ADMIN_EMAILS.includes(email);
+  if (!isAdmin) throw new Error('Admin access required');
+
+  return pb.authStore.record.id;
+}
+
+/** Sanitize a value for PocketBase filter strings */
+function sanitizeFilterValue(value: string): string {
+  return value.replace(/["\\\n\r]/g, '');
 }
 
 // Types
@@ -56,14 +115,20 @@ export async function trackUserActivity(
   activityType: 'copy' | 'share'
 ): Promise<void> {
   try {
+    // Verify caller is authenticated and only tracking their own activity
+    const callerId = await verifyAuthenticatedUser();
+    if (callerId !== userId) throw new Error('Cannot track activity for other users');
+
     const pb = await getAdminPb();
     const today = new Date().toISOString().split('T')[0];
+
+    const sanitizedUserId = sanitizeFilterValue(userId);
 
     // Try to get existing engagement record
     let engagement: UserEngagement | null = null;
     try {
       const records = await pb.collection('user_engagement').getFullList({
-        filter: `user_id = "${userId}"`,
+        filter: `user_id = "${sanitizedUserId}"`,
       });
       engagement = records[0] as unknown as UserEngagement;
     } catch {
@@ -125,6 +190,7 @@ export async function trackUserActivity(
  */
 export async function getEngagementStats(): Promise<EngagementStats> {
   try {
+    await verifyAdmin();
     const pb = await getAdminPb();
 
     // Get all users
@@ -255,9 +321,13 @@ export async function getEngagementStats(): Promise<EngagementStats> {
  */
 export async function getUserEngagement(userId: string): Promise<UserEngagement | null> {
   try {
+    const callerId = await verifyAuthenticatedUser();
+    if (callerId !== userId) throw new Error('Cannot access other user engagement');
+
     const pb = await getAdminPb();
+    const sanitizedUserId = sanitizeFilterValue(userId);
     const records = await pb.collection('user_engagement').getFullList({
-      filter: `user_id = "${userId}"`,
+      filter: `user_id = "${sanitizedUserId}"`,
     });
     return records[0] as unknown as UserEngagement || null;
   } catch {
@@ -274,6 +344,7 @@ export async function triggerReengagementEmails(): Promise<{
   skipped: number;
 }> {
   try {
+    await verifyAdmin();
     const pb = await getAdminPb();
     const stats = await getEngagementStats();
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Heart, Share2, Zap, Crown } from 'lucide-react';
 import { getDailySpark, getPremiumSpark, type DailySpark } from '@/lib/algo';
 import { SpecialnessCounter } from './SpecialnessCounter';
@@ -100,25 +100,26 @@ export function SparkCard() {
 
   // Effect to handle Spark generation based on tier (now fully async)
   useEffect(() => {
+    let cancelled = false;
     async function loadSpark() {
       setSparkLoading(true);
       try {
         if (isLegend && user?.id) {
           const premiumSpark = await getPremiumSpark(new Date(), user.id, role);
-          setSpark(premiumSpark);
+          if (!cancelled) setSpark(premiumSpark);
         } else {
           const dailySpark = await getDailySpark(new Date(), role);
-          setSpark(dailySpark);
+          if (!cancelled) setSpark(dailySpark);
         }
       } catch (error) {
-        console.error('Failed to load spark:', error);
-        // Keep fallback spark on error
+        if (!cancelled) console.error('Failed to load spark:', error);
       } finally {
-        setSparkLoading(false);
+        if (!cancelled) setSparkLoading(false);
       }
     }
     loadSpark();
-  }, [user?.id, user?.recipient_role, user?.tier, isLegend, role]);
+    return () => { cancelled = true; };
+  }, [user?.id, user?.recipient_role, user?.tier, role]);
 
   const [copied, setCopied] = useState(false);
 
@@ -258,6 +259,7 @@ export function SparkCard() {
         onClick={handleShareClick}
         className="absolute top-4 left-4 btn btn-ghost btn-circle btn-sm text-base-content hover:bg-base-200"
         title="Share Streak"
+        aria-label="Share spark"
       >
         <Share2 size={20} strokeWidth={2} />
       </button>
@@ -265,6 +267,7 @@ export function SparkCard() {
       <div className="card-actions w-full justify-center flex-col items-center gap-3">
         <button
           onClick={handleCopy}
+          aria-label="Copy spark to clipboard"
           className={`btn btn-lg w-full sm:w-auto shadow-lg group relative overflow-hidden transition-all duration-200 ${
             isLegend
               ? 'gradient-gold text-base-100 animate-pulse-gold-glow hover:scale-[1.02]'
@@ -368,20 +371,22 @@ export function SparkCard() {
 
       <SpecialnessCounter />
 
-      {copied && (
-        <div className="toast toast-bottom toast-center z-50 safe-area-inset-bottom">
-          <motion.div
-            initial={{ y: 50, opacity: 0, scale: 0.9 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: 50, opacity: 0, scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="alert alert-success shadow-xl border border-success/20"
-          >
-            <Heart className="w-5 h-5 fill-current" />
-            <span className="font-medium">Spark ready for {displayNickname}!</span>
-          </motion.div>
-        </div>
-      )}
+      <AnimatePresence>
+        {copied && (
+          <div className="toast toast-bottom toast-center z-50 safe-area-inset-bottom">
+            <motion.div
+              initial={{ y: 50, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 50, opacity: 0, scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
+              className="alert alert-success shadow-xl border border-success/20"
+            >
+              <Heart className="w-5 h-5 fill-current" />
+              <span className="font-medium">Spark ready for {displayNickname}!</span>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

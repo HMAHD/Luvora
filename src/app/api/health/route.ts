@@ -52,25 +52,23 @@ export async function GET() {
         await pb.health.check();
 
         result.checks.database.latency = Date.now() - dbStart;
-    } catch (error) {
+    } catch {
         result.checks.database.status = 'error';
-        result.checks.database.error = error instanceof Error ? error.message : 'Unknown error';
         result.status = 'degraded';
     }
 
-    // Check critical environment variables
+    // Check critical environment variables (don't expose names)
     const requiredEnvVars = [
         'NEXT_PUBLIC_POCKETBASE_URL',
         'TELEGRAM_BOT_TOKEN',
     ];
 
-    const missingEnvVars = requiredEnvVars.filter(
+    const missingCount = requiredEnvVars.filter(
         (varName) => !process.env[varName]
-    );
+    ).length;
 
-    if (missingEnvVars.length > 0) {
+    if (missingCount > 0) {
         result.checks.env.status = 'error';
-        result.checks.env.missing = missingEnvVars;
         result.status = 'unhealthy';
     }
 

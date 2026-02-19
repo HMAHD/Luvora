@@ -73,6 +73,12 @@ next-env.d.ts
 .env
 
 
+# WhatsApp session data
+.whatsapp-sessions/
+
+# Security scan session
+security-scan/
+
 # Sentry
 .sentryclirc
 
