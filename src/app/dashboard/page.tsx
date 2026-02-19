@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
@@ -70,6 +70,7 @@ function AutomationTabContent({
   const [partnerBirthday, setPartnerBirthday] = useState(user?.partner_birthday || '');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
   const [channelsLoading, setChannelsLoading] = useState(true);
   const [showDisconnectModal, setShowDisconnectModal] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
@@ -196,7 +197,8 @@ function AutomationTabContent({
       await pb.collection('users').update(user.id, updateData);
       await pb.collection('users').authRefresh();
       setSaved(true);
-      setTimeout(() => setSaved(false), SAVED_TIMEOUT);
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+      savedTimerRef.current = setTimeout(() => setSaved(false), SAVED_TIMEOUT);
     } catch (err) {
       console.error('Failed to save automation:', err);
     } finally {
@@ -968,6 +970,7 @@ function DashboardContent() {
   const [formRole, setFormRole] = useState<Role>('neutral');
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const savedTimerRef2 = useRef<ReturnType<typeof setTimeout>>(null);
 
   // Phase 8: Legend tier fields
   const [showLoveLanguageQuiz, setShowLoveLanguageQuiz] = useState(false);
@@ -1015,7 +1018,8 @@ function DashboardContent() {
       }
 
       setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      if (savedTimerRef2.current) clearTimeout(savedTimerRef2.current);
+      savedTimerRef2.current = setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       console.error('Failed to save profile:', err);
       alert('Failed to save profile. Please try again.');
@@ -1045,7 +1049,8 @@ function DashboardContent() {
       }
 
       setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      if (savedTimerRef2.current) clearTimeout(savedTimerRef2.current);
+      savedTimerRef2.current = setTimeout(() => setSaved(false), 2000);
     } catch (err) {
       console.error('Failed to save dates:', err);
     } finally {

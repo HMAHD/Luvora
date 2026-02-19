@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         // Set cookie using Next.js cookies API (server-side)
         const cookieStore = await cookies();
         cookieStore.set('pb_auth', cookieData, {
-            httpOnly: false, // Required for PocketBase SDK client-side auth
+            httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
             path: '/',

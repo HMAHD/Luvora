@@ -13,14 +13,10 @@ const getInitialUser = (): User | null => {
 export function useAuth() {
     const [user, setUser] = useState<User | null>(getInitialUser);
 
-    // Memoized sync function to avoid recreating on every render
-    const syncPartnerName = useCallback((authUser: User) => {
-        if (authUser.partner_name) {
-            const currentName = localStorage.getItem('partner_name');
-            if (currentName !== JSON.stringify(authUser.partner_name)) {
-                localStorage.setItem('partner_name', JSON.stringify(authUser.partner_name));
-            }
-        }
+    // Partner name is now read directly from the user object (no localStorage)
+    const syncPartnerName = useCallback((_authUser: User) => {
+        // No-op: partner_name is available via user.partner_name
+        // Removed localStorage persistence to prevent XSS exfiltration
     }, []);
 
     // Subscribe to Auth Store changes
@@ -51,9 +47,7 @@ export function useAuth() {
     useEffect(() => {
         if (!user?.id) return;
 
-        console.log('Subscribing to realtime updates for:', user.id);
         pb.collection('users').subscribe(user.id, (e) => {
-            console.log('Realtime update:', e.action, e.record);
             if (e.action === 'update') {
                 setUser(e.record as unknown as User); // Update local state instantly
             }
@@ -61,7 +55,6 @@ export function useAuth() {
 
         // Robust cleanup: Unsubscribe when user ID changes or component unmounts
         return () => {
-            console.log('Unsubscribing from:', user.id);
             pb.collection('users').unsubscribe(user.id);
         };
     }, [user?.id]);

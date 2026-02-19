@@ -3,7 +3,7 @@
 # Telegram Webhook Setup Script
 # This script configures your Telegram bot to use webhook mode instead of polling
 
-set -e
+set -eu
 
 # Colors for output
 RED='\033[0;31m'
@@ -17,8 +17,15 @@ if [ ! -f .env.local ]; then
     exit 1
 fi
 
-# Load environment variables
-source .env.local
+# Load environment variables safely (avoid shell injection from .env.local values)
+while IFS='=' read -r key value; do
+    # Skip comments and empty lines
+    [[ -z "$key" || "$key" =~ ^[[:space:]]*# ]] && continue
+    # Remove leading/trailing whitespace
+    key=$(echo "$key" | xargs)
+    value=$(echo "$value" | sed -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//")
+    export "$key=$value"
+done < .env.local
 
 # Check required variables
 if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
@@ -63,10 +70,18 @@ if echo "$RESPONSE" | grep -q '"ok":true'; then
 
     # Get webhook info
     echo -e "${YELLOW}Webhook information:${NC}"
-    curl -s "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo" | jq '.'
+    if command -v jq &>/dev/null; then
+        curl -s "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo" | jq '.'
+    else
+        curl -s "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getWebhookInfo"
+    fi
 else
     echo -e "${RED}✗ Failed to set webhook${NC}"
-    echo "$RESPONSE" | jq '.'
+    if command -v jq &>/dev/null; then
+        echo "$RESPONSE" | jq '.'
+    else
+        echo "$RESPONSE"
+    fi
     exit 1
 fi
 

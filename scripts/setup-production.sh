@@ -162,7 +162,9 @@ fi
 pm2 save
 
 # Setup PM2 startup
-pm2 startup | tail -1 | bash || true
+echo "Run the following command manually to configure PM2 startup:"
+pm2 startup
+echo "(Copy and run the sudo command printed above)"
 
 echo "✅ PM2 configured"
 

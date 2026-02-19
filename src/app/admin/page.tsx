@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { AdminGuard } from '@/components/guards/PremiumGuard';
@@ -171,51 +171,55 @@ function AdminContent() {
   const [pricing, setPricing] = useState<PricingConfig>(INITIAL_PRICING);
   const [pricingSaving, setPricingSaving] = useState(false);
   const [pricingSaved, setPricingSaved] = useState(false);
+  const pricingSavedTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
-  // Fetch stats on mount
+  // Fetch stats on mount with cleanup
   useEffect(() => {
-    fetchStats();
-    fetchUserStats();
-    fetchPartnerStats();
-    fetchBroadcasts();
-    fetchMessages();
-    fetchPricing();
+    let cancelled = false;
+    const load = async () => {
+      await Promise.allSettled([
+        fetchStats().catch(() => {}),
+        fetchUserStats().catch(() => {}),
+        fetchPartnerStats().catch(() => {}),
+        fetchBroadcasts().catch(() => {}),
+        fetchMessages().catch(() => {}),
+        fetchPricing().catch(() => {}),
+      ]);
+    };
+    load();
+    return () => { cancelled = true; };
   }, []);
 
   const fetchStats = async () => {
     setLoading(true);
     setError(null);
     try {
-      // Fetch users with tier >= 1 (Hero or Legend)
-      const allPremiumUsers = await pb.collection('users').getFullList({
-        filter: 'tier >= 1',
-      });
+      // Use separate count queries instead of loading all users into memory
+      const [heroResult, legendResult, newResult] = await Promise.all([
+        pb.collection('users').getList(1, 1, { filter: 'tier = 1', fields: 'id' }),
+        pb.collection('users').getList(1, 1, { filter: 'tier = 2', fields: 'id' }),
+        pb.collection('users').getList(1, 1, {
+          filter: `tier >= 1 && created >= "${new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString()}"`,
+          fields: 'id',
+        }),
+      ]);
 
-      const heroUsers = allPremiumUsers.filter((u) => u.tier === TIER.HERO);
-      const legendUsers = allPremiumUsers.filter((u) => u.tier === TIER.LEGEND);
-
-      const thisMonth = new Date();
-      thisMonth.setDate(1);
-      const newUsers = allPremiumUsers.filter(
-        (u) => new Date(u.created) >= thisMonth
-      );
-
-      // Calculate MRR with dynamic pricing
-      const heroMRR = heroUsers.length * pricing.hero.price;
-      const legendMRR = legendUsers.length * pricing.legend.price;
+      const heroCount = heroResult.totalItems;
+      const legendCount = legendResult.totalItems;
+      const heroMRR = heroCount * pricing.hero.price;
+      const legendMRR = legendCount * pricing.legend.price;
 
       setStats({
         mrr: heroMRR + legendMRR,
-        totalSubscribers: allPremiumUsers.length,
-        heroCount: heroUsers.length,
-        legendCount: legendUsers.length,
-        newThisMonth: newUsers.length,
-        churnRate: 0, // Would be calculated from Lemon Squeezy
+        totalSubscribers: heroCount + legendCount,
+        heroCount,
+        legendCount,
+        newThisMonth: newResult.totalItems,
+        churnRate: 0,
       });
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch stats';
       console.error('Failed to fetch stats:', err);
-      // Don't set error for common auth issues
       if (!errorMessage.includes('client id')) {
         setError(errorMessage);
       }
@@ -226,25 +230,29 @@ function AdminContent() {
 
   const fetchUserStats = async () => {
     try {
-      const allUsers = await pb.collection('users').getFullList();
+      // Use count queries instead of loading all users into memory
+      const [totalResult, freeResult, heroResult, legendResult, automationResult] = await Promise.all([
+        pb.collection('users').getList(1, 1, { fields: 'id' }),
+        pb.collection('users').getList(1, 1, { filter: 'tier = 0 || tier = null', fields: 'id' }),
+        pb.collection('users').getList(1, 1, { filter: 'tier = 1', fields: 'id' }),
+        pb.collection('users').getList(1, 1, { filter: 'tier = 2', fields: 'id' }),
+        pb.collection('users').getList(1, 1, { filter: 'messaging_platform != "" && messaging_id != ""', fields: 'id' }),
+      ]);
 
-      const freeUsers = allUsers.filter((u) => (u.tier ?? 0) === TIER.FREE);
-      const heroUsers = allUsers.filter((u) => u.tier === TIER.HERO);
-      const legendUsers = allUsers.filter((u) => u.tier === TIER.LEGEND);
-      const usersWithAutomation = allUsers.filter((u) => u.messaging_platform && u.messaging_id);
+      // For distributions, fetch only the relevant fields with pagination
+      const usersWithPrefs = await pb.collection('users').getList(1, 500, {
+        filter: 'love_language != "" || preferred_tone != ""',
+        fields: 'love_language,preferred_tone',
+      });
 
-      // Calculate love language distribution
       const loveLanguageDistribution: Record<string, number> = {};
-      allUsers.forEach((u) => {
+      const toneDistribution: Record<string, number> = {};
+
+      usersWithPrefs.items.forEach((u) => {
         if (u.love_language) {
           const name = LOVE_LANGUAGE_NAMES[u.love_language as LoveLanguage] || u.love_language;
           loveLanguageDistribution[name] = (loveLanguageDistribution[name] || 0) + 1;
         }
-      });
-
-      // Calculate tone distribution
-      const toneDistribution: Record<string, number> = {};
-      allUsers.forEach((u) => {
         if (u.preferred_tone) {
           const name = EMOTIONAL_TONE_NAMES[u.preferred_tone as EmotionalTone] || u.preferred_tone;
           toneDistribution[name] = (toneDistribution[name] || 0) + 1;
@@ -252,11 +260,11 @@ function AdminContent() {
       });
 
       setUserStats({
-        totalUsers: allUsers.length,
-        freeUsers: freeUsers.length,
-        heroUsers: heroUsers.length,
-        legendUsers: legendUsers.length,
-        usersWithAutomation: usersWithAutomation.length,
+        totalUsers: totalResult.totalItems,
+        freeUsers: freeResult.totalItems,
+        heroUsers: heroResult.totalItems,
+        legendUsers: legendResult.totalItems,
+        usersWithAutomation: automationResult.totalItems,
         loveLanguageDistribution,
         toneDistribution,
       });
@@ -267,17 +275,18 @@ function AdminContent() {
 
   const fetchPartnerStats = async () => {
     try {
-      const links = await pb.collection('partner_links').getFullList();
-      const activeLinks = links.filter((l) => l.status === 'active');
-      const pendingLinks = links.filter((l) => l.status === 'pending');
+      const [totalResult, activeResult, pendingResult] = await Promise.all([
+        pb.collection('partner_links').getList(1, 1, { fields: 'id' }),
+        pb.collection('partner_links').getList(1, 1, { filter: 'status = "active"', fields: 'id' }),
+        pb.collection('partner_links').getList(1, 1, { filter: 'status = "pending"', fields: 'id' }),
+      ]);
 
       setPartnerStats({
-        totalLinks: links.length,
-        activeLinks: activeLinks.length,
-        pendingLinks: pendingLinks.length,
+        totalLinks: totalResult.totalItems,
+        activeLinks: activeResult.totalItems,
+        pendingLinks: pendingResult.totalItems,
       });
     } catch {
-      // Collection might not exist yet
       setPartnerStats({ totalLinks: 0, activeLinks: 0, pendingLinks: 0 });
     }
   };
@@ -396,7 +405,8 @@ function AdminContent() {
       fetchStats();
 
       // Reset saved indicator after 3 seconds
-      setTimeout(() => setPricingSaved(false), 3000);
+      if (pricingSavedTimerRef.current) clearTimeout(pricingSavedTimerRef.current);
+      pricingSavedTimerRef.current = setTimeout(() => setPricingSaved(false), 3000);
     } catch (err) {
       console.error('Failed to save pricing:', err);
       alert('Failed to save pricing. Make sure the "settings" collection exists in PocketBase.');

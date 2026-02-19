@@ -177,7 +177,9 @@ create_env_file "/home/luvora-staging/Luvora/.env.local" "staging" "https://stag
 # 5. Setup PM2 startup
 echo ""
 echo "5️⃣  Setting up PM2 startup..."
-pm2 startup | grep "sudo" | bash
+echo "Run the following command manually to configure PM2 startup:"
+pm2 startup
+echo "(Copy and run the sudo command printed above)"
 echo "✅ PM2 startup configured"
 
 echo ""

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { SparkCard } from '@/components/SparkCard';
 import { AuthModal } from '@/components/AuthModal';
 import { DynamicTitle } from '@/components/DynamicTitle';
@@ -17,18 +17,22 @@ export default function Home() {
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const { user } = useAuth();
   const [isMounted, setIsMounted] = useState(false);
-
-  // Check if user is admin
-  const isAdmin = useMemo(() => {
-    if (!user) return false;
-    const adminIds = (process.env.NEXT_PUBLIC_ADMIN_UUIDS || '').split(',').filter(Boolean);
-    const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',').filter(Boolean);
-    return (user.id && adminIds.includes(user.id)) || (user.email && adminEmails.includes(user.email));
-  }, [user]);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Check admin status via server action (no admin emails exposed in bundle)
+  useEffect(() => {
+    if (user) {
+      import('@/actions/admin').then(({ checkIsAdmin }) => {
+        checkIsAdmin().then(setIsAdmin);
+      });
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user]);
 
   return (
     <main className="min-h-screen w-full flex flex-col justify-center items-center bg-base-200 p-4 relative overflow-hidden safe-area-inset-top safe-area-inset-bottom">

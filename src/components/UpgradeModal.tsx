@@ -121,13 +121,18 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                     </div>
 
                     {/* Pricing Cards */}
-                    <div className="grid sm:grid-cols-2 gap-4 mb-6">
+                    <div className="grid sm:grid-cols-2 gap-4 mb-6" role="radiogroup" aria-label="Select pricing tier">
                         {/* Hero Card */}
                         <motion.div
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.2 }}
+                            role="radio"
+                            aria-checked={selectedTier === 'hero'}
+                            aria-label="Hero tier"
+                            tabIndex={0}
                             onClick={() => setSelectedTier('hero')}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedTier('hero'); } }}
                             className={`relative cursor-pointer rounded-2xl p-5 transition-all duration-300 ${
                                 selectedTier === 'hero'
                                     ? 'bg-primary/10 border-2 border-primary shadow-lg shadow-primary/20 scale-[1.02]'
@@ -194,7 +199,12 @@ export function UpgradeModal({ isOpen, onClose }: UpgradeModalProps) {
                             initial={{ opacity: 0, x: 20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3 }}
+                            role="radio"
+                            aria-checked={selectedTier === 'legend'}
+                            aria-label="Legend tier"
+                            tabIndex={0}
                             onClick={() => setSelectedTier('legend')}
+                            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedTier('legend'); } }}
                             className={`relative cursor-pointer rounded-2xl p-5 transition-all duration-300 ${
                                 selectedTier === 'legend'
                                     ? 'legend-upgrade-card border-2 border-yellow-400/50 shadow-lg shadow-yellow-500/20 scale-[1.02]'

@@ -6,7 +6,7 @@ import { TIER, TIER_NAMES, type TierLevel } from '@/lib/types';
 
 const PB_URL = process.env.NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090';
 
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',').filter(Boolean);
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '').split(',').filter(Boolean);
 
 /** Verify the caller is an authenticated admin user */
 async function verifyAdmin(): Promise<string> {

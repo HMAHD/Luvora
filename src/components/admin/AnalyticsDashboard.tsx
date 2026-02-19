@@ -128,22 +128,26 @@ export function AnalyticsDashboard({ pb }: Props) {
       setLoading(true);
       setError(null);
       try {
-        // Get all users
-        const users = await pb.collection('users').getFullList();
+        // Get user counts via paginated queries (avoid loading all users into memory)
+        const [totalResult, freeResult, heroResult, legendResult, automationResult] = await Promise.all([
+          pb.collection('users').getList(1, 1, { fields: 'id' }),
+          pb.collection('users').getList(1, 1, { filter: 'tier = 0 || tier = null', fields: 'id' }),
+          pb.collection('users').getList(1, 1, { filter: 'tier = 1', fields: 'id' }),
+          pb.collection('users').getList(1, 1, { filter: 'tier = 2', fields: 'id' }),
+          pb.collection('users').getList(1, 1, { filter: 'telegram_chat_id != "" || whatsapp_number != ""', fields: 'id' }),
+        ]);
 
         // Get message stats
-        const stats = await pb.collection('message_stats').getFullList({
+        const stats = await pb.collection('message_stats').getList(1, 500, {
           sort: '-date',
         });
 
         // Calculate metrics
-        const totalUsers = users.length;
-        const freeUsers = users.filter((u: Record<string, unknown>) => (u.tier ?? 0) === 0).length;
-        const heroUsers = users.filter((u: Record<string, unknown>) => u.tier === 1).length;
-        const legendUsers = users.filter((u: Record<string, unknown>) => u.tier === 2).length;
-        const usersWithAutomation = users.filter(
-          (u: Record<string, unknown>) => u.telegram_chat_id || u.whatsapp_number
-        ).length;
+        const totalUsers = totalResult.totalItems;
+        const freeUsers = freeResult.totalItems;
+        const heroUsers = heroResult.totalItems;
+        const legendUsers = legendResult.totalItems;
+        const usersWithAutomation = automationResult.totalItems;
 
         // Calculate daily metrics
         const days = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90;
@@ -154,7 +158,7 @@ export function AnalyticsDashboard({ pb }: Props) {
           date.setDate(date.getDate() - i);
           const dateStr = date.toISOString().split('T')[0];
 
-          const dayStat = stats.find((s: Record<string, unknown>) => {
+          const dayStat = stats.items.find((s: Record<string, unknown>) => {
             const statDate = (s.date as string)?.split('T')[0];
             return statDate === dateStr;
           }) || { copy_count: 0, share_count: 0 };

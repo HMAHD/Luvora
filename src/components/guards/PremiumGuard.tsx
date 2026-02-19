@@ -96,7 +96,7 @@ export function AuthGuard({ children, redirectTo = '/' }: { children: React.Reac
 
 /**
  * AdminGuard - Requires user to be an admin
- * Checks against ADMIN_UUIDS environment variable
+ * Uses server-side check so admin identities are not exposed in the JS bundle
  */
 export function AdminGuard({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -106,15 +106,10 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setIsClient(true);
-    // Check if user is admin by ID or email
-    const adminIds = (process.env.NEXT_PUBLIC_ADMIN_UUIDS || '').split(',').filter(Boolean);
-    const adminEmails = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || '').split(',').filter(Boolean);
-
-    const isAdminById = user?.id && adminIds.includes(user.id);
-    const isAdminByEmail = user?.email && adminEmails.includes(user.email);
-
-    if (isAdminById || isAdminByEmail) {
-      setIsAdmin(true);
+    if (user) {
+      import('@/actions/admin').then(({ checkIsAdmin }) => {
+        checkIsAdmin().then(setIsAdmin);
+      });
     }
   }, [user]);
 
