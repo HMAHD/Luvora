@@ -17,7 +17,7 @@
  */
 
 import PocketBase from 'pocketbase';
-import { brotliCompressSync, brotliDecompressSync, constants } from 'zlib';
+import { brotliCompressSync, brotliDecompressSync, gunzipSync, constants } from 'zlib';
 import fs from 'fs';
 import path from 'path';
 
@@ -271,7 +271,6 @@ export class DatabaseSessionStore {
             // Fall back to gzip for legacy sessions
             // This allows gradual migration without breaking existing sessions
             console.warn('[DatabaseSessionStore] Brotli decompression failed, trying gzip fallback');
-            const { gunzipSync } = require('zlib');
             return gunzipSync(data).toString('utf8');
         }
     }

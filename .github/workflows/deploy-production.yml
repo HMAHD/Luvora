@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
 jobs:
   test:
     name: Run Tests and Linting
@@ -19,6 +23,13 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Cache bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
@@ -26,7 +37,7 @@ jobs:
         run: bun run lint
 
       - name: Run tests
-        run: bun test
+        run: bun test --run
 
   deploy:
     name: Deploy to Production
@@ -43,7 +54,7 @@ jobs:
           fetch-depth: 0
 
       - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@v1.0.0
+        uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.PRODUCTION_VPS_HOST }}
           username: ${{ secrets.PRODUCTION_VPS_USER }}
@@ -143,12 +154,20 @@ jobs:
 
       - name: Health check
         run: |
-          sleep 15
-          curl -f https://luvora.love/api/health || exit 1
+          for i in 1 2 3; do
+            sleep 10
+            if curl -sf --max-time 10 https://luvora.love/api/health; then
+              echo "Health check passed"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying..."
+          done
+          echo "Health check failed after 3 attempts"
+          exit 1
 
       - name: Notify Sentry of deployment
-        if: success()
-        uses: getsentry/action-release@v1
+        if: success() && env.SENTRY_AUTH_TOKEN != ''
+        uses: getsentry/action-release@v3
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
           SENTRY_ORG: akash-hasendra
@@ -156,13 +175,3 @@ jobs:
         with:
           environment: production
           version: ${{ github.sha }}
-
-      - name: Deployment notification
-        if: always()
-        run: |
-          if [ "${{ job.status }}" == "success" ]; then
-            echo "Production deployment successful!"
-          else
-            echo "Production deployment failed!"
-            exit 1
-          fi

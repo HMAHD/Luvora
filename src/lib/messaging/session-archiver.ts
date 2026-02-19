@@ -13,7 +13,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { brotliCompressSync, brotliDecompressSync, constants } from 'zlib';
+import { brotliCompressSync, brotliDecompressSync, gunzipSync, constants } from 'zlib';
 import { execSync } from 'child_process';
 
 export interface SessionArchive {
@@ -120,7 +120,6 @@ export class SessionArchiver {
             } catch (error) {
                 // Fall back to gzip for legacy archives
                 console.warn('[SessionArchiver] Brotli decompression failed, trying gzip fallback');
-                const { gunzipSync } = require('zlib');
                 tarball = gunzipSync(compressed);
             }
 

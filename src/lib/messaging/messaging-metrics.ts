@@ -133,7 +133,7 @@ export class MessagingMetrics {
         platforms: Record<MessagingPlatform, MetricsSummary>;
     } {
         const platforms: MessagingPlatform[] = ['telegram', 'whatsapp', 'discord'];
-        const platformMetrics: Record<MessagingPlatform, MetricsSummary> = {} as any;
+        const platformMetrics = {} as Record<MessagingPlatform, MetricsSummary>;
 
         let totalSent = 0;
         let totalFailed = 0;

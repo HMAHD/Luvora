@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
         const channels = (['telegram', 'whatsapp', 'discord'] as const).map(platform => {
             const config = channelConfigs.find(c => c.platform === platform);
             const isRunning = messagingService.isChannelRunning(userId, platform);
-            const channel = messagingService.getChannel(userId, platform as any);
+            const channel = messagingService.getChannel(userId, platform as 'telegram' | 'whatsapp' | 'discord');
 
             return {
                 platform,
