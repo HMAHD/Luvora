@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
                 enabled: config?.enabled || false,
                 configured: !!config,
                 running: isRunning,
-                healthy: channel?.running || false,
+                healthy: channel?.isRunning() || false,
                 config: config ? {
                     botUsername: config.config?.botUsername,
                     phoneNumber: config.config?.phoneNumber,

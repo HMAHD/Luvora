@@ -60,17 +60,18 @@ vi.mock('../database-session-store', () => ({
     }))
 }));
 
-// Mock connection manager
+// Mock connection manager - create fresh mock per getInstance call
+const mockConnectionManager = {
+    canCreateConnection: vi.fn().mockReturnValue(true),
+    registerConnection: vi.fn(),
+    unregisterConnection: vi.fn(),
+    updateActivity: vi.fn(),
+    markUnhealthy: vi.fn(),
+    recordFailure: vi.fn()
+};
 vi.mock('../connection-manager', () => ({
     ConnectionManager: {
-        getInstance: vi.fn().mockReturnValue({
-            canCreateConnection: vi.fn().mockReturnValue(true),
-            registerConnection: vi.fn(),
-            unregisterConnection: vi.fn(),
-            updateActivity: vi.fn(),
-            markUnhealthy: vi.fn(),
-            recordFailure: vi.fn()
-        })
+        getInstance: vi.fn().mockReturnValue(mockConnectionManager)
     }
 }));
 
@@ -84,6 +85,14 @@ describe('WhatsAppChannel', () => {
     beforeEach(() => {
         mockOnReady = vi.fn();
         mockOnQR = vi.fn();
+
+        // Reset connection manager mock to allow connections
+        mockConnectionManager.canCreateConnection.mockReturnValue(true);
+        mockConnectionManager.registerConnection.mockClear();
+        mockConnectionManager.unregisterConnection.mockClear();
+        mockConnectionManager.updateActivity.mockClear();
+        mockConnectionManager.markUnhealthy.mockClear();
+        mockConnectionManager.recordFailure.mockClear();
 
         const config: WhatsAppConfig = {
             enabled: true,
@@ -205,7 +214,8 @@ describe('WhatsAppChannel', () => {
                 content: 'Hello from WhatsApp!'
             };
 
-            await expect(channel.send(message)).resolves.not.toThrow();
+            // Simply await - will throw if it fails
+            await channel.send(message);
         });
 
         it('should throw error when not initialized', async () => {
@@ -401,18 +411,30 @@ describe('WhatsAppChannel', () => {
                 { onReady: mockOnReady }
             );
 
-            await expect(newChannel.start()).rejects.toThrow('connection limit');
+            await expect(newChannel.start()).rejects.toThrow('connections reached');
         });
     });
 
     describe('Error Handling', () => {
         it('should handle client initialization failure', async () => {
-            const client = (channel as any).client;
-            if (client) {
-                client.initialize = vi.fn().mockRejectedValue(new Error('Init failed'));
-            }
+            // Mock the Client constructor to return an instance that fails to initialize
+            const { Client } = await import('whatsapp-web.js');
+            (Client as any).mockImplementationOnce(() => ({
+                initialize: vi.fn().mockRejectedValue(new Error('Init failed')),
+                destroy: vi.fn().mockResolvedValue(undefined),
+                on: vi.fn(),
+                info: null
+            }));
 
-            await expect(channel.start()).rejects.toThrow();
+            const failConfig: WhatsAppConfig = {
+                enabled: true,
+                sessionPath: testSessionPath,
+            };
+            const failChannel = new WhatsAppChannel(failConfig, 'fail-user', {
+                onReady: mockOnReady
+            });
+
+            await expect(failChannel.start()).rejects.toThrow('Init failed');
         });
 
         it('should record failure in connection manager', async () => {
@@ -436,7 +458,8 @@ describe('WhatsAppChannel', () => {
             }
 
             // Should still start even if restore fails (will show QR code)
-            await expect(channel.start()).resolves.not.toThrow();
+            await channel.start();
+            expect(channel.isRunning()).toBe(true);
         });
 
         it('should handle session archive failure gracefully', async () => {
@@ -483,7 +506,8 @@ describe('WhatsAppChannel', () => {
                 content: longContent
             };
 
-            await expect(channel.send(message)).resolves.not.toThrow();
+            // Simply await - will throw if it fails
+            await channel.send(message);
         });
     });
 });

@@ -1103,7 +1103,7 @@ function DashboardContent() {
                   Home
                 </Link>
               </li>
-              {user?.is_admin && (
+              {(user as unknown as { is_admin?: boolean })?.is_admin && (
                 <li>
                   <Link href="/admin" className="flex items-center gap-2">
                     <Shield className="w-4 h-4" />

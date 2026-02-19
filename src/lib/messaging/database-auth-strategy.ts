@@ -27,6 +27,12 @@ interface DatabaseAuthOptions {
 
 export class DatabaseAuthStrategy implements AuthStrategy {
     public clientId?: string;
+    public setup: (client: import('whatsapp-web.js').Client) => void;
+    public afterBrowserInitialized: () => Promise<void>;
+    public onAuthenticationNeeded: () => Promise<{ failed?: boolean; restart?: boolean; failureEventPayload?: unknown }>;
+    public getAuthEventPayload: () => Promise<unknown>;
+    public afterAuthReady: () => Promise<void>;
+    public disconnect: () => Promise<void>;
     private userId: string;
     private sessionStore: DatabaseSessionStore;
     private localCachePath: string;
@@ -39,6 +45,14 @@ export class DatabaseAuthStrategy implements AuthStrategy {
         // Local cache for current session (in /tmp for serverless compatibility)
         this.localCachePath = options.cachePath || path.join('/tmp', '.whatsapp-local', this.userId);
         this.ensureLocalCacheDir();
+
+        // No-op implementations for AuthStrategy interface methods handled by whatsapp-web.js
+        this.setup = () => {};
+        this.afterBrowserInitialized = async () => {};
+        this.onAuthenticationNeeded = async () => ({});
+        this.getAuthEventPayload = async () => undefined;
+        this.afterAuthReady = async () => {};
+        this.disconnect = async () => {};
     }
 
     /**

@@ -237,7 +237,7 @@ class MessagingService {
             if (failed.length > 0) {
                 console.warn(
                     `[MessagingService] ${failed.length} channels failed to start:`,
-                    failed.map(f => `${f.platform}@${f.userId}: ${f.error}`).join(', ')
+                    failed.map(f => `${f.platform}@${f.userId}: ${'error' in f ? f.error : 'unknown'}`).join(', ')
                 );
                 // Don't throw - partial success is acceptable for graceful degradation
             }
@@ -721,7 +721,7 @@ class MessagingService {
                 const channel = userChannels[platform as keyof UserChannels];
                 if (channel) {
                     total++;
-                    if (channel.running) {
+                    if (channel.isRunning()) {
                         active++;
                     }
                 }
@@ -763,11 +763,15 @@ class MessagingService {
                 whatsapp: { total: 0, healthy: 0, unhealthy: 0 },
                 discord: { total: 0, healthy: 0, unhealthy: 0 }
             },
-            connectionLimits: {
-                telegram: connectionManager.getConnectionStats('telegram'),
-                whatsapp: connectionManager.getConnectionStats('whatsapp'),
-                discord: connectionManager.getConnectionStats('discord')
-            },
+            connectionLimits: (() => {
+                const stats = connectionManager.getStats();
+                const defaultLimit = { current: stats.activeConnections, max: stats.maxConnections, available: stats.maxConnections - stats.activeConnections };
+                return {
+                    telegram: defaultLimit,
+                    whatsapp: defaultLimit,
+                    discord: defaultLimit
+                };
+            })(),
             issues: [] as string[]
         };
 
@@ -779,7 +783,7 @@ class MessagingService {
                     health.platformBreakdown[platform].total++;
 
                     // Check if channel is healthy (connected and running)
-                    const isHealthy = channel.running;
+                    const isHealthy = channel.isRunning();
                     if (isHealthy) {
                         health.platformBreakdown[platform].healthy++;
                     } else {

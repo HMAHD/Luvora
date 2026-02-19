@@ -157,7 +157,7 @@ export async function changeUserTier(
         }
 
         console.log(
-            `[Tier Change] User ${userId}: ${TIER_NAMES[previousTier]} → ${TIER_NAMES[newTier]} (${reason} by ${adminId})`
+            `[Tier Change] User ${userId}: ${TIER_NAMES[previousTier]} → ${TIER_NAMES[newTier]} (${reason} by ${callerAdminId})`
         );
 
         return {
@@ -248,7 +248,7 @@ export async function batchUpgradeUsers(
         try {
             const sanitizedEmail = sanitizeFilterValue(email);
             const user = await adminPb.collection('users').getFirstListItem(`email="${sanitizedEmail}"`);
-            const result = await changeUserTier(user.id, targetTier, reason, adminId);
+            const result = await changeUserTier(user.id, targetTier, reason, _adminId);
 
             if (result.success) {
                 upgraded++;

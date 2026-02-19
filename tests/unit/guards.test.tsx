@@ -21,6 +21,12 @@ vi.mock('next/link', () => ({
 // Mock user state
 let mockUser: { id: string; email: string; tier: number } | null = null;
 
+// Mock checkIsAdmin server action
+let mockIsAdmin = false;
+vi.mock('../../src/actions/admin', () => ({
+    checkIsAdmin: () => Promise.resolve(mockIsAdmin),
+}));
+
 // Mock useAuth hook
 vi.mock('../../src/hooks/useAuth', () => ({
     useAuth: () => ({
@@ -267,22 +273,19 @@ describe('AuthGuard Component', () => {
 });
 
 describe('AdminGuard Component', () => {
-    const originalEnv = { ...process.env };
-
     beforeEach(() => {
         mockUser = null;
+        mockIsAdmin = false;
         cleanup();
     });
 
     afterEach(() => {
         cleanup();
-        process.env = { ...originalEnv };
     });
 
     test('shows access denied for non-admin users', async () => {
         mockUser = { id: 'user-1', email: 'test@test.com', tier: TIER.LEGEND };
-        process.env.NEXT_PUBLIC_ADMIN_UUIDS = 'admin-uuid-1,admin-uuid-2';
-        process.env.NEXT_PUBLIC_ADMIN_EMAILS = 'admin@test.com';
+        mockIsAdmin = false;
 
         render(
             <AdminGuard>
@@ -297,7 +300,7 @@ describe('AdminGuard Component', () => {
 
     test('renders children for admin user by ID', async () => {
         mockUser = { id: 'admin-uuid-1', email: 'test@test.com', tier: TIER.FREE };
-        process.env.NEXT_PUBLIC_ADMIN_UUIDS = 'admin-uuid-1,admin-uuid-2';
+        mockIsAdmin = true;
 
         render(
             <AdminGuard>
@@ -312,7 +315,7 @@ describe('AdminGuard Component', () => {
 
     test('renders children for admin user by email', async () => {
         mockUser = { id: 'user-1', email: 'admin@test.com', tier: TIER.FREE };
-        process.env.NEXT_PUBLIC_ADMIN_EMAILS = 'admin@test.com,admin2@test.com';
+        mockIsAdmin = true;
 
         render(
             <AdminGuard>

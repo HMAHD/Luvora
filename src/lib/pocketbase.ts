@@ -6,7 +6,7 @@ import PocketBase, { BaseAuthStore } from 'pocketbase';
  * Auth state is restored from the httpOnly pb_auth cookie on the server side.
  */
 class MemoryAuthStore extends BaseAuthStore {
-    save(token: string, record?: unknown): void {
+    save(token: string, record?: Parameters<BaseAuthStore['save']>[1]): void {
         super.save(token, record);
     }
     clear(): void {

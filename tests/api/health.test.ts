@@ -80,7 +80,7 @@ describe('/api/health endpoint', () => {
             expect(response.status).toBe(503);
             expect(data.status).toBe('unhealthy');
             expect(data.checks.database.status).toBe('error');
-            expect(data.checks.database.error).toBe('Connection failed');
+            // error details are intentionally omitted from the response for security
         });
     });
 
@@ -97,8 +97,7 @@ describe('/api/health endpoint', () => {
             expect(response.status).toBe(503);
             expect(data.status).toBe('unhealthy');
             expect(data.checks.env.status).toBe('error');
-            expect(data.checks.env.missing).toContain('NEXT_PUBLIC_POCKETBASE_URL');
-            expect(data.checks.env.missing).toContain('TELEGRAM_BOT_TOKEN');
+            // missing env var names are intentionally omitted from the response for security
         });
 
         it('should return 503 when database error occurs', async () => {
